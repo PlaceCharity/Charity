@@ -1,0 +1,4 @@
+[websocket]
+url = 'wss://gql-realtime-2.reddit.com/query'
+origin = 'https://garlic-bread.reddit.com'
+auth = 'Bearer <insert token here>'
