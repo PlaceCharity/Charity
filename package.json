@@ -1,0 +1,12 @@
+{
+  "name": "charity",
+  "private": true,
+  "contributors": [
+    "April <april@dummy.cafe> (https://aprl.moe)",
+    "Mikarific (https://github.com/Mikarific)"
+  ],
+  "workspaces": [
+    "app/*",
+    "service/*"
+  ]
+}
