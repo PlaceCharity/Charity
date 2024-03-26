@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": "true",
   "scripts": {
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit --build",
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
     "db:push": "drizzle-kit push:sqlite",
