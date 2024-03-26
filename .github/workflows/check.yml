@@ -1,0 +1,17 @@
+name: Checks
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+jobs:
+  check:
+    name: Run checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install
+      - name: Run checks
+        run: bun check
