@@ -78,13 +78,16 @@
 				}
 				frame++;
 			}
-			if (frame >= 65536) frame++;
-			if (frame > 65536 + 5 * 60) {
-				currentText++;
-				if (currentText === texts.length) currentText = 0;
-				frame = 0;
+			if (frame >= 65536) {
+				setTimeout(() => {
+					currentText++;
+					if (currentText === texts.length) currentText = 0;
+					frame = 0;
+					requestAnimationFrame(animation);
+				}, 5000);
+			} else {
+				requestAnimationFrame(animation);
 			}
-			requestAnimationFrame(animation);
 		}
 		requestAnimationFrame(animation);
 	});
