@@ -1,8 +1,9 @@
 {
   "name": "waiter",
   "version": "1.0.0",
+  "private": "true",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "tsc --noEmit",
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
     "db:push": "drizzle-kit push:sqlite",
@@ -23,6 +24,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@elysiajs/eden": "^1.0.7",
     "better-sqlite3": "^9.4.3",
     "bun-types": "latest",
     "drizzle-kit": "^0.20.14"

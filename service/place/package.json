@@ -1,5 +1,6 @@
 {
 	"name": "place",
+	"private": "true",
 	"module": "index.ts",
 	"type": "module",
 	"devDependencies": {
@@ -16,5 +17,8 @@
 		"elysia": "^1.0.7",
 		"jszip": "^3.10.1",
 		"sharp": "^0.33.2"
+	},
+	"scripts": {
+		"check": "tsc --noEmit"
 	}
 }
