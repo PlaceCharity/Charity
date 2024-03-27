@@ -40,7 +40,9 @@
 <main>
 	<div class="flex min-h-svh flex-col items-center gap-[calc(var(--scale-factor)*10px)] bg-neutral-800">
 		{#if $isLoading}
-			<PixelText class="m-auto" text="Please Wait..." font="DigitalDisco" scale={2} />
+			<h1 class="text-pixel m-auto font-[DigitalDisco] text-[calc(var(--scale-factor)*32px)] text-white">
+				Please wait...
+			</h1>
 		{:else}
 			<div class="mt-[calc(var(--scale-factor)*10px)] flex gap-[calc(var(--scale-factor)*6px)]">
 				<img

@@ -21,4 +21,7 @@
 	.drag-none {
 		-webkit-user-drag: none;
 	}
+	.text-pixel {
+		transform: perspective(1px);
+	}
 }
