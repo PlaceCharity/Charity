@@ -1,0 +1,17 @@
+{
+	"global": {
+		"name": "Charity",
+		"logo": {
+			"alt": "Charity Logo"
+		}
+	},
+	"landing": {
+		"carousel": {
+			"one-place": "One place for all your r/place needs.",
+			"create-templates": "Create and share r/place template overlays.",
+			"manage-team": "Manage template/overlay updates as a team.",
+			"faction-page": "All your links in one place with a faction page.",
+			"reduce-palette": "Automatically convert your artwork to palette."
+		}
+	}
+}

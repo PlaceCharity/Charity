@@ -40,4 +40,5 @@ yarn-error.log*
 **/*.tgz
 **/*.log
 package-lock.json
+bun.lockb
 **/*.bun
