@@ -1,0 +1,17 @@
+{
+	"global": {
+		"name": "ilo Sawisi",
+		"logo": {
+			"alt": "sitelen Sawisi"
+		}
+	},
+	"landing": {
+		"carousel": {
+			"one-place": "wile ale sina pi nasin r/place.",
+			"create-templates": "o pali e sitelen lukin lon lipu r/place.",
+			"manage-team": "o ante e sitelen lukin sina lon kulupu.",
+			"faction-page": "lipu kulupu ale sina lon lipu kulupu wan.",
+			"reduce-palette": "o lili e kule pi sitelen ale."
+		}
+	}
+}
