@@ -29,5 +29,9 @@
     "bun-types": "latest",
     "drizzle-kit": "^0.20.14"
   },
+  "trustedDependencies": [
+    "better-sqlite3",
+    "drizzle-kit"
+  ],
   "module": "src/main.js"
 }
