@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	@font-face {
+		font-family: 'Aseprite';
+		src: url(/fonts/Aseprite.ttf) format('ttf');
+	}
+
+	@font-face {
+		font-family: 'DigitalDisco';
+		src: url(/fonts/DigitalDisco.ttf) format('ttf');
+	}
+}
+
+@layer components {
+	.rendering-pixelated {
+		image-rendering: pixelated;
+	}
+	.drag-none {
+		-webkit-user-drag: none;
+	}
+}
