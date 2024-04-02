@@ -5,7 +5,7 @@ import { Elysia } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 
 // Our imports
-import { NotAuthenticatedError } from './types';
+import { NotImplementedError, NotAuthenticatedError } from './types';
 import auth from './instance/auth';
 import user from './controller/user';
 import team from './controller/team';
@@ -15,8 +15,8 @@ import link from './controller/link';
 // Set up Elysia and listen
 export const app = new Elysia()
     .use(swagger({ provider: 'scalar' }))
-	.error({ NOT_AUTHENTICATED: NotAuthenticatedError })
-	.onError(({ error }) => error) // Return errors as JSON
+	.error({ NOT_IMPLEMENTED: NotImplementedError, NOT_AUTHENTICATED: NotAuthenticatedError })
+	.onError(({ code }) => code) // Just return the error code
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')
 	.use(auth)
 	.use(user)

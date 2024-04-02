@@ -1,18 +1,18 @@
 import { env } from '~/util/env';
-import { Context, Elysia, t } from 'elysia';
+import { Context, Elysia, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
-import { accounts as Accounts } from '~/instance/database/schema';
+import { users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
-import { NotAuthenticatedError } from '~/types';
+import { NotAuthenticatedError, NotImplementedError } from '~/types';
 
 class APIUser {
 	id: string;
 	name: string;
 	image: string;
 
-	constructor(user: User) {
+	constructor(user: User | InferSelectModel<typeof users>) {
 		this.id = user.id!;
 		this.name = user.name ?? 'Unnamed user';
 		this.image = user.image ?? '';
@@ -21,11 +21,11 @@ class APIUser {
 
 export default new Elysia()
 	.post('/user', 
-		() => { throw new Error('Not implemented') },
+		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update currently authenticated user details' } }
 	)
 	.delete('/user', 
-		() => { throw new Error('Not implemented') },
+		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Delete currently authenticated user' } }
 	)
 	.get('/user/:id', 
@@ -43,7 +43,11 @@ export default new Elysia()
 				}
 			} else {
 				// Get user by ID
-				throw new Error('Not implemented')
+				const user = await db.query.users.findFirst({
+					where: like(users.id, context.params.id)
+				});
+				if (user == undefined) throw new NotFoundError();
+				return { ...new APIUser(user) } as APIUser;
 			}
 		},
 		{ 

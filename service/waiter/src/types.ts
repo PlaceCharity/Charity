@@ -1,5 +1,16 @@
 // Errors
-class NotAuthenticatedError extends Error {
+export class NotImplementedError extends Error {
+	message: 'NOT_IMPLEMENTED';
+	status: 501;
+
+	constructor() {
+		super();
+		this.message = 'NOT_IMPLEMENTED';
+		this.status = 501;
+	}
+}
+
+export class NotAuthenticatedError extends Error {
 	message: 'NOT_AUTHENTICATED';
 	status: 401;
 
@@ -10,5 +21,4 @@ class NotAuthenticatedError extends Error {
 	}
 }
 
-export { NotAuthenticatedError };
 export { APIUser } from '~/controller/user';
