@@ -25,7 +25,6 @@ module.exports = {
 	],
 	rules: {
 		'@typescript-eslint/no-var-requires': 'off',
-		curly: ['error', 'all'],
 		'handle-callback-err': 'off',
 		'max-nested-callbacks': ['error', { max: 4 }],
 		'no-console': 'off',

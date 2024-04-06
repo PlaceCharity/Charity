@@ -2,5 +2,10 @@
   "i18n-ally.pathMatcher": "{locale}/index.{ext}",
   "i18n-ally.enabledParsers": ["ts", "js"],
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.localesPaths": ["app/website/src/i18n"]
+  "i18n-ally.localesPaths": ["app/website/src/i18n"],
+  "prettier.requireConfig": true,
+  "prettier.documentSelectors": ["**/*.svelte"],
+  "[svelte]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
