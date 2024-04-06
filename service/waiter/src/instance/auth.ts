@@ -15,7 +15,8 @@ export const authConfig: AuthConfig = {
     providers: [
         DiscordProvider({
             clientId: env.DISCORD_CLIENT_ID,
-            clientSecret: env.DISCORD_CLIENT_SECRET
+            clientSecret: env.DISCORD_CLIENT_SECRET,
+			authorization: 'https://discord.com/api/oauth2/authorize?scope=identify+guilds'
         })
     ],
 	session: {
@@ -31,6 +32,7 @@ export const authConfig: AuthConfig = {
 			return session;
 		},
 		// FIXME: This doesn't work, because user.id is ALWAYS a random one, and is never the actual database one. We encountered this in osuplace/link too.
+		// Edit: Wait, actually no, since we're not using Prisma here... so I'm not sure? Maybe just add a query to see if the user exists first
 		/*
 		async signIn({ user, profile }) {
 			// This is probably temporary since Auth.js will probably add this functionality themselves, but:
