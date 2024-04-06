@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { drawText } from '../lib/bmfont';
+	import { drawText } from '$lib/bmfont';
 
 	let clazz = '';
 	export { clazz as class };
@@ -25,7 +25,7 @@
 	}
 
 	onMount(async () => {
-		const ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
 		if (ctx === null) return;
 
 		let width = 0;

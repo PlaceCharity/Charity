@@ -43,7 +43,7 @@
 
 <svelte:window on:resize={onResize} />
 
-<div class="bg-base-100 flex min-h-svh flex-col items-center gap-[calc(var(--scale-factor)*6px)]">
+<div class="flex min-h-svh flex-col items-center gap-[calc(var(--scale-factor)*6px)] bg-base-100">
 	<div class="mt-[calc(var(--scale-factor)*10px)] flex gap-[calc(var(--scale-factor)*6px)]">
 		<img
 			class="rendering-pixelated drag-none h-[calc(var(--scale-factor)*48px)] select-none self-center"

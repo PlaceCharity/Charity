@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { drawText } from '../lib/bmfont';
+	import { drawText } from '$lib/bmfont';
 
 	let clazz = '';
 	export { clazz as class };
