@@ -5,25 +5,6 @@ const _texture_cache: {
 	};
 } = {};
 
-function _removeItems(arr: any[], startIdx: number, removeCount: number) {
-	const length = arr.length;
-	let i;
-
-	if (startIdx >= length || removeCount === 0) {
-		return;
-	}
-
-	removeCount = startIdx + removeCount > length ? length - startIdx : removeCount;
-
-	const len = length - removeCount;
-
-	for (i = startIdx; i < len; ++i) {
-		arr[i] = arr[i + removeCount];
-	}
-
-	arr.length = len;
-}
-
 export async function drawText(
 	text: string,
 	fontName: string,
@@ -51,7 +32,9 @@ export async function drawText(
 	if (ctx === undefined) {
 		const canvas = document.createElement('canvas');
 		ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-		if (ctx === null) return;
+		if (ctx === null) {
+			return;
+		}
 	}
 
 	const pos = { x: 0, y: 0 };
@@ -78,9 +61,13 @@ export async function drawText(
 		}
 
 		const charData = font.chars[charCode];
-		if (!charData) continue;
+		if (!charData) {
+			continue;
+		}
 
-		if (prevCharCode && charData.kerning[prevCharCode]) pos.x += charData.kerning[prevCharCode];
+		if (prevCharCode && charData.kerning[prevCharCode]) {
+			pos.x += charData.kerning[prevCharCode];
+		}
 
 		chars.push({
 			line,
@@ -105,7 +92,7 @@ export async function drawText(
 	const lenChars = chars.length;
 
 	for (let i = 0; i < lenChars; i++) {
-		let c = { position: { x: 0, y: 0 }, rect: chars[i].charData.textureRect, scale: { x: 0, y: 0 }, tint: '#FFFFFF' };
+		const c = { position: { x: 0, y: 0 }, rect: chars[i].charData.textureRect, scale: { x: 0, y: 0 }, tint: '#FFFFFF' };
 		glyphs.push(c);
 		c.position.x = chars[i].position.x;
 		c.position.y = chars[i].position.y;
@@ -127,8 +114,10 @@ export async function drawText(
 			width: (await font.texture).width,
 			height: (await font.texture).height,
 		});
-		let btx = el.getContext('2d');
-		if (btx === null) return;
+		const btx = el.getContext('2d');
+		if (btx === null) {
+			return;
+		}
 
 		btx.imageSmoothingEnabled = false;
 
@@ -149,7 +138,7 @@ export async function drawText(
 	ctx.globalAlpha = 1.0;
 	const lenGlyphs = glyphs.length;
 	for (let i = 0; i < lenGlyphs; i++) {
-		let g = glyphs[i];
+		const g = glyphs[i];
 		ctx.drawImage(
 			el,
 			g.rect.x,
