@@ -5,12 +5,12 @@
 @layer base {
 	@font-face {
 		font-family: 'Sevenish';
-		src: url(/fonts/Sevenish.ttf) format('ttf');
+		src: url(/fonts/Sevenish.ttf) format('truetype');
 	}
 
 	@font-face {
 		font-family: 'DigitalDisco';
-		src: url(/fonts/DigitalDisco.ttf) format('ttf');
+		src: url(/fonts/DigitalDisco.ttf) format('truetype');
 	}
 }
 
