@@ -5,7 +5,7 @@
 @layer base {
 	@font-face {
 		font-family: 'Sevenish';
-		src: url(/fonts/Sevensih.ttf) format('ttf');
+		src: url(/fonts/Sevenish.ttf) format('ttf');
 	}
 
 	@font-face {
