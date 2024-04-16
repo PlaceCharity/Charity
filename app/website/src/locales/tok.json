@@ -1,0 +1,22 @@
+{
+	"charity": {
+		"name": "ilo Sawisi"
+	},
+	"404": {
+		"subtitle": "lipu ni li lon ala."
+	},
+	"landing": {
+		"loading": "o awen...",
+		"carousel": {
+			"onePlace": "wile ale sina pi nasin r/place.",
+			"createTemplates": "o pali e sitelen lukin lon lipu r/place.",
+			"manageTeam": "o ante e sitelen lukin sina lon kulupu.",
+			"factionPage": "lipu kulupu ale sina lon lipu kulupu wan.",
+			"reducePalette": "o lili e kule pi sitelen ale."
+		},
+		"options": {
+			"pixelate": "o leko e sitelen",
+			"palettize": "o lili e kule sitelen"
+		}
+	}
+}

@@ -4,8 +4,8 @@
 
 @layer base {
 	@font-face {
-		font-family: 'Aseprite';
-		src: url(/fonts/Aseprite.ttf) format('ttf');
+		font-family: 'Sevenish';
+		src: url(/fonts/Sevensih.ttf) format('ttf');
 	}
 
 	@font-face {
@@ -16,12 +16,37 @@
 
 @layer components {
 	.rendering-pixelated {
+		image-rendering: -moz-crisp-edges;
+		image-rendering: -webkit-crisp-edges;
 		image-rendering: pixelated;
+		image-rendering: crisp-edges;
 	}
+
 	.drag-none {
 		-webkit-user-drag: none;
 	}
+
 	.text-pixel {
 		transform: perspective(1px);
+	}
+
+	.border-pixel-transparent {
+		border-width: calc(var(--scale-factor) * 2px);
+		border-color: transparent;
+		image-rendering: pixelated;
+	}
+
+	.border-pixel-base-300 {
+		border-width: calc(var(--scale-factor) * 2px);
+		border-image: url(/img/components/border-base-300.png);
+		border-image-slice: 2;
+		image-rendering: pixelated;
+	}
+
+	.border-pixel-base-content {
+		border-width: calc(var(--scale-factor) * 2px);
+		border-image: url(/img/components/border-base-content.png);
+		border-image-slice: 2;
+		image-rendering: pixelated;
 	}
 }

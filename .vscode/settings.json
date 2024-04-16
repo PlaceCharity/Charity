@@ -1,11 +1,14 @@
 {
-  "i18n-ally.pathMatcher": "{locale}/index.{ext}",
-  "i18n-ally.enabledParsers": ["ts", "js"],
-  "i18n-ally.keystyle": "nested",
-  "i18n-ally.localesPaths": ["app/website/src/i18n"],
-  "prettier.requireConfig": true,
-  "prettier.documentSelectors": ["**/*.svelte"],
-  "[svelte]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+	"i18n-ally.enabledFrameworks": [
+		"svelte"
+	],
+	"i18n-ally.localesPaths": [
+		"app/website/src/locales"
+	],
+	"i18n-ally.keystyle": "nested",
+	"prettier.requireConfig": true,
+	"prettier.documentSelectors": ["**/*.svelte"],
+	"[svelte]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }

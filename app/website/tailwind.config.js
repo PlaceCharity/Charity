@@ -17,6 +17,10 @@ export default {
 				error: '#f87272',
 				'error-content': '#470000',
 			},
+			fontFamily: {
+				sevenish: ['Sevenish', 'system-ui'],
+				digitaldisco: ['DigitalDisco', 'system-ui'],
+			},
 		},
 	},
 	plugins: [],

@@ -1,0 +1,22 @@
+{
+	"charity": {
+		"name": "ilo Sawisi"
+	},
+	"404": {
+		"subtitle": "󱤪󱥁󱤧󱤬󱤂"
+	},
+	"landing": {
+		"loading": "󱥄󱤈...",
+		"carousel": {
+			"onePlace": "󱥷󱤄󱥞󱥍󱤿󱦐r󱦒/󱦒p󱦒l󱦒a󱦒c󱦒e󱦒󱦑",
+			"createTemplates": "󱥄󱥉󱤉󱥠󱤮󱤬󱤪󱦐r󱦒/󱦒p󱦒l󱦒a󱦒c󱦒e󱦒󱦑",
+			"manageTeam": "󱥄󱤆󱤉󱥠󱤮󱥞󱤬󱤟",
+			"factionPage": "󱤪󱤟󱤄󱥞󱤬󱤪󱤟󱥳",
+			"reducePalette": "󱥄󱤨󱤉󱤞󱦓󱥠󱦔󱤄󱦔"
+		},
+		"options": {
+			"pixelate": "󱥄󱥼󱤉󱥠",
+			"palettize": "󱥄󱤨󱤉󱤞󱥠"
+		}
+	}
+}
