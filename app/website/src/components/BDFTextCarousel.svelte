@@ -62,6 +62,7 @@
 	let frame = 0;
 	let currentText = 0;
 	let currentTimeout: Timer;
+	let currentAnimationFrame: number;
 
 	function animation(ctx: CanvasRenderingContext2D) {
 		if (ctx === null) return;
@@ -98,12 +99,12 @@
 				currentText++;
 				if (currentText === texts.length) currentText = 0;
 				frame = 0;
-				requestAnimationFrame(() => {
+				currentAnimationFrame = requestAnimationFrame(() => {
 					animation(ctx);
 				});
 			}, 5000);
 		} else {
-			requestAnimationFrame(() => {
+			currentAnimationFrame = requestAnimationFrame(() => {
 				animation(ctx);
 			});
 		}
@@ -151,10 +152,11 @@
 		canvas.height = height;
 		canvas.style.height = `calc(var(--scale-factor) * ${height * scale}px)`;
 
-		requestAnimationFrame(() => {
+		clearTimeout(currentTimeout);
+		cancelAnimationFrame(currentAnimationFrame);
+		currentAnimationFrame = requestAnimationFrame(() => {
 			animation(ctx);
 		});
-		clearTimeout(currentTimeout);
 	}
 
 	onMount(renderText);
