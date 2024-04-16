@@ -1,9 +1,15 @@
 <script lang="ts">
 	import '../app.css';
-	import { _, isLoading, locale } from 'svelte-i18n';
-	import { defaultLocale, locales } from '$lib/i18n';
+	import { _, isLoading, locale, locales } from 'svelte-i18n';
+	import { defaultLocale } from '$lib/i18n';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
+
+	locale.subscribe((value) => {
+		const isValid = typeof value === 'string' && $locales.includes(value);
+		if (!isValid) locale.set('en');
+		if (isValid && browser) localStorage.setItem('locale', value);
+	});
 
 	let scaleFactor = null;
 
@@ -40,7 +46,6 @@
 	let translateOpen = false;
 	function changeLocale(target: string) {
 		locale.set(target);
-		localStorage.setItem('locale', target);
 	}
 </script>
 
@@ -59,7 +64,7 @@
 	<meta property="og:image:height" content="512" />
 	<meta property="og:image:alt" content="Charity Logo" />
 	<meta property="og:locale" content={defaultLocale} />
-	{#each locales as locale}
+	{#each $locales as locale}
 		{#if locale !== defaultLocale}
 			<meta property="og:locale:alternate" content={locale} />
 		{/if}
@@ -114,7 +119,7 @@
 							<ul class="m-[calc(var(--scale-factor)*1px)]">
 								<li>
 									<button
-										class="border-pixel-transparent hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300"
+										class={`${$locale === 'en' ? 'border-pixel-base-300 bg-base-300' : 'border-pixel-transparent'} hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300`}
 										on:click={() => {
 											changeLocale('en');
 										}}
@@ -128,7 +133,7 @@
 								</li>
 								<li>
 									<button
-										class="border-pixel-transparent hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300"
+										class={`${$locale === 'shav' ? 'border-pixel-base-300 bg-base-300' : 'border-pixel-transparent'} hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300`}
 										on:click={() => {
 											changeLocale('shav');
 										}}
@@ -142,7 +147,7 @@
 								</li>
 								<li>
 									<button
-										class="border-pixel-transparent hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300"
+										class={`${$locale === 'tok' ? 'border-pixel-base-300 bg-base-300' : 'border-pixel-transparent'} hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300`}
 										on:click={() => {
 											changeLocale('tok');
 										}}
@@ -160,7 +165,7 @@
 								</li>
 								<li>
 									<button
-										class="border-pixel-transparent hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300"
+										class={`${$locale === 'tok-SP' ? 'border-pixel-base-300 bg-base-300' : 'border-pixel-transparent'} hover:border-pixel-base-300 flex w-full items-center gap-[calc(var(--scale-factor)*3px)] bg-clip-padding hover:bg-base-300`}
 										on:click={() => {
 											changeLocale('tok-SP');
 										}}
