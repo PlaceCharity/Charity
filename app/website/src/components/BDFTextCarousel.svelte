@@ -4,6 +4,7 @@
 	import { _, locale } from 'svelte-i18n';
 
 	export let texts = [''];
+	export let translate = true;
 	export let font = $page.data.fonts.sevenish;
 	export let color = '#ffffff';
 	export let scale = 1;
@@ -126,7 +127,7 @@
 
 		for (const text of texts) {
 			const renderedText = font.drawcps(
-				[...$_(text)].map((c) => {
+				(translate ? [...$_(text)] : [...text]).map((c) => {
 					const cp = c.codePointAt(0);
 					if (cp === undefined) {
 						return 8203;
