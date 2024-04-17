@@ -8,7 +8,7 @@
 >
 	<img
 		class="rendering-pixelated drag-none mt-[calc(var(--scale-factor)*6px)] h-[calc(var(--scale-factor)*48px)] select-none self-center object-cover"
-		src={$locale === 'ru' || $locale === 'shav' || $locale === 'tok' || $locale === 'tok-SP' ?
+		src={$locale === 'ru' || $locale === 'shav' || $locale === 'th' || $locale === 'tok' || $locale === 'tok-SP' ?
 			`/img/logo-${$locale}.png`
 		:	`/img/logo.png`}
 		alt="Charity Logo"

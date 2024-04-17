@@ -90,7 +90,9 @@
 					<a class="border-pixel-transparent hover:border-pixel-base-300 bg-clip-padding hover:bg-base-300" href="/">
 						<img
 							class="rendering-pixelated drag-none h-[calc(var(--scale-factor)*16px)] select-none self-center object-cover px-[calc(var(--scale-factor)*2px)]"
-							src={$locale === 'ru' || $locale === 'shav' || $locale === 'tok' || $locale === 'tok-SP' ?
+							src={(
+								$locale === 'ru' || $locale === 'shav' || $locale === 'th' || $locale === 'tok' || $locale === 'tok-SP'
+							) ?
 								`/img/logo-${$locale}.png`
 							:	`/img/logo.png`}
 							alt="Charity Logo"
