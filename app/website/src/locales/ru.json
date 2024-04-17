@@ -1,0 +1,22 @@
+{
+	"charity": {
+		"name": "Чарити"
+	},
+	"404": {
+		"subtitle": "Page not found."
+	},
+	"landing": {
+		"loading": "Please wait...",
+		"carousel": {
+			"onePlace": "One place for all your r/place needs.",
+			"createTemplates": "Create and share r/place template overlays.",
+			"manageTeam": "Manage template/overlay updates as a team.",
+			"factionPage": "All your links in one place with a faction page.",
+			"reducePalette": "Automatically convert your artwork to palette."
+		},
+		"options": {
+			"pixelate": "Pixelate",
+			"palettize": "Palettize"
+		}
+	}
+}
