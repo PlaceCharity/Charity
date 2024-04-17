@@ -53,6 +53,8 @@
 
 <svelte:head>
 	<title>{$_('charity.name')}</title>
+	<meta name="description" content={$_('landing.carousel.onePlace')} />
+
 	<meta property="og:title" content={$_('charity.name')} />
 	<meta property="og:description" content={$_('landing.carousel.onePlace')} />
 	<meta property="og:type" content="website" />
@@ -69,6 +71,10 @@
 			<meta property="og:locale:alternate" content={locale} />
 		{/if}
 	{/each}
+
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:creator" content="@_Mikarific_" />
+
 	<meta name="theme-color" content="#FF7F7F" />
 </svelte:head>
 
