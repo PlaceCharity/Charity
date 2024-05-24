@@ -30,7 +30,23 @@ class APITeam {
 export default new Elysia()
 	.post('/team', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Create a new team' } }
+		{
+			detail: { description: 'Create a new team' },
+			body: t.Object({
+				namespace: t.String({
+					minLength: 2,
+					maxLength: 16,
+					pattern: '^[a-zA-Z0-9]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
+				}),
+				displayName: t.String({
+					minLength: 1,
+					maxLength: 32
+				}),
+				description: t.String({
+					maxLength: 500
+				})
+			})
+		}
 	)
 	.get('/team/:namespace', 
 		async (context) => {

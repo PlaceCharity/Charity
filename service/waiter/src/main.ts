@@ -1,7 +1,7 @@
 import { env } from '~/util/env';
 
 // Elysia imports
-import { Elysia } from 'elysia';
+import { Elysia, ValidationError } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 
 // Our imports
@@ -16,7 +16,10 @@ import link from './controller/link';
 export const app = new Elysia()
     .use(swagger({ provider: 'scalar' }))
 	.error({ NOT_IMPLEMENTED: NotImplementedError, NOT_AUTHENTICATED: NotAuthenticatedError })
-	.onError(({ code }) => code) // Just return the error code
+	.onError(({ code, error }): { code: string } | { code: string, error: ValidationError } => {
+		if (code == 'VALIDATION') return { code, error: JSON.parse(error.message) };
+		return { code };
+	}) // Just return the error code
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')
 	.use(auth)
 	.use(user)
