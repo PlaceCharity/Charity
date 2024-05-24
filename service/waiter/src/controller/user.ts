@@ -21,7 +21,7 @@ class APIUser {
 }
 
 export default new Elysia()
-	.post('/user', 
+	.put('/user', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update currently authenticated user details' } }
 	)

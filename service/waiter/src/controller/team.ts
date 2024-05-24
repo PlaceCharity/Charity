@@ -11,7 +11,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Get team details' } }
 	)
-	.post('/team/:namespace', 
+	.put('/team/:namespace', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update team details' } }
 	)

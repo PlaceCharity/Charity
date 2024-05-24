@@ -15,7 +15,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Get template details' } }
 	)
-	.post('/team/:namespace/template/:slug', 
+	.put('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update template details' } }
 	)
