@@ -25,9 +25,14 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update currently authenticated user details' } }
 	)
-	.delete('/user', 
+	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete currently authenticated user' } }
+		{
+			detail: { description: 'Delete a user\nUse `@me` as the ID to delete the currently authenticated user' },
+			params: t.Object({
+				id: t.String()
+			})
+		}
 	)
 	.get('/user/:id', 
 		async (context) => {
