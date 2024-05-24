@@ -61,3 +61,20 @@ export const users = table('user', {
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
+
+export const teams = table('team', {
+	id: text('id').notNull().primaryKey(),
+	namespace: text('namespace').notNull().unique(),
+
+	displayName: text('displayName').notNull(),
+	description: text('description').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});
+
+export const teamMembers = table('teamMember', {
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' })
+}, (tm) => ({
+	compoundKey: primaryKey({ columns: [ tm.teamId, tm.userId ] })
+}));
