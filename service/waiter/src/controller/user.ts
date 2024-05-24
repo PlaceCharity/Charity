@@ -1,5 +1,5 @@
 import { env } from '~/util/env';
-import { Context, Elysia, NotFoundError, t } from 'elysia';
+import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
@@ -13,7 +13,8 @@ class APIUser {
 	image: string;
 
 	constructor(user: User | InferSelectModel<typeof users>) {
-		this.id = user.id!;
+		if (user.id == undefined) throw new InternalServerError() // Can't create API user from user with no ID
+		this.id = user.id;
 		this.name = user.name ?? 'Unnamed user';
 		this.image = user.image ?? '';
 	}
