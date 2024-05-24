@@ -6,8 +6,8 @@
     "check": "tsc --noEmit",
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
-    "db:push": "drizzle-kit push:sqlite",
-    "db:migration:generate": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push",
+    "db:migration:generate": "drizzle-kit generate",
     "db:migration:apply": "bun run src/instance/database/migrate.ts",
     "db:studio": "drizzle-kit studio"
   },
@@ -27,7 +27,7 @@
     "@elysiajs/eden": "^1.0.7",
     "better-sqlite3": "^9.4.3",
     "bun-types": "latest",
-    "drizzle-kit": "^0.20.14"
+    "drizzle-kit": "^0.21.4"
   },
   "trustedDependencies": [
     "better-sqlite3",
