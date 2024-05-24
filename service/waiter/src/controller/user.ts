@@ -43,9 +43,8 @@ export default new Elysia()
 					throw new NotAuthenticatedError();
 				} else {
 					// TODO: Remove this workaround, see https://github.com/elysiajs/elysia/issues/513#issuecomment-2021250942
-					return { ...new APIUser(
-						session.user
-					) } as APIUser;
+					// also see https://discord.com/channels/1044804142461362206/1243512073145811004
+					return Response.json(new APIUser(session.user));
 				}
 			} else {
 				// Get user by ID
