@@ -28,7 +28,7 @@ export default new Elysia()
 	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
 		{
-			detail: { description: 'Delete a user\nUse `@me` as the ID to delete the currently authenticated user' },
+			detail: { description: 'Delete a user; Use `@me` as the ID to delete the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
@@ -56,7 +56,7 @@ export default new Elysia()
 			}
 		},
 		{ 
-			detail: { description: 'Get user details\nUse `@me` as the ID to get the currently authenticated user' },
+			detail: { description: 'Get user details; Use `@me` as the ID to get the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
