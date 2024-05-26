@@ -7,7 +7,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Get team templates' } }
 	)
-	.post('/team/:namespace/template', 
+	.post('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Create a new template' } }
 	)

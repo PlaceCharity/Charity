@@ -21,12 +21,11 @@ export const app = new Elysia()
 		[new ResourceNotFoundError().message]: ResourceNotFoundError,
 		[new AlreadyExistsError('Example').message]: AlreadyExistsError
 	})
-	.onError(
-		({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
+	.onError(({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
 		if (code == 'VALIDATION') return { code, details: JSON.parse(error.message) };
 		if (code == 'ALREADY_EXISTS') return { code, details: error.details };
 		return { code };
-	}) // Just return the error code
+	})
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')
 	.use(auth)
 	.use(user)

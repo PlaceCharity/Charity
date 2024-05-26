@@ -7,7 +7,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Get team links' } }
 	)
-	.post('/team/:namespace/link', 
+	.post('/team/:namespace/link/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Create a new link' } }
 	)
