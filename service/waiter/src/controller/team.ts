@@ -1,8 +1,8 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
-import { teams, teamMembers } from '~/instance/database/schema';
+import { teams, teamMembers, users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
@@ -93,6 +93,39 @@ export default new Elysia()
 		},
 		{
 			detail: { description: 'Get team details' },
+			params: t.Object({
+				namespace: t.String()
+			})
+		}
+	)
+	.get('/team/:namespace/member',
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			const members = await db.query.teamMembers.findMany({
+				where: like(teamMembers.teamId, team.id)
+			});
+
+			return (
+				(
+					// get all members' user details from database
+					(await Promise.all(members.map(async member => { 
+						return await db.query.users.findFirst({
+							where: like(users.id, member.userId)
+						});
+					})))
+					// remove undefined
+					.filter(user => user != undefined)
+				// tell typescript we removed undefined
+				) as InferSelectModel<typeof users>[]
+			// convert to APIUser[]
+			).map(user => new APIUser(user)); 
+		},
+		{
+			detail: { description: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
