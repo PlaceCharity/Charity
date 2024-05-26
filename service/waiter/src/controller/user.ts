@@ -7,16 +7,19 @@ import { users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
 import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
-class APIUser {
+export class APIUser {
 	id: string;
 	name: string;
 	image: string;
 
-	constructor(user: User | InferSelectModel<typeof users>) {
-		if (user.id == undefined) throw new InternalServerError() // Can't create API user from user with no ID
+	createdAt: Date;
+
+	constructor(user: InferSelectModel<typeof users>) {
 		this.id = user.id;
 		this.name = user.name ?? 'Unnamed user';
 		this.image = user.image ?? '';
+
+		this.createdAt = user.createdAt;
 	}
 }
 
@@ -36,24 +39,24 @@ export default new Elysia()
 	)
 	.get('/user/:id', 
 		async (context) => {
+			let id = context.params.id;
+
 			if (context.params.id == '@me') {
 				// Get currently authenticated user
 				const session = await getSession(context as Context);
 				if (!session || !session.user) {
 					throw new NotAuthenticatedError();
 				} else {
-					// TODO: Remove this workaround, see https://github.com/elysiajs/elysia/issues/513#issuecomment-2021250942
-					// also see https://discord.com/channels/1044804142461362206/1243512073145811004
-					return Response.json(new APIUser(session.user));
+					id = session.user.id;
 				}
-			} else {
-				// Get user by ID
-				const user = await db.query.users.findFirst({
-					where: like(users.id, context.params.id)
-				});
-				if (user == undefined) throw new ResourceNotFoundError();
-				return { ...new APIUser(user) } as APIUser;
 			}
+
+			// Get user by ID
+			const user = await db.query.users.findFirst({
+				where: like(users.id, context.params.id)
+			});
+			if (user == undefined) throw new ResourceNotFoundError();
+			return Response.json(new APIUser(user));
 		},
 		{ 
 			detail: { description: 'Get user details; Use `@me` as the ID to get the currently authenticated user' },
@@ -62,5 +65,3 @@ export default new Elysia()
 			})
 		}
 	)
-
-export { APIUser };
