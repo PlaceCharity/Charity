@@ -63,7 +63,7 @@ export default new Elysia()
 				namespace: t.String({
 					minLength: 2,
 					maxLength: 16,
-					pattern: '^[a-zA-Z0-9]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
+					pattern: '^[a-zA-Z0-9\-\_]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
 				}),
 			}),
 			body: t.Object({
