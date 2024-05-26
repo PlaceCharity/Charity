@@ -5,7 +5,7 @@ import { Elysia, ValidationError } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 
 // Our imports
-import { NotImplementedError, NotAuthenticatedError } from './types';
+import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError } from './types';
 import auth from './instance/auth';
 import user from './controller/user';
 import team from './controller/team';
@@ -15,9 +15,16 @@ import link from './controller/link';
 // Set up Elysia and listen
 export const app = new Elysia()
     .use(swagger({ provider: 'scalar' }))
-	.error({ NOT_IMPLEMENTED: NotImplementedError, NOT_AUTHENTICATED: NotAuthenticatedError })
-	.onError(({ code, error }): { code: string } | { code: string, error: ValidationError } => {
-		if (code == 'VALIDATION') return { code, error: JSON.parse(error.message) };
+	.error({
+		[new NotImplementedError().message]: NotImplementedError,
+		[new NotAuthenticatedError().message]: NotAuthenticatedError,
+		[new ResourceNotFoundError().message]: ResourceNotFoundError,
+		[new AlreadyExistsError('Example').message]: AlreadyExistsError
+	})
+	.onError(
+		({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
+		if (code == 'VALIDATION') return { code, details: JSON.parse(error.message) };
+		if (code == 'ALREADY_EXISTS') return { code, details: error.details };
 		return { code };
 	}) // Just return the error code
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')

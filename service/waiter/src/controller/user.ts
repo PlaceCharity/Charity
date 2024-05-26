@@ -5,7 +5,7 @@ import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
 import { users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
-import { NotAuthenticatedError, NotImplementedError } from '~/types';
+import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
 class APIUser {
 	id: string;
@@ -51,7 +51,7 @@ export default new Elysia()
 				const user = await db.query.users.findFirst({
 					where: like(users.id, context.params.id)
 				});
-				if (user == undefined) throw new NotFoundError();
+				if (user == undefined) throw new ResourceNotFoundError();
 				return { ...new APIUser(user) } as APIUser;
 			}
 		},

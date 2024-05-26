@@ -5,6 +5,9 @@ import { sqliteTable as table, text, integer, blob, primaryKey } from 'drizzle-o
 import { AdapterAccount } from '@auth/core/adapters';
 import { sql } from 'drizzle-orm';
 
+// Etc
+import { v4 as uuidv4 } from 'uuid';
+
 export const accounts = table('account', {
 		userId: text('userId')
 			.notNull()
@@ -63,7 +66,7 @@ export const users = table('user', {
 });
 
 export const teams = table('team', {
-	id: text('id').notNull().primaryKey(),
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 	namespace: text('namespace').notNull().unique(),
 
 	displayName: text('displayName').notNull(),

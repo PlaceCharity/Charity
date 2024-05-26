@@ -1,9 +1,11 @@
 import { env } from '~/util/env';
-import { Elysia, NotFoundError, t } from 'elysia';
-import { NotImplementedError } from '~/types';
+import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
+import { AlreadyExistsError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
 import { teams, teamMembers } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
+import { getSession } from '~/instance/auth';
+import { SQLiteError } from 'bun:sqlite';
 
 class APITeam {
 	id: string;
@@ -28,16 +30,43 @@ class APITeam {
 }
 
 export default new Elysia()
-	.post('/team', 
-		() => { throw new NotImplementedError() },
+	.post('/team/:namespace',
+		async (context) => {
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			} else {
+				const team = await db.insert(teams).values({
+					namespace: context.params.namespace,
+					displayName: context.body.displayName,
+					description: context.body.description
+				}).returning().catch((err) => {
+					if (err instanceof SQLiteError) {
+						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+							throw new AlreadyExistsError('namespace');
+						}
+					}
+					throw err;
+				});
+
+				const members = await db.insert(teamMembers).values({
+					teamId: team[0].id,
+					userId: session.user.id
+				}).returning();
+
+				return Response.json(new APITeam(team[0], members));
+			}
+		},
 		{
 			detail: { description: 'Create a new team' },
-			body: t.Object({
+			params: t.Object({
 				namespace: t.String({
 					minLength: 2,
 					maxLength: 16,
 					pattern: '^[a-zA-Z0-9]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
 				}),
+			}),
+			body: t.Object({
 				displayName: t.String({
 					minLength: 1,
 					maxLength: 32
@@ -53,7 +82,7 @@ export default new Elysia()
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)
 			});
-			if (team == undefined) throw new NotFoundError();
+			if (team == undefined) throw new ResourceNotFoundError();
 
 			const members = await db.query.teamMembers.findMany({
 				where: like(teamMembers.teamId, team.id)
