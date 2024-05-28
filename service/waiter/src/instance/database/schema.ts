@@ -1,9 +1,12 @@
 // Schema
-import { sqliteTable as table, text, integer, blob, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sqliteTable as table, text, integer, blob, primaryKey, unique } from 'drizzle-orm/sqlite-core';
 
 // Auth.js stuff
 import { AdapterAccount } from '@auth/core/adapters';
 import { sql } from 'drizzle-orm';
+
+// Etc
+import { v4 as uuidv4 } from 'uuid';
 
 export const accounts = table('account', {
 		userId: text('userId')
@@ -61,3 +64,33 @@ export const users = table('user', {
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
+
+export const teams = table('team', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	namespace: text('namespace').notNull().unique(),
+
+	displayName: text('displayName').notNull(),
+	description: text('description').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});
+
+export const teamMembers = table('teamMember', {
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' })
+}, (tm) => ({
+	compoundKey: primaryKey({ columns: [ tm.teamId, tm.userId ] })
+}));
+
+export const links = table('link', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+
+	slug: text('slug').notNull(),
+	url: text('url').notNull(),
+	text: text('text').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+}, (links) => ({
+	unique: unique().on(links.teamId, links.slug)
+}));

@@ -8,6 +8,13 @@
       "when": 1711419623128,
       "tag": "0000_broken_stardust",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1716548441422,
+      "tag": "0001_wooden_masque",
+      "breakpoints": true
     }
   ]
 }

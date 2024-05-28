@@ -1,61 +1,67 @@
 import { env } from '~/util/env';
-import { Context, Elysia, NotFoundError, t } from 'elysia';
+import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
 import { users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
-import { NotAuthenticatedError, NotImplementedError } from '~/types';
+import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
-class APIUser {
+export class APIUser {
 	id: string;
 	name: string;
 	image: string;
 
-	constructor(user: User | InferSelectModel<typeof users>) {
-		this.id = user.id!;
+	createdAt: Date;
+
+	constructor(user: InferSelectModel<typeof users>) {
+		this.id = user.id;
 		this.name = user.name ?? 'Unnamed user';
 		this.image = user.image ?? '';
+
+		this.createdAt = user.createdAt;
 	}
 }
 
 export default new Elysia()
-	.post('/user', 
+	.put('/user', 
 		() => { throw new NotImplementedError() },
 		{ detail: { description: 'Update currently authenticated user details' } }
 	)
-	.delete('/user', 
+	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete currently authenticated user' } }
+		{
+			detail: { description: 'Delete a user; Use `@me` as the ID to delete the currently authenticated user' },
+			params: t.Object({
+				id: t.String()
+			})
+		}
 	)
 	.get('/user/:id', 
 		async (context) => {
+			let id = context.params.id;
+
 			if (context.params.id == '@me') {
 				// Get currently authenticated user
 				const session = await getSession(context as Context);
 				if (!session || !session.user) {
 					throw new NotAuthenticatedError();
 				} else {
-					// TODO: Remove this workaround, see https://github.com/elysiajs/elysia/issues/513#issuecomment-2021250942
-					return { ...new APIUser(
-						session.user
-					) } as APIUser;
+					id = session.user.id;
 				}
-			} else {
-				// Get user by ID
-				const user = await db.query.users.findFirst({
-					where: like(users.id, context.params.id)
-				});
-				if (user == undefined) throw new NotFoundError();
-				return { ...new APIUser(user) } as APIUser;
 			}
+
+			// Get user by ID
+			const user = await db.query.users.findFirst({
+				where: like(users.id, context.params.id)
+			});
+			if (user == undefined) throw new ResourceNotFoundError();
+			return Response.json(new APIUser(user));
 		},
 		{ 
-			detail: { description: 'Get user details\nUse `@me` as the ID to get the currently authenticated user' },
+			detail: { description: 'Get user details; Use `@me` as the ID to get the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
 		}
 	)
-
-export { APIUser };
