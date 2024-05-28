@@ -1,0 +1,10 @@
+@unocss preflights;
+
+.panel {
+	@apply min-w-64 max-w-3/4 max-h-3/4;
+	@apply cursor-move;
+}
+
+.panel-body {
+	@apply w-full h-full;
+}
