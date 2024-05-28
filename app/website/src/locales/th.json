@@ -18,5 +18,13 @@
 			"pixelate": "Pixelate",
 			"palettize": "Palettize"
 		}
+	},
+	"pixelate": {
+		"title": "Pixelate",
+		"dropzone": {
+			"upload": "Drop image here or click to upload",
+			"supported": "Supported File Types:",
+			"filetypes": ".png, .jpg, .gif, .bmp, .webp, .tiff, .ico"
+		}
 	}
 }

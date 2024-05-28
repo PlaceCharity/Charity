@@ -29,7 +29,7 @@
 			class="border-pixel-base-300 hover:border-pixel-base-content h-full min-w-[calc(var(--scale-factor)*60px)] justify-center bg-base-100 bg-clip-padding p-[calc(var(--scale-factor)*4px)]"
 		>
 			<p
-				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 			>
 				{$_('landing.options.pixelate')}
 			</p>
@@ -44,7 +44,7 @@
 			class="border-pixel-base-300 hover:border-pixel-base-content h-full min-w-[calc(var(--scale-factor)*60px)] justify-center bg-base-100 bg-clip-padding p-[calc(var(--scale-factor)*4px)]"
 		>
 			<p
-				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 			>
 				{$_('landing.options.palettize')}
 			</p>

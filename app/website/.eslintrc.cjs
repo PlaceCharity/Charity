@@ -23,6 +23,7 @@ module.exports = {
 			},
 		},
 	],
+	ignores: ['./src/lib/pixelization'],
 	rules: {
 		'@typescript-eslint/no-var-requires': 'off',
 		'handle-callback-err': 'off',

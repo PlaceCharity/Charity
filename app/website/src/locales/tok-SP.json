@@ -18,5 +18,13 @@
 			"pixelate": "󱥄󱥼󱤉󱥠",
 			"palettize": "󱥄󱤨󱤉󱤞󱥠"
 		}
+	},
+	"pixelate": {
+		"title": "󱥄󱥼󱤉󱥠",
+		"dropzone": {
+			"upload": "󱥄󱥌󱤉󱥠󱥩󱤴",
+			"supported": "󱤴󱤘󱤙󱤿󱥠󱥁:",
+			"filetypes": ".png, .jpg, .gif, .bmp, .webp, .tiff, .ico"
+		}
 	}
 }

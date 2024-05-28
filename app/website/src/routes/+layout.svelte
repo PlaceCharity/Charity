@@ -108,7 +108,7 @@
 				<div class="flex-0 flex items-center">
 					<details bind:open={translateOpen}>
 						<summary
-							class="border-pixel-transparent hover:border-pixel-base-300 flex cursor-pointer gap-[calc(var(--scale-factor)*2px)] bg-clip-padding px-[calc(var(--scale-factor)*2px)] hover:bg-base-300"
+							class="border-pixel-transparent hover:border-pixel-base-300 flex cursor-pointer list-none gap-[calc(var(--scale-factor)*2px)] bg-clip-padding px-[calc(var(--scale-factor)*2px)] hover:bg-base-300"
 						>
 							<img
 								class="rendering-pixelated drag-none h-[calc(var(--scale-factor)*16px)] select-none self-center object-cover"
@@ -116,8 +116,8 @@
 								alt="Translate"
 							/>
 							<img
-								class="rendering-pixelated drag-none h-[calc(var(--scale-factor)*10px)] select-none self-center object-cover"
-								src={translateOpen ? '/img/icons/chevron-up.png' : '/img/icons/chevron-down.png'}
+								class={`rendering-pixelated drag-none h-[calc(var(--scale-factor)*10px)] select-none self-center object-cover ${translateOpen ? 'rotate-180' : ''}`}
+								src="/img/icons/chevron.png"
 								alt="Chevron"
 							/>
 						</summary>
@@ -134,7 +134,7 @@
 									>
 										<img class="drag-none h-[calc(var(--scale-factor)*16px)]" src="/img/langs/en.png" alt="English" />
 										<span
-											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 											>English</span
 										>
 									</button>
@@ -148,7 +148,7 @@
 									>
 										<img class="drag-none h-[calc(var(--scale-factor)*16px)]" src="/img/langs/shav.png" alt="·𐑖𐑱𐑝𐑾𐑯" />
 										<span
-											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 											>·𐑖𐑱𐑝𐑾𐑯</span
 										>
 									</button>
@@ -166,7 +166,7 @@
 											alt="toki pona"
 										/>
 										<span
-											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 											>toki pona</span
 										>
 									</button>
@@ -184,7 +184,7 @@
 											alt="toki pona"
 										/>
 										<span
-											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
+											class="text-pixel font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
 											>󱥬󱥔󱤙󱥠󱥔</span
 										>
 									</button>
