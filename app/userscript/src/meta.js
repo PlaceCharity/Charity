@@ -23,11 +23,15 @@
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2/dist/solid.min.js
+// @resource    settings https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/settings.svg
+// @resource    close https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg
 // @grant       GM_addStyle
 // @grant       GM.getValue
 // @grant       GM.setValue
 // @grant       GM.deleteValue
+// @grant       GM.getResourceUrl
 // @grant       GM.registerMenuCommand
+// @grant       GM.xmlHttpRequest
 // ==/UserScript==
 
 /**

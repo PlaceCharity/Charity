@@ -1,8 +1,8 @@
 import * as utils from './utils';
 
-export async function findCanvas() {
-	let canvasElements: HTMLCanvasElement[] = [];
+let canvasElements: HTMLCanvasElement[] = [];
 
+export async function findCanvases() {
 	while (document.readyState !== 'complete') {
 		await utils.sleep(1000);
 	}
@@ -36,4 +36,21 @@ export async function findTemplate() {
 	}
 	await GM.deleteValue('jsonTemplate');
 	return jsonTemplate;
+}
+
+export function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
+	if (canvasElements.length === 0) return null;
+	let selectedCanvas = canvasElements[0];
+	let selectedBounds = selectedCanvas.getBoundingClientRect();
+	for (let i = 0; i < canvasElements.length; i++) {
+		const canvas = canvasElements[i];
+		const canvasBounds = canvas.getBoundingClientRect();
+		const selectedArea = selectedBounds.width * selectedBounds.height;
+		const canvasArea = canvasBounds.width * canvasBounds.height;
+		if (canvasArea > selectedArea) {
+			selectedCanvas = canvas;
+			selectedBounds = canvasBounds;
+		}
+	}
+	return selectedCanvas;
 }
