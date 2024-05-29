@@ -18,5 +18,13 @@
 			"pixelate": "o leko e sitelen",
 			"palettize": "o lili e kule sitelen"
 		}
+	},
+	"pixelate": {
+		"title": "o leko e sitelen",
+		"dropzone": {
+			"upload": "o pana e sitelen tawa mi",
+			"supported": "mi ken kepeken nasin sitelen ni:",
+			"filetypes": ".png, .jpg, .gif, .bmp, .webp, .tiff, .ico"
+		}
 	}
 }

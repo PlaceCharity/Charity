@@ -7,7 +7,12 @@ import type { LayoutLoad } from './$types';
 import { Font } from 'bdfparser';
 import fetchline from 'fetchline';
 
-export const load: LayoutLoad = async () => {
+export const load: LayoutLoad = async ({ setHeaders }) => {
+	setHeaders({
+		'Cross-Origin-Embedder-Policy': 'require-corp',
+		'Cross-Origin-Opener-Policy': 'same-origin',
+	});
+
 	if (browser) {
 		const storedLocale = localStorage.getItem('locale');
 		if (storedLocale === null) {

@@ -173,6 +173,7 @@ export function getCanvas2023() {
 						createdPalette = true;
 					}
 
+					console.log(data.canvasConfigurations);
 					canvasConfiguration.chunks = data.canvasConfigurations.map(
 						(chunk: { index: number; dx: number; dy: number }) => {
 							return { index: chunk.index, dx: chunk.dx, dy: chunk.dy };
@@ -198,7 +199,7 @@ export function getCanvas2023() {
 					const chunk = canvasConfiguration.chunks.find((chunk) => chunk.index === parseInt(json.id) - 1);
 					if (chunk === undefined) return;
 					if (chunk.image === undefined) {
-						chunk.image = await (await fetch(data.name.replace('localhost', 'winhost'))).arrayBuffer();
+						chunk.image = await (await fetch(data.name)).arrayBuffer();
 					}
 					if (canvasConfiguration.chunks.filter((chunk) => chunk.image === undefined).length === 0 && !createdCanvas) {
 						socket.send(JSON.stringify({ type: 'connection_terminate', payload: null }));

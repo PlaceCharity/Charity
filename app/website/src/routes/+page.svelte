@@ -26,37 +26,33 @@
 	<div class="flex gap-[calc(var(--scale-factor)*4px)]">
 		<a
 			href="/pixelate"
-			class="border-pixel-base-300 hover:border-pixel-base-content min-w-[calc(var(--scale-factor)*60px)] bg-base-100 bg-clip-padding"
+			class="border-pixel-base-300 hover:border-pixel-base-content h-full min-w-[calc(var(--scale-factor)*60px)] justify-center bg-base-100 bg-clip-padding p-[calc(var(--scale-factor)*4px)]"
 		>
-			<div class="h-full justify-center p-[calc(var(--scale-factor)*4px)]">
-				<p
-					class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
-				>
-					{$_('landing.options.pixelate')}
-				</p>
-				<img
-					class="rendering-pixelated drag-none m-auto aspect-square h-[calc(var(--scale-factor)*38px)] select-none"
-					src="/img/landing/fiddle.png"
-					alt={$_('landing.options.pixelate')}
-				/>
-			</div>
+			<p
+				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
+			>
+				{$_('landing.options.pixelate')}
+			</p>
+			<img
+				class="rendering-pixelated drag-none m-auto aspect-square h-[calc(var(--scale-factor)*38px)] select-none"
+				src="/img/landing/fiddle.png"
+				alt={$_('landing.options.pixelate')}
+			/>
 		</a>
 		<a
 			href="/palettize"
-			class="border-pixel-base-300 hover:border-pixel-base-content min-w-[calc(var(--scale-factor)*60px)] bg-base-100 bg-clip-padding"
+			class="border-pixel-base-300 hover:border-pixel-base-content h-full min-w-[calc(var(--scale-factor)*60px)] justify-center bg-base-100 bg-clip-padding p-[calc(var(--scale-factor)*4px)]"
 		>
-			<div class="h-full justify-center p-[calc(var(--scale-factor)*4px)]">
-				<p
-					class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*8px)] text-white"
-				>
-					{$_('landing.options.palettize')}
-				</p>
-				<img
-					class="rendering-pixelated drag-none m-auto aspect-square h-[calc(var(--scale-factor)*38px)] select-none"
-					src="/img/landing/palette.png"
-					alt={$_('landing.options.palettize')}
-				/>
-			</div>
+			<p
+				class="text-pixel mb-[calc(var(--scale-factor)*2px)] text-center font-sevenish text-[calc(var(--scale-factor)*8px)] leading-[calc(var(--scale-factor)*10px)] text-white"
+			>
+				{$_('landing.options.palettize')}
+			</p>
+			<img
+				class="rendering-pixelated drag-none m-auto aspect-square h-[calc(var(--scale-factor)*38px)] select-none"
+				src="/img/landing/palette.png"
+				alt={$_('landing.options.palettize')}
+			/>
 		</a>
 	</div>
 </div>

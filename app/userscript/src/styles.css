@@ -1,0 +1,60 @@
+@unocss preflights;
+
+.settings-icon {
+	@apply visible;
+	@apply p-0;
+	@apply border-3 border-solid border-black box-content;
+	@apply shadow-[8px_8px_0px_0px_rgba(0,0,0,0.75)];
+	@apply bg-white;
+	@apply w-[38px] h-[38px];
+	@apply flex items-center justify-center;
+	@apply relative;
+	@apply hover:bg-white;
+	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
+	@apply hover:cursor-pointer;
+	@apply active:bg-white;
+	@apply active:bg-[linear-gradient(rgba(0,0,0,.3)_0_0)];
+	@apply active:scale-95;
+}
+
+.settings-icon > img {
+	@apply p-[8px] m-0;
+}
+
+.panel {
+	@apply visible;
+	@apply cursor-move;
+}
+
+.settings-panel {
+	@apply visible;
+	@apply p-[21px];
+	@apply border-3 border-solid border-black box-content;
+	@apply shadow-[8px_8px_0px_0px_rgba(0,0,0,0.75)];
+	@apply bg-white;
+	@apply flex flex-col;
+	@apply text-black;
+}
+
+.settings-header {
+	@apply flex justify-between items-center;
+}
+
+.settings-header > h2 {
+	@apply text-[18px] leading-[24px] font-sans font-semibold;
+	@apply mt-5px p-0;
+}
+
+.settings-close {
+	@apply absolute;
+	@apply top-0 right-0;
+	@apply flex items-center justify-center;
+	@apply w-[29px] h-[29px];
+	@apply border-l-3 border-l-solid border-l-black border-b-3 border-b-solid border-b-black box-content;
+	@apply cursor-pointer;
+}
+
+.settings-close > img {
+	@apply w-[20px] h-[20px];
+	@apply m-0;
+}
