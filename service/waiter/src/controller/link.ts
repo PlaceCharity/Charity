@@ -30,7 +30,7 @@ export class APILink {
 export default new Elysia()
 	.get('/team/:namespace/link', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Get team links' } }
+		{ detail: { summary: 'Get team links' } }
 	)
 	.post('/team/:namespace/link/:slug', 
 		() => { throw new NotImplementedError() },
@@ -55,7 +55,7 @@ export default new Elysia()
 			return Response.json(new APILink(link));
 		},
 		{
-			detail: { description: 'Get link details' },
+			detail: { summary: 'Get link details' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()
@@ -64,9 +64,9 @@ export default new Elysia()
 	)
 	.put('/team/:namespace/link/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Update link details' } }
+		{ detail: { summary: 'Update link details' } }
 	)
 	.delete('/team/:namespace/link/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete a link' } }
+		{ detail: { summary: 'Delete a link' } }
 	)

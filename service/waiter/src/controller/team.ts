@@ -58,7 +58,7 @@ export default new Elysia()
 			}
 		},
 		{
-			detail: { description: 'Create a new team' },
+			detail: { summary: 'Create a new team' },
 			params: t.Object({
 				namespace: t.String({
 					minLength: 2,
@@ -92,7 +92,7 @@ export default new Elysia()
 			return Response.json(new APITeam(team, members));
 		},
 		{
-			detail: { description: 'Get team details' },
+			detail: { summary: 'Get team details' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -125,7 +125,7 @@ export default new Elysia()
 			).map(user => new APIUser(user)); 
 		},
 		{
-			detail: { description: 'Get team members' },
+			detail: { summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -133,9 +133,9 @@ export default new Elysia()
 	)
 	.put('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Update team details' } }
+		{ detail: { summary: 'Update team details' } }
 	)
 	.delete('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete a team' } }
+		{ detail: { summary: 'Delete a team' } }
 	)

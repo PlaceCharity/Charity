@@ -26,12 +26,12 @@ export class APIUser {
 export default new Elysia()
 	.put('/user', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Update currently authenticated user details' } }
+		{ detail: { summary: 'Update currently authenticated user details' } }
 	)
 	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
 		{
-			detail: { description: 'Delete a user; Use `@me` as the ID to delete the currently authenticated user' },
+			detail: { summary: 'Delete a user', description: 'Use `@me` as the ID to delete the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
@@ -59,7 +59,7 @@ export default new Elysia()
 			return Response.json(new APIUser(user));
 		},
 		{ 
-			detail: { description: 'Get user details; Use `@me` as the ID to get the currently authenticated user' },
+			detail: { summary: 'Get user details', description: 'Use `@me` as the ID to get the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
