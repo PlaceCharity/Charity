@@ -77,7 +77,13 @@ export const teams = table('team', {
 
 export const teamMembers = table('teamMember', {
 	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
-	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' })
+	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+
+	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
+	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
+	canManageMembers: integer('canRemoveMembers', { mode: 'boolean' }).notNull().default(false),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 }, (tm) => ({
 	compoundKey: primaryKey({ columns: [ tm.teamId, tm.userId ] })
 }));

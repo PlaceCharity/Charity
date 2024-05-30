@@ -7,25 +7,43 @@ import { InferSelectModel, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
-class APITeam {
+export class APITeam {
 	id: string;
 	namespace: string;
 
 	displayName: string;
 	description: string;
 
-	members: string[];
-
 	createdAt: Date;
 
-	constructor(team: InferSelectModel<typeof teams>, members: InferSelectModel<typeof teamMembers>[]) {
+	constructor(team: InferSelectModel<typeof teams>) {
 		this.id = team.id;
 		this.namespace = team.namespace;
 		this.displayName = team.displayName;
 		this.description = team.description;
 		this.createdAt = team.createdAt;
+	}
+}
 
-		this.members = members.map(m => m.userId);
+export class APITeamMember {
+	teamId: string;
+	user: APIUser;
+	
+	canManageTemplates: boolean;
+	canInviteMembers: boolean;
+	canManageMembers: boolean;
+
+	createdAt: Date;
+
+	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
+		this.teamId = member.teamId;
+		this.user = user;
+
+		this.canManageTemplates = member.canManageTemplates;
+		this.canInviteMembers = member.canInviteMembers;
+		this.canManageMembers = member.canManageMembers;
+
+		this.createdAt = member.createdAt;
 	}
 }
 
@@ -49,12 +67,16 @@ export default new Elysia()
 					throw err;
 				});
 
-				const members = await db.insert(teamMembers).values({
+				await db.insert(teamMembers).values({
 					teamId: team[0].id,
-					userId: session.user.id
-				}).returning();
+					userId: session.user.id,
 
-				return Response.json(new APITeam(team[0], members));
+					canManageTemplates: true,
+					canInviteMembers: true,
+					canManageMembers: true
+				});
+
+				return Response.json(new APITeam(team[0]));
 			}
 		},
 		{
@@ -89,7 +111,7 @@ export default new Elysia()
 			});
 
 			// TODO: Remove this workaround? see user.ts
-			return Response.json(new APITeam(team, members));
+			return Response.json(new APITeam(team));
 		},
 		{
 			detail: { summary: 'Get team details' },
@@ -109,20 +131,14 @@ export default new Elysia()
 				where: like(teamMembers.teamId, team.id)
 			});
 
-			return (
-				(
-					// get all members' user details from database
-					(await Promise.all(members.map(async member => { 
-						return await db.query.users.findFirst({
-							where: like(users.id, member.userId)
-						});
-					})))
-					// remove undefined
-					.filter(user => user != undefined)
-				// tell typescript we removed undefined
-				) as InferSelectModel<typeof users>[]
-			// convert to APIUser[]
-			).map(user => new APIUser(user)); 
+			return (await Promise.all(members.map(async member => {
+				const user = await db.query.users.findFirst({
+					where: like(users.id, member.userId)
+				});
+				if (user == undefined) return;
+
+				return new APITeamMember(member, new APIUser(user));
+			}))).filter(m => m != undefined) as APITeamMember[];
 		},
 		{
 			detail: { summary: 'Get team members' },
