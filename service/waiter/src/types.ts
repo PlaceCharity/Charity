@@ -54,3 +54,5 @@ export class AlreadyExistsError extends Error {
 }
 
 export { APIUser } from '~/controller/user';
+export { APITeam, APITeamMember } from '~/controller/team';
+export { APILink } from '~/controller/link';
