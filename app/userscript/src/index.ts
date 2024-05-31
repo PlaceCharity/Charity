@@ -5,14 +5,19 @@ import * as utils from './lib/utils';
 import './meta.js?userscript-metadata';
 import * as settings from './ui/settings';
 
-GM_addStyle(globalCss);
+if (utils.asyncAddStyleSupport()) {
+	GM.addStyle(globalCss);
+} else {
+	GM_addStyle(globalCss);
+}
 
 let canvasElements: HTMLCanvasElement[] = [];
 let selectedCanvas: HTMLCanvasElement;
 
 (async () => {
 	if (!utils.windowIsEmbedded()) {
-		document.documentElement.classList.add('top-window');
+		document.documentElement.classList.add('charity-top-window');
+		GM.deleteValue('openSettings');
 		GM.deleteValue('canvasFound');
 		GM.setValue('jsonTemplate', utils.findJSONTemplateInURL(window.location) ?? '');
 	}
@@ -24,7 +29,7 @@ let selectedCanvas: HTMLCanvasElement;
 	console.log('Found Canvas:');
 	console.log(selectedCanvas);
 
-	document.documentElement.classList.add('canvas-window');
+	document.documentElement.classList.add('charity-canvas-window');
 	settings.init();
 
 	const jsonTemplate = await findTemplate();

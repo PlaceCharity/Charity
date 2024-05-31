@@ -12,7 +12,7 @@
 // @match       https://www.reddit.com/r/place/*
 // @match       https://new.reddit.com/r/place/*
 // @match       https://sh.reddit.com/r/place/*
-// @run-at      document-start
+// @run-at      document-idle
 // @connect     *
 // @allFrames   true
 // @downloadURL https://github.com/PlaceCharity/
@@ -20,11 +20,13 @@
 // @supportURL  https://discord.gg/anBdazHcrH
 // @homepageURL https://discord.gg/anBdazHcrH
 // @license     MIT
+// @require     https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2/dist/solid.min.js
 // @resource    settings https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/settings.svg
 // @resource    close https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg
+// @grant       GM.addValueChangeListener
 // @grant       GM.deleteValue
 // @grant       GM.getResourceUrl
 // @grant       GM.getValue
@@ -32,15 +34,23 @@
 // @grant       GM.setValue
 // @grant       GM.xmlHttpRequest
 // @grant       GM_addStyle
+// @grant       unsafeWindow
 // ==/UserScript==
 
-(async () => {
-if(GM.info.scriptHandler === 'Greasemonkey') alert('Charity Overlay has dropped support for Greasemonkey!\n\nIn all honesty nobody should be using Greasemonkey in 2024.\n\nFor a lightweight, privacy focused alternative, my recommendation is to switch to FireMonkey.\n\nFor an open source, one size fits all solution, my recommendation is to switch to Violentmonkey.');
 (function (web, ui) {
 'use strict';
 
-var css_248z = "*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.settings-icon{--un-shadow:8px 8px 0px 0px var(--un-shadow-color,rgba(0,0,0,.75))!important;--un-bg-opacity:1!important;--un-border-opacity:1!important;align-items:center!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important;border-color:rgb(0 0 0/var(--un-border-opacity))!important;border-style:solid!important;border-width:3px!important;box-shadow:var(--un-ring-offset-shadow),var(--un-ring-shadow),var(--un-shadow)!important;box-sizing:content-box!important;display:flex!important;height:38px!important;justify-content:center!important;padding:0!important;position:relative!important;visibility:visible!important;width:38px!important}\n\n.settings-icon:active,.settings-icon:hover{--un-bg-opacity:1!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important}.settings-icon:active{--un-scale-x:0.95!important;--un-scale-y:0.95!important;background-image:linear-gradient(rgba(0,0,0,.3) 0 0)!important;transform:translateX(var(--un-translate-x)) translateY(var(--un-translate-y)) translateZ(var(--un-translate-z)) rotate(var(--un-rotate)) rotateX(var(--un-rotate-x)) rotateY(var(--un-rotate-y)) rotate(var(--un-rotate-z)) skewX(var(--un-skew-x)) skewY(var(--un-skew-y)) scaleX(var(--un-scale-x)) scaleY(var(--un-scale-y)) scaleZ(var(--un-scale-z))!important}.settings-icon:hover{background-image:linear-gradient(rgba(0,0,0,.2) 0 0)!important;cursor:pointer!important}.settings-icon>img{margin:0!important;padding:8px!important}.panel{cursor:move!important}.panel,.settings-panel{visibility:visible!important}.settings-panel{--un-shadow:8px 8px 0px 0px var(--un-shadow-color,rgba(0,0,0,.75))!important;--un-bg-opacity:1!important;--un-text-opacity:1!important;--un-border-opacity:1!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important;border-color:rgb(0 0 0/var(--un-border-opacity))!important;border-style:solid!important;border-width:3px!important;box-shadow:var(--un-ring-offset-shadow),var(--un-ring-shadow),var(--un-shadow)!important;box-sizing:content-box!important;color:rgb(0 0 0/var(--un-text-opacity))!important;display:flex!important;flex-direction:column!important;padding:21px!important}.settings-header{align-items:center!important;display:flex!important;justify-content:space-between!important}.settings-header>h2{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji!important;font-size:18px!important;font-weight:600!important;line-height:24px!important;margin-top:5px!important;padding:0!important}.settings-close{--un-border-left-opacity:var(--un-border-opacity)!important;--un-border-opacity:1!important;--un-border-bottom-opacity:var(--un-border-opacity)!important;align-items:center!important;border-bottom:3px solid rgb(0 0 0/var(--un-border-bottom-opacity))!important;border-left:3px solid rgb(0 0 0/var(--un-border-left-opacity))!important;box-sizing:content-box!important;cursor:pointer!important;display:flex!important;height:29px!important;justify-content:center!important;position:absolute!important;right:0!important;top:0!important;width:29px!important}.settings-close>img{height:20px!important;margin:0!important;width:20px!important}";
+var css_248z = "*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.charity-settings-icon{--un-shadow:8px 8px 0px 0px var(--un-shadow-color,rgba(0,0,0,.75))!important;--un-bg-opacity:1!important;--un-border-opacity:1!important;align-items:center!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important;border-color:rgb(0 0 0/var(--un-border-opacity))!important;border-style:solid!important;border-width:3px!important;box-shadow:var(--un-ring-offset-shadow),var(--un-ring-shadow),var(--un-shadow)!important;box-sizing:content-box!important;display:flex!important;height:38px!important;justify-content:center!important;padding:0!important;position:relative!important;visibility:visible!important;width:38px!important}\n\n.charity-settings-icon:active,.charity-settings-icon:hover{--un-bg-opacity:1!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important}.charity-settings-icon:active{--un-scale-x:0.95!important;--un-scale-y:0.95!important;background-image:linear-gradient(rgba(0,0,0,.3) 0 0)!important;transform:translateX(var(--un-translate-x)) translateY(var(--un-translate-y)) translateZ(var(--un-translate-z)) rotate(var(--un-rotate)) rotateX(var(--un-rotate-x)) rotateY(var(--un-rotate-y)) rotate(var(--un-rotate-z)) skewX(var(--un-skew-x)) skewY(var(--un-skew-y)) scaleX(var(--un-scale-x)) scaleY(var(--un-scale-y)) scaleZ(var(--un-scale-z))!important}.charity-settings-icon:hover{background-image:linear-gradient(rgba(0,0,0,.2) 0 0)!important;cursor:pointer!important}.charity-settings-icon>img{margin:0!important;padding:8px!important}.charity-panel{visibility:visible!important}.charity-welcome-panel{--un-shadow:8px 8px 0px 0px var(--un-shadow-color,rgba(0,0,0,.75))!important;box-shadow:var(--un-ring-offset-shadow),var(--un-ring-shadow),var(--un-shadow)!important;box-sizing:content-box!important;cursor:move!important;max-width:261px!important;width:261px!important}.charity-settings-panel,.charity-welcome-panel{--un-bg-opacity:1!important;--un-text-opacity:1!important;--un-border-opacity:1!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important;border-color:rgb(0 0 0/var(--un-border-opacity))!important;border-style:solid!important;border-width:3px!important;color:rgb(0 0 0/var(--un-text-opacity))!important;display:flex!important;flex-direction:column!important;padding:21px!important;visibility:visible!important}.charity-settings-panel{box-sizing:border-box!important;height:100%!important;position:fixed!important;right:0!important;top:0!important;width:100%!important}\n\n@media (min-width:640px){.charity-settings-panel{max-width:400px!important;min-width:300px!important;width:30%!important}}.charity-panel-header{align-items:center!important;display:flex!important;justify-content:space-between!important}.charity-panel-header>h2{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji!important;font-size:18px!important;font-weight:600!important;line-height:24px!important;margin-top:5px!important;padding:0!important}.charity-panel-close{--un-border-left-opacity:var(--un-border-opacity)!important;--un-border-opacity:1!important;--un-border-bottom-opacity:var(--un-border-opacity)!important;align-items:center!important;border-bottom:3px solid rgb(0 0 0/var(--un-border-bottom-opacity))!important;border-left:3px solid rgb(0 0 0/var(--un-border-left-opacity))!important;box-sizing:content-box!important;cursor:pointer!important;display:flex!important;height:29px!important;justify-content:center!important;position:absolute!important;right:0!important;top:0!important;width:29px!important}.charity-panel-close>img{height:20px!important;margin:0!important;width:20px!important}.charity-panel-footer{--un-bg-opacity:1!important;--un-border-opacity:1!important;--un-border-top-opacity:var(--un-border-opacity)!important;background-color:rgb(255 255 255/var(--un-bg-opacity))!important;border-top:3px solid rgb(0 0 0/var(--un-border-top-opacity))!important;bottom:0!important;box-sizing:border-box!important;left:0!important;position:absolute!important;text-align:center!important;width:100%!important}.charity-panel-footer>p{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji!important;font-size:18px!important;line-height:24px!important;padding-left:21px!important;padding-right:21px!important}";
 
+function asyncAddStyleSupport() {
+  return typeof GM.addStyle !== 'undefined';
+}
+function valueChangeListenerSupport() {
+  return typeof GM.addValueChangeListener !== 'undefined';
+}
+function menuCommandSupport() {
+  return typeof GM.registerMenuCommand !== 'undefined';
+}
 function windowIsEmbedded() {
   return window.top !== window.self;
 }
@@ -123,30 +133,38 @@ const settings = GM.info.scriptHandler !== 'FireMonkey' ? GM.getResourceUrl('set
 const close = GM.info.scriptHandler !== 'FireMonkey' ? GM.getResourceUrl('close') : Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg');
 
 var _tmpl$ = /*#__PURE__*/web.template(`<img>`),
-  _tmpl$2 = /*#__PURE__*/web.template(`<div><div class=settings-header><h2>Charity Settings</h2><div class=settings-close><img>`);
+  _tmpl$2 = /*#__PURE__*/web.template(`<div><div class=charity-panel-header><h2>Charity Settings</h2><div class=charity-panel-close><img></div></div><div class=charity-panel-footer><p>Made&nbsp;with&nbsp;❤️&nbsp;by Mikarific&nbsp;and&nbsp;April.`);
 if (!windowIsEmbedded()) {
-  if (typeof GM.registerMenuCommand !== 'undefined') {
-    GM.registerMenuCommand('Open Settings', () => {
-      window.postMessage('charitySettings');
-      document.querySelectorAll('iframe').forEach(iframe => {
-        iframe.contentWindow.postMessage('charitySettings');
-      });
-    }, {
-      autoClose: true
-    });
+  if (menuCommandSupport()) {
+    GM.registerMenuCommand('Open Settings', () => GM.setValue('openSettings', true));
   }
 }
 async function init() {
   const settingsIconResource = await settings;
   const closeIconResource = await close;
+  if (valueChangeListenerSupport()) {
+    GM.addValueChangeListener('openSettings', (key, oldValue, newValue) => {
+      if (newValue) {
+        openSettings();
+        GM.deleteValue('openSettings');
+      }
+    });
+  } else {
+    setInterval(async () => {
+      if (await GM.getValue('openSettings')) {
+        openSettings();
+        GM.deleteValue('openSettings');
+      }
+    }, 500);
+  }
   const settingsIcon = ui.getPanel({
-    className: 'panel',
+    className: 'charity-panel',
     shadow: false,
     theme: 'dark'
   });
   settingsIcon.setMovable(true);
-  settingsIcon.body.classList.add('settings-icon');
-  if (typeof GM.registerMenuCommand === 'undefined') {
+  settingsIcon.body.classList.add('charity-settings-icon');
+  if (!menuCommandSupport()) {
     web.render(() => {
       let disableClick = false;
       return (() => {
@@ -166,12 +184,11 @@ async function init() {
     settingsIcon.wrapper.style.inset = `87px auto auto ${window.innerWidth - 60}px`;
   }
   const settingsPanel = ui.getPanel({
-    className: 'panel',
+    className: 'charity-panel',
     shadow: false,
     theme: 'dark'
   });
-  settingsPanel.setMovable(true);
-  settingsPanel.body.classList.add('settings-panel');
+  settingsPanel.body.classList.add('charity-settings-panel');
   web.render(SettingsPanel, settingsPanel.body);
   let settingsPanelOpen = false;
   function openSettings() {
@@ -192,12 +209,9 @@ async function init() {
   }
   function closeSettings() {
     settingsPanel.hide();
-    if (typeof GM.registerMenuCommand === 'undefined') settingsIcon.show();
+    if (!menuCommandSupport()) settingsIcon.show();
     settingsPanelOpen = false;
   }
-  window.addEventListener('message', e => {
-    if (e.data === 'charitySettings') openSettings();
-  }, false);
   function SettingsPanel() {
     return (() => {
       var _el$2 = _tmpl$2(),
@@ -213,13 +227,18 @@ async function init() {
 }
 web.delegateEvents(["mousemove", "click"]);
 
-GM_addStyle(css_248z);
+if (asyncAddStyleSupport()) {
+  GM.addStyle(css_248z);
+} else {
+  GM_addStyle(css_248z);
+}
 let canvasElements = [];
 let selectedCanvas;
 (async () => {
   if (!windowIsEmbedded()) {
     var _utils$findJSONTempla;
-    document.documentElement.classList.add('top-window');
+    document.documentElement.classList.add('charity-top-window');
+    GM.deleteValue('openSettings');
     GM.deleteValue('canvasFound');
     GM.setValue('jsonTemplate', (_utils$findJSONTempla = findJSONTemplateInURL(window.location)) != null ? _utils$findJSONTempla : '');
   }
@@ -229,7 +248,7 @@ let selectedCanvas;
   if (selectedCanvas === undefined) return;
   console.log('Found Canvas:');
   console.log(selectedCanvas);
-  document.documentElement.classList.add('canvas-window');
+  document.documentElement.classList.add('charity-canvas-window');
   init();
   const jsonTemplate = await findTemplate();
   console.log(jsonTemplate);
@@ -256,4 +275,3 @@ let selectedCanvas;
 })();
 
 })(VM.solid.web, VM);
-})();

@@ -4,17 +4,8 @@ import { render } from 'solid-js/web';
 import { getPanel } from '@violentmonkey/ui';
 
 if (!utils.windowIsEmbedded()) {
-	if (typeof GM.registerMenuCommand !== 'undefined') {
-		GM.registerMenuCommand(
-			'Open Settings',
-			() => {
-				window.postMessage('charitySettings');
-				document.querySelectorAll('iframe').forEach((iframe) => {
-					iframe.contentWindow.postMessage('charitySettings');
-				});
-			},
-			{ autoClose: true },
-		);
+	if (utils.menuCommandSupport()) {
+		GM.registerMenuCommand('Open Settings', () => GM.setValue('openSettings', true));
 	}
 }
 
@@ -22,14 +13,30 @@ export async function init() {
 	const settingsIconResource = await resources.settings;
 	const closeIconResource = await resources.close;
 
+	if (utils.valueChangeListenerSupport()) {
+		GM.addValueChangeListener('openSettings', (key, oldValue, newValue) => {
+			if (newValue) {
+				openSettings();
+				GM.deleteValue('openSettings');
+			}
+		});
+	} else {
+		setInterval(async () => {
+			if (await GM.getValue('openSettings')) {
+				openSettings();
+				GM.deleteValue('openSettings');
+			}
+		}, 500);
+	}
+
 	const settingsIcon = getPanel({
-		className: 'panel',
+		className: 'charity-panel',
 		shadow: false,
 		theme: 'dark',
 	});
 	settingsIcon.setMovable(true);
-	settingsIcon.body.classList.add('settings-icon');
-	if (typeof GM.registerMenuCommand === 'undefined') {
+	settingsIcon.body.classList.add('charity-settings-icon');
+	if (!utils.menuCommandSupport()) {
 		render(() => {
 			let disableClick = false;
 			return (
@@ -51,12 +58,11 @@ export async function init() {
 	}
 
 	const settingsPanel = getPanel({
-		className: 'panel',
+		className: 'charity-panel',
 		shadow: false,
 		theme: 'dark',
 	});
-	settingsPanel.setMovable(true);
-	settingsPanel.body.classList.add('settings-panel');
+	settingsPanel.body.classList.add('charity-settings-panel');
 
 	render(SettingsPanel, settingsPanel.body);
 
@@ -76,26 +82,21 @@ export async function init() {
 	}
 	function closeSettings() {
 		settingsPanel.hide();
-		if (typeof GM.registerMenuCommand === 'undefined') settingsIcon.show();
+		if (!utils.menuCommandSupport()) settingsIcon.show();
 		settingsPanelOpen = false;
 	}
-
-	window.addEventListener(
-		'message',
-		(e) => {
-			if (e.data === 'charitySettings') openSettings();
-		},
-		false,
-	);
 
 	function SettingsPanel() {
 		return (
 			<div>
-				<div class='settings-header'>
+				<div class='charity-panel-header'>
 					<h2>Charity Settings</h2>
-					<div class='settings-close' onClick={closeSettings}>
+					<div class='charity-panel-close' onClick={closeSettings}>
 						<img src={closeIconResource} />
 					</div>
+				</div>
+				<div class='charity-panel-footer'>
+					<p>Made&nbsp;with&nbsp;❤️&nbsp;by Mikarific&nbsp;and&nbsp;April.</p>
 				</div>
 			</div>
 		);

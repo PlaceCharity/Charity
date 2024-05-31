@@ -1,6 +1,6 @@
 @unocss preflights;
 
-.settings-icon {
+.charity-settings-icon {
 	@apply visible;
 	@apply p-0;
 	@apply border-3 border-solid border-black box-content;
@@ -17,16 +17,15 @@
 	@apply active:scale-95;
 }
 
-.settings-icon > img {
+.charity-settings-icon > img {
 	@apply p-[8px] m-0;
 }
 
-.panel {
+.charity-panel {
 	@apply visible;
-	@apply cursor-move;
 }
 
-.settings-panel {
+.charity-welcome-panel {
 	@apply visible;
 	@apply p-[21px];
 	@apply border-3 border-solid border-black box-content;
@@ -34,18 +33,31 @@
 	@apply bg-white;
 	@apply flex flex-col;
 	@apply text-black;
+	@apply w-[261px] max-w-[261px];
+	@apply cursor-move;
 }
 
-.settings-header {
+.charity-settings-panel {
+	@apply visible;
+	@apply w-full sm:w-[30%] sm:min-w-[300px] sm:max-w-[400px] h-full;
+	@apply fixed top-0 right-0;
+	@apply p-[21px];
+	@apply border-3 border-solid border-black box-border;
+	@apply bg-white;
+	@apply flex flex-col;
+	@apply text-black;
+}
+
+.charity-panel-header {
 	@apply flex justify-between items-center;
 }
 
-.settings-header > h2 {
+.charity-panel-header > h2 {
 	@apply text-[18px] leading-[24px] font-sans font-semibold;
 	@apply mt-5px p-0;
 }
 
-.settings-close {
+.charity-panel-close {
 	@apply absolute;
 	@apply top-0 right-0;
 	@apply flex items-center justify-center;
@@ -54,7 +66,19 @@
 	@apply cursor-pointer;
 }
 
-.settings-close > img {
+.charity-panel-close > img {
 	@apply w-[20px] h-[20px];
 	@apply m-0;
+}
+
+.charity-panel-footer {
+	@apply absolute w-full bottom-0 left-0;
+	@apply text-center;
+	@apply bg-white;
+	@apply border-t-3 border-t-solid border-t-black box-border;
+}
+
+.charity-panel-footer > p {
+	@apply text-[18px] leading-[24px] font-sans;
+	@apply px-[21px];
 }

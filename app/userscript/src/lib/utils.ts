@@ -1,3 +1,15 @@
+export function asyncAddStyleSupport() {
+	return typeof GM.addStyle !== 'undefined';
+}
+
+export function valueChangeListenerSupport() {
+	return typeof GM.addValueChangeListener !== 'undefined';
+}
+
+export function menuCommandSupport() {
+	return typeof GM.registerMenuCommand !== 'undefined';
+}
+
 export function windowIsEmbedded() {
 	return window.top !== window.self;
 }
