@@ -1,0 +1,39 @@
+name: Userscript release
+on:
+  push:
+    paths:
+      - 'app/userscript/**'
+jobs:
+  check:
+    name: Userscript release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EndBug/version-check@v2
+        id: version_check
+        with:
+          diff-search: true # Check the diffs too, and not just commit messages
+          file-name: ./app/userscript/package.json
+      - uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        if: steps.version_check.outputs.changed == 'true'
+        run: bun install
+      - name: Build userscript
+        if: steps.version_check.outputs.changed == 'true'
+        run: cd app/userscript && bun run build
+      - name: Generate changelog
+        if: steps.version_check.outputs.changed == 'true'
+        run: git log $(git describe --tags --abbrev=0 --match "overlay@*")..HEAD --oneline | tee generated_changelog.txt
+      - name: Create GitHub release
+        if: steps.version_check.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/CharityOverlay.user.js
+          fail_on_unmatched_files: true
+          body_path: ./generated_changelog.txt
+          generate_release_notes: false
+          draft: false
+          prerelease: false
+          make_latest: "true" # Intentionally a string
+          name: overlay@${{ steps.version_check.outputs.version }}
+          tag_name: overlay@${{ steps.version_check.outputs.version }}
