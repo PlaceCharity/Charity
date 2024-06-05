@@ -35,7 +35,7 @@ jobs:
       # Generate the changelog
       - name: Generate changelog
         if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
-        run: git log $(git describe --tags --abbrev=0 --match "userscript@*")..HEAD --oneline | tee generated_changelog.txt
+        run: git log $(git describe --tags --abbrev=0 --match "userscript@*")..HEAD --oneline | grep "userscript:" | tee generated_changelog.txt
       
       # Create the release
       - name: Create GitHub release
