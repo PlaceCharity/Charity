@@ -106,6 +106,40 @@ function draw() {
 	requestAnimationFrame(draw);
 }
 
+function getCurrentFrameIndex(template: template.Template, currentSeconds: number) {
+	if (!template.looping && template.startTimestamp + template.frameCount * template.secondsPerFrame < currentSeconds)
+		return template.frameCount - 1;
+
+	return utils.negativeSafeModulo(
+		Math.floor((currentSeconds - template.startTimestamp) / template.secondsPerFrame),
+		template.frameCount,
+	);
+}
+
 function drawTemplate(template: template.Template) {
-	ctx.drawImage(template.image, template.x, template.y);
+	const currentSeconds = Date.now() / 1000;
+	if (!template.looping && currentSeconds > template.startTimestamp + template.secondsPerFrame * template.frameCount)
+		return;
+
+	if (!template.image) return;
+
+	const frameIndex = getCurrentFrameIndex(template, currentSeconds);
+
+	if (template.image.width === 0 || template.image.height === 0) return;
+	const gridWidth = Math.round(template.image.width / template.frameWidth ?? template.image.width);
+	const gridX = frameIndex % gridWidth;
+	const gridY = Math.floor(frameIndex / gridWidth);
+	ctx.drawImage(
+		template.image,
+		gridX * template.frameWidth ?? template.image.width,
+		gridY * template.frameHeight ?? template.image.height,
+		template.frameWidth ?? template.image.width,
+		template.frameHeight ?? template.image.height,
+		template.x,
+		template.y,
+		template.frameWidth ?? template.image.width,
+		template.frameHeight ?? template.image.height,
+	);
+
+	template.currentFrame = frameIndex;
 }

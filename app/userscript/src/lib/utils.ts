@@ -18,6 +18,10 @@ export async function sleep(ms: number) {
 	await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function negativeSafeModulo(a: number, b: number): number {
+	return ((a % b) + b) % b;
+}
+
 function findJSONTemplateInParams(urlString: string): string | null {
 	const urlSearchParams = new URLSearchParams(urlString);
 	return urlSearchParams.get('charity');
@@ -44,7 +48,7 @@ export function findElementOfType<T>(element: Element | ShadowRoot, type: new ()
 	return rv;
 }
 
-function isValidURL(url: string) {
+export function isValidURL(url: string) {
 	try {
 		new URL(url);
 		return true;

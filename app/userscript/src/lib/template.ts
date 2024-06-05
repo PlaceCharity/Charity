@@ -13,6 +13,8 @@ export type Template = {
 	looping: boolean;
 	priority: number;
 	image: ImageBitmap;
+	blinkingPeriodMillis: number;
+	currentFrame: number;
 };
 
 type TemplateTree = Map<string, TemplateTree>;
@@ -45,6 +47,7 @@ export async function init() {
 }
 
 async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateTree) {
+	if (!utils.isValidURL(jsonTemplate)) return;
 	const templateURL = new URL(jsonTemplate);
 	templateURL.searchParams.append('date', utils.getCacheBustString());
 	const uniqueString = utils.getUniqueString(jsonTemplate);
@@ -89,6 +92,7 @@ async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateT
 						Infinity,
 					startTimestamp: json.templates[i].startTimestamp || json.templates[i].startTime || 0,
 					looping: json.templates[i].looping || (json.templates[i].frameCount || 1) > 1,
+					currentFrame: -1,
 					image: await getImageFromTemplateSources(json.templates[i].sources || []),
 				};
 			}

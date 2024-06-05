@@ -4,7 +4,7 @@
 // @description The most widely used overlay system on r/place.
 // @icon        https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icon.png
 // @icon64      https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icon64.png
-// @version     0.1.0
+// @version     0.1.1
 // @author      Mikarific
 // @match       http://localhost/*
 // @match       http://localhost:8193/*
@@ -70,6 +70,9 @@ function windowIsEmbedded() {
 }
 async function sleep(ms) {
   await new Promise(resolve => setTimeout(resolve, ms));
+}
+function negativeSafeModulo(a, b) {
+  return (a % b + b) % b;
 }
 function findJSONTemplateInParams(urlString) {
   const urlSearchParams = new URLSearchParams(urlString);
@@ -144,6 +147,7 @@ async function init$2() {
   loadTemplateFromURL(jsonTemplate, templateTree.get(jsonTemplate));
 }
 async function loadTemplateFromURL(jsonTemplate, templateTree) {
+  if (!isValidURL(jsonTemplate)) return;
   const templateURL = new URL(jsonTemplate);
   templateURL.searchParams.append('date', getCacheBustString());
   const uniqueString = getUniqueString(jsonTemplate);
@@ -184,6 +188,7 @@ async function loadTemplateFromURL(jsonTemplate, templateTree) {
           secondsPerFrame: json.templates[i].secondsPerFrame || json.templates[i].frameRate || json.templates[i].frameSpeed || Infinity,
           startTimestamp: json.templates[i].startTimestamp || json.templates[i].startTime || 0,
           looping: json.templates[i].looping || (json.templates[i].frameCount || 1) > 1,
+          currentFrame: -1,
           image: await getImageFromTemplateSources(json.templates[i].sources || [])
         };
       }
@@ -318,8 +323,22 @@ function draw() {
   }
   requestAnimationFrame(draw);
 }
+function getCurrentFrameIndex(template, currentSeconds) {
+  if (!template.looping && template.startTimestamp + template.frameCount * template.secondsPerFrame < currentSeconds) return template.frameCount - 1;
+  return negativeSafeModulo(Math.floor((currentSeconds - template.startTimestamp) / template.secondsPerFrame), template.frameCount);
+}
 function drawTemplate(template) {
-  ctx.drawImage(template.image, template.x, template.y);
+  var _ref, _ref2, _ref3, _template$frameWidth, _template$frameHeight, _template$frameWidth2, _template$frameHeight2;
+  const currentSeconds = Date.now() / 1000;
+  if (!template.looping && currentSeconds > template.startTimestamp + template.secondsPerFrame * template.frameCount) return;
+  if (!template.image) return;
+  const frameIndex = getCurrentFrameIndex(template, currentSeconds);
+  if (template.image.width === 0 || template.image.height === 0) return;
+  const gridWidth = Math.round((_ref = template.image.width / template.frameWidth) != null ? _ref : template.image.width);
+  const gridX = frameIndex % gridWidth;
+  const gridY = Math.floor(frameIndex / gridWidth);
+  ctx.drawImage(template.image, (_ref2 = gridX * template.frameWidth) != null ? _ref2 : template.image.width, (_ref3 = gridY * template.frameHeight) != null ? _ref3 : template.image.height, (_template$frameWidth = template.frameWidth) != null ? _template$frameWidth : template.image.width, (_template$frameHeight = template.frameHeight) != null ? _template$frameHeight : template.image.height, template.x, template.y, (_template$frameWidth2 = template.frameWidth) != null ? _template$frameWidth2 : template.image.width, (_template$frameHeight2 = template.frameHeight) != null ? _template$frameHeight2 : template.image.height);
+  template.currentFrame = frameIndex;
 }
 
 const settings = GM.info.scriptHandler !== 'FireMonkey' ? GM.getResourceUrl('settings') : Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/settings.svg');
