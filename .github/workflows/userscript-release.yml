@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EndBug/version-check@v2
         id: version_check
+        if: github.event_name != 'workflow_dispatch'
         with:
           diff-search: true # Check the diffs too, and not just commit messages
           file-name: ./app/userscript/package.json
