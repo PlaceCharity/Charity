@@ -1,8 +1,17 @@
+import globalCss from '../styles.css';
+
+import * as template from './template';
 import * as utils from './utils';
 
 let canvasElements: HTMLCanvasElement[] = [];
+let selectedCanvas: HTMLCanvasElement;
 
-export async function findCanvases() {
+const canvas = document.createElement('canvas');
+let ctx: CanvasRenderingContext2D;
+
+canvas.classList.add('charity-overlay');
+
+async function findCanvases() {
 	while (document.readyState !== 'complete') {
 		await utils.sleep(1000);
 	}
@@ -17,30 +26,11 @@ export async function findCanvases() {
 		canvasElements = utils.findElementOfType(document.documentElement, HTMLCanvasElement);
 	}
 	GM.setValue('canvasFound', true);
-	return canvasElements;
 }
 
-export async function findTemplate() {
-	let jsonTemplate: string;
-
-	let sleep = 0;
-	while (jsonTemplate === undefined) {
-		const scriptValue = await GM.getValue('jsonTemplate', '');
-		if (scriptValue === '') {
-			await utils.sleep(1000 * sleep);
-			sleep++;
-		} else {
-			jsonTemplate = scriptValue;
-			break;
-		}
-	}
-	await GM.deleteValue('jsonTemplate');
-	return jsonTemplate;
-}
-
-export function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
+function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
 	if (canvasElements.length === 0) return null;
-	let selectedCanvas = canvasElements[0];
+	selectedCanvas = canvasElements[0];
 	let selectedBounds = selectedCanvas.getBoundingClientRect();
 	for (let i = 0; i < canvasElements.length; i++) {
 		const canvas = canvasElements[i];
@@ -52,5 +42,70 @@ export function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
 			selectedBounds = canvasBounds;
 		}
 	}
-	return selectedCanvas;
+}
+
+export function updateOverlayCanvas(dotSize = 2) {
+	if (!selectedCanvas) return;
+	canvas.width = selectedCanvas.width;
+	canvas.height = selectedCanvas.height;
+	ctx = canvas.getContext('2d');
+	const dotSizes = [0, 1 / 4, 1 / 3, 1 / 2, 2 / 3, 3 / 4, 1];
+	canvas.style.maskImage = `conic-gradient(at ${dotSizes[dotSize]}px ${dotSizes[dotSize]}px, transparent 75%, black 0)`;
+	canvas.style.maskSize = '1px 1px';
+	canvas.style.maskPosition = `${(1 - dotSizes[dotSize]) / 2}px ${(1 - dotSizes[dotSize]) / 2}px`;
+	selectedCanvas.parentElement!.appendChild(canvas);
+}
+
+export async function init() {
+	await findCanvases();
+	if (canvasElements === undefined) return;
+
+	selectBestCanvas(canvasElements);
+	if (selectedCanvas === undefined) return;
+	console.log('Found Canvas:');
+	console.log(selectedCanvas);
+
+	const style = document.createElement('style');
+	style.setAttribute('type', 'text/css');
+	style.textContent = globalCss;
+	selectedCanvas.getRootNode().appendChild(style);
+
+	updateOverlayCanvas();
+	draw();
+}
+
+function draw() {
+	ctx.globalCompositeOperation = 'source-over';
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.globalCompositeOperation = 'destination-over';
+
+	const seenList: Set<string> = new Set();
+	const traverseQueue = template.getInitialTraverseQueue();
+	while (traverseQueue.length > 0) {
+		traverseQueue[0].tree.forEach((value, key) => {
+			if (!seenList.has(key)) {
+				traverseQueue.push({ url: key, tree: value });
+			} else {
+				traverseQueue[0].tree.delete(key);
+			}
+		});
+		if (!seenList.has(traverseQueue[0].url) && template.getTemplateCache().has(traverseQueue[0].url)) {
+			const templateJson = template.getTemplateCache().get(traverseQueue[0].url);
+			if (templateJson && templateJson.templates) {
+				for (const template of templateJson.templates) {
+					try {
+						drawTemplate(template);
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			}
+		}
+		seenList.add(traverseQueue.shift().url);
+	}
+	requestAnimationFrame(draw);
+}
+
+function drawTemplate(template: template.Template) {
+	ctx.drawImage(template.image, template.x, template.y);
 }

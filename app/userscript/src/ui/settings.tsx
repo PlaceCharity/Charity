@@ -1,7 +1,10 @@
-import * as resources from '../lib/resources';
-import * as utils from '../lib/utils';
+import { createEffect, createSignal } from 'solid-js';
 import { render } from 'solid-js/web';
 import { getPanel } from '@violentmonkey/ui';
+
+import * as canvas from '../lib/canvas';
+import * as resources from '../lib/resources';
+import * as utils from '../lib/utils';
 
 if (!utils.windowIsEmbedded()) {
 	if (utils.menuCommandSupport()) {
@@ -12,6 +15,17 @@ if (!utils.windowIsEmbedded()) {
 export async function init() {
 	const settingsIconResource = await resources.settings;
 	const closeIconResource = await resources.close;
+	const discordIconResource = await resources.discord;
+	const githubIconResource = await resources.github;
+
+	const factionPrideResource = await resources.factionPride;
+	const factionOsuResource = await resources.factionOsu;
+
+	const [dotSize, setDotSize] = createSignal(((await GM.getValue('dotSize')) as number) ?? 2);
+
+	createEffect(() => {
+		canvas.updateOverlayCanvas(dotSize());
+	});
 
 	if (utils.valueChangeListenerSupport()) {
 		GM.addValueChangeListener('openSettings', (key, oldValue, newValue) => {
@@ -64,8 +78,6 @@ export async function init() {
 	});
 	settingsPanel.body.classList.add('charity-settings-panel');
 
-	render(SettingsPanel, settingsPanel.body);
-
 	let settingsPanelOpen = false;
 	function openSettings() {
 		if (!settingsPanelOpen) {
@@ -95,10 +107,63 @@ export async function init() {
 						<img src={closeIconResource} />
 					</div>
 				</div>
+				<div class='charity-panel-body'>
+					<div class='charity-panel-body-setting-header'>
+						<h2>Dot Size</h2>
+						<h2>{['0', '¼', '⅓', '½', '⅔', '¾', '1'][dotSize()]}</h2>
+					</div>
+					<input
+						class='charity-setting-range'
+						type='range'
+						min='0'
+						max='6'
+						onInput={(e) => {
+							GM.setValue('dotSize', parseInt(e.target.value));
+							setDotSize(parseInt(e.target.value));
+							canvas.updateOverlayCanvas(parseInt(e.target.value));
+						}}
+						value={dotSize()}
+						step='1'
+					/>
+				</div>
 				<div class='charity-panel-footer'>
-					<p>Made&nbsp;with&nbsp;❤️&nbsp;by Mikarific&nbsp;and&nbsp;April.</p>
+					<div class='charity-panel-footer-branding'>
+						<span>Charity&nbsp;-&nbsp;v{GM.info.script.version}</span>
+						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
+							<img src={discordIconResource}></img>
+						</a>
+						<a href='https://github.com/PlaceCharity/Charity' target='_blank'>
+							<img src={githubIconResource}></img>
+						</a>
+					</div>
+					<div class='charity-panel-footer-credits'>
+						<span>Made&nbsp;with&nbsp;❤️&nbsp;by</span>
+						<ul>
+							<li>
+								<span>Mikarific&nbsp;from&nbsp;</span>
+								<a href='https://pride.place/' target='_blank'>
+									<img src={factionPrideResource}></img>&nbsp;<span>r/PlacePride</span>
+								</a>
+								.
+							</li>
+							<li>
+								<span>April&nbsp;&&nbsp;Endu&nbsp;from&nbsp;</span>
+								<a href='https://osu.place/' target='_blank'>
+									<img src={factionOsuResource}></img>&nbsp;<span>r/osuplace</span>
+								</a>
+								.
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		);
 	}
+
+	render(SettingsPanel, settingsPanel.body);
 }
+
+// export function getdotSize() {
+// 	const dotSizes = [0, 1 / 4, 1 / 3, 1 / 2, 1];
+// 	return dotSizes[getDotSize()];
+// }
