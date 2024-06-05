@@ -19,8 +19,7 @@ jobs:
           file-name: ./app/userscript/package.json
       # If it *is* dispatched manually, prepare package.json for reading the version
       - name: Read package.json
-        if: github.event_name == 'workflow_dispatch'
-        run: echo "PACKAGE_JSON=$(jq -c . < package.json)" >> $GITHUB_ENV
+        run: echo "PACKAGE_JSON=$(jq -c . < ./app/userscript/package.json)" >> $GITHUB_ENV
 
       # Build the userscript
       - uses: oven-sh/setup-bun@v1
@@ -48,5 +47,5 @@ jobs:
           draft: false
           prerelease: false
           make_latest: "true" # Intentionally a string
-          name: userscript@${{ steps.version_check.outputs.version || fromJson(env.PACKAGE_JSON).version }}
-          tag_name: userscript@${{ steps.version_check.outputs.version || fromJson(env.PACKAGE_JSON).version }}
+          name: userscript@${{ fromJson(env.PACKAGE_JSON).version }}
+          tag_name: userscript@${{ fromJson(env.PACKAGE_JSON).version }}
