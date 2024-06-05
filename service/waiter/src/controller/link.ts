@@ -1,10 +1,9 @@
-import { env } from '~/util/env';
+import { SQLiteError } from 'bun:sqlite';
+import { InferSelectModel, and, like } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
-import { AlreadyExistsError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
 import { links, teams } from '~/instance/database/schema';
-import { InferSelectModel, and, like } from 'drizzle-orm';
-import { SQLiteError } from 'bun:sqlite';
+import { AlreadyExistsError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
 export class APILink {
 	id: string;
@@ -29,11 +28,27 @@ export class APILink {
 }
 
 export default new Elysia()
-	.get('/team/:namespace/link', 
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Get team links' } }
+	.get('/team/:namespace/link',
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			const teamLinks = await db.query.links.findMany({
+				where: like(links.teamId, team.id)
+			});
+
+			return teamLinks.map((link) => new APILink(link));
+		},
+		{
+			detail: { summary: 'Get team links' },
+			params: t.Object({
+				namespace: t.String()
+			}),
+		}
 	)
-	.post('/team/:namespace/link/:slug', 
+	.post('/team/:namespace/link/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
@@ -75,7 +90,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.get('/team/:namespace/link/:slug', 
+	.get('/team/:namespace/link/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
@@ -100,11 +115,11 @@ export default new Elysia()
 			})
 		}
 	)
-	.put('/team/:namespace/link/:slug', 
+	.put('/team/:namespace/link/:slug',
 		() => { throw new NotImplementedError() },
 		{ detail: { summary: 'Update link details' } }
 	)
-	.delete('/team/:namespace/link/:slug', 
+	.delete('/team/:namespace/link/:slug',
 		() => { throw new NotImplementedError() },
 		{ detail: { summary: 'Delete a link' } }
 	)
