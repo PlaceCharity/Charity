@@ -9,9 +9,11 @@ jobs:
     name: Userscript release
     runs-on: ubuntu-latest
     steps:
+      # Fetch repo
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # This is required for the auto-changelog
+      
       # If this isn't dispatched manually, use version-check
       - uses: EndBug/version-check@v2
         id: version_check
@@ -19,7 +21,8 @@ jobs:
         with:
           diff-search: true # Check the diffs too, and not just commit messages
           file-name: ./app/userscript/package.json
-      # If it *is* dispatched manually, prepare package.json for reading the version
+      # Prepare package.json for reading the version
+      # We could get it from version_check, but in order to support workflow_dispatch (where version_check doesn't happen), we do it manually.
       - name: Read package.json
         run: echo "PACKAGE_JSON=$(jq -c . < ./app/userscript/package.json)" >> $GITHUB_ENV
 
