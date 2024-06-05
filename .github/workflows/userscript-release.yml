@@ -44,7 +44,7 @@ jobs:
         with:
           files: app/userscript/dist/CharityOverlay.user.js
           fail_on_unmatched_files: true
-          body_path: app/userscript/generated_changelog.txt
+          body_path: generated_changelog.txt
           generate_release_notes: false
           draft: false
           prerelease: false
