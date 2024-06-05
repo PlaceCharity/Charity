@@ -68,7 +68,7 @@ export async function init() {
 	const style = document.createElement('style');
 	style.setAttribute('type', 'text/css');
 	style.textContent = globalCss;
-	selectedCanvas.getRootNode().appendChild(style);
+	selectedCanvas.parentElement!.appendChild(style);
 
 	updateOverlayCanvas();
 	draw();
