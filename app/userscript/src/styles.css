@@ -48,7 +48,7 @@
 
 .charity-settings-panel {
 	@apply visible;
-	@apply w-full sm:w-[30%] sm:min-w-[350px] sm:max-w-[400px] h-full;
+	@apply w-full sm:w-[400px] h-full;
 	@apply fixed top-0 right-0;
 	@apply p-[21px];
 	@apply border-3 border-solid border-black box-border;
@@ -73,8 +73,11 @@
 .charity-panel-body-setting-header {
 	@apply flex justify-between;
 	@apply w-full max-w-[500px];
-	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 	@apply mt-5px p-0 p-t-[8px];
+}
+
+.charity-panel-body-setting-header > h2 {
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 }
 
 .charity-setting-range {
