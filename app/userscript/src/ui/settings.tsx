@@ -1,35 +1,56 @@
-import * as resources from '../lib/resources';
-import * as utils from '../lib/utils';
+import { createEffect, createSignal } from 'solid-js';
 import { render } from 'solid-js/web';
 import { getPanel } from '@violentmonkey/ui';
 
+import * as canvas from '../lib/canvas';
+import * as resources from '../lib/resources';
+import * as utils from '../lib/utils';
+
 if (!utils.windowIsEmbedded()) {
-	if (typeof GM.registerMenuCommand !== 'undefined') {
-		GM.registerMenuCommand(
-			'Open Settings',
-			() => {
-				window.postMessage('charitySettings');
-				document.querySelectorAll('iframe').forEach((iframe) => {
-					iframe.contentWindow.postMessage('charitySettings');
-				});
-			},
-			{ autoClose: true },
-		);
+	if (utils.menuCommandSupport()) {
+		GM.registerMenuCommand('Open Settings', () => GM.setValue('openSettings', true));
 	}
 }
 
 export async function init() {
 	const settingsIconResource = await resources.settings;
 	const closeIconResource = await resources.close;
+	const discordIconResource = await resources.discord;
+	const githubIconResource = await resources.github;
+
+	const factionPrideResource = await resources.factionPride;
+	const factionOsuResource = await resources.factionOsu;
+
+	const [dotSize, setDotSize] = createSignal(((await GM.getValue('dotSize')) as number) ?? 2);
+
+	createEffect(() => {
+		canvas.updateOverlayCanvas(dotSize());
+	});
+
+	if (utils.valueChangeListenerSupport()) {
+		GM.addValueChangeListener('openSettings', (key, oldValue, newValue) => {
+			if (newValue) {
+				openSettings();
+				GM.deleteValue('openSettings');
+			}
+		});
+	} else {
+		setInterval(async () => {
+			if (await GM.getValue('openSettings')) {
+				openSettings();
+				GM.deleteValue('openSettings');
+			}
+		}, 500);
+	}
 
 	const settingsIcon = getPanel({
-		className: 'panel',
+		className: 'charity-panel',
 		shadow: false,
 		theme: 'dark',
 	});
 	settingsIcon.setMovable(true);
-	settingsIcon.body.classList.add('settings-icon');
-	if (typeof GM.registerMenuCommand === 'undefined') {
+	settingsIcon.body.classList.add('charity-settings-icon');
+	if (!utils.menuCommandSupport()) {
 		render(() => {
 			let disableClick = false;
 			return (
@@ -51,14 +72,11 @@ export async function init() {
 	}
 
 	const settingsPanel = getPanel({
-		className: 'panel',
+		className: 'charity-panel',
 		shadow: false,
 		theme: 'dark',
 	});
-	settingsPanel.setMovable(true);
-	settingsPanel.body.classList.add('settings-panel');
-
-	render(SettingsPanel, settingsPanel.body);
+	settingsPanel.body.classList.add('charity-settings-panel');
 
 	let settingsPanelOpen = false;
 	function openSettings() {
@@ -76,28 +94,76 @@ export async function init() {
 	}
 	function closeSettings() {
 		settingsPanel.hide();
-		if (typeof GM.registerMenuCommand === 'undefined') settingsIcon.show();
+		if (!utils.menuCommandSupport()) settingsIcon.show();
 		settingsPanelOpen = false;
 	}
-
-	window.addEventListener(
-		'message',
-		(e) => {
-			if (e.data === 'charitySettings') openSettings();
-		},
-		false,
-	);
 
 	function SettingsPanel() {
 		return (
 			<div>
-				<div class='settings-header'>
+				<div class='charity-panel-header'>
 					<h2>Charity Settings</h2>
-					<div class='settings-close' onClick={closeSettings}>
+					<div class='charity-panel-close' onClick={closeSettings}>
 						<img src={closeIconResource} />
+					</div>
+				</div>
+				<div class='charity-panel-body'>
+					<div class='charity-panel-body-setting-header'>
+						<h2>Dot Size</h2>
+						<h2>{['0', '¼', '⅓', '½', '⅔', '¾', '1'][dotSize()]}</h2>
+					</div>
+					<input
+						class='charity-setting-range'
+						type='range'
+						min='0'
+						max='6'
+						onInput={(e) => {
+							GM.setValue('dotSize', parseInt(e.target.value));
+							setDotSize(parseInt(e.target.value));
+							canvas.updateOverlayCanvas(parseInt(e.target.value));
+						}}
+						value={dotSize()}
+						step='1'
+					/>
+				</div>
+				<div class='charity-panel-footer'>
+					<div class='charity-panel-footer-branding'>
+						<span>Charity&nbsp;-&nbsp;v{GM.info.script.version}</span>
+						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
+							<img src={discordIconResource}></img>
+						</a>
+						<a href='https://github.com/PlaceCharity/Charity' target='_blank'>
+							<img src={githubIconResource}></img>
+						</a>
+					</div>
+					<div class='charity-panel-footer-credits'>
+						<span>Made&nbsp;with&nbsp;❤️&nbsp;by</span>
+						<ul>
+							<li>
+								<span>Mikarific&nbsp;from&nbsp;</span>
+								<a href='https://pride.place/' target='_blank'>
+									<img src={factionPrideResource}></img>&nbsp;<span>r/PlacePride</span>
+								</a>
+								.
+							</li>
+							<li>
+								<span>April&nbsp;&&nbsp;Endu&nbsp;from&nbsp;</span>
+								<a href='https://osu.place/' target='_blank'>
+									<img src={factionOsuResource}></img>&nbsp;<span>r/osuplace</span>
+								</a>
+								.
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
 		);
 	}
+
+	render(SettingsPanel, settingsPanel.body);
 }
+
+// export function getdotSize() {
+// 	const dotSizes = [0, 1 / 4, 1 / 3, 1 / 2, 1];
+// 	return dotSizes[getDotSize()];
+// }

@@ -1,3 +1,15 @@
+export function asyncAddStyleSupport() {
+	return typeof GM.addStyle !== 'undefined';
+}
+
+export function valueChangeListenerSupport() {
+	return typeof GM.addValueChangeListener !== 'undefined';
+}
+
+export function menuCommandSupport() {
+	return typeof GM.registerMenuCommand !== 'undefined';
+}
+
 export function windowIsEmbedded() {
 	return window.top !== window.self;
 }
@@ -30,4 +42,36 @@ export function findElementOfType<T>(element: Element | ShadowRoot, type: new ()
 		rv.push(...findElementOfType(element.children[c], type));
 	}
 	return rv;
+}
+
+function isValidURL(url: string) {
+	try {
+		new URL(url);
+		return true;
+	} catch (err) {
+		return false;
+	}
+}
+
+export function getUniqueString(string: string) {
+	if (!isValidURL(string)) return null;
+	const url = new URL(string);
+	return `${url.origin}${url.pathname}`;
+}
+
+export function getCacheBustString() {
+	return Math.floor((Date.now() / 1000) * 60 * 2).toString(36);
+}
+
+export function fetch(
+	details: VMScriptGMXHRDetails<string | object | Document | Blob | ArrayBuffer>,
+): Promise<VMScriptResponseObject<string | object | Document | Blob | ArrayBuffer>> {
+	return new Promise((resolve, reject) => {
+		GM.xmlHttpRequest({
+			...details,
+			onload: (response) => resolve(response),
+			onerror: (err) => reject(err),
+			timeout: 10000,
+		});
+	});
 }

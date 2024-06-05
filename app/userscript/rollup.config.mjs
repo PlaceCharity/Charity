@@ -29,9 +29,6 @@ export default defineConfig(
 		output: {
 			format: 'iife',
 			file: `dist/${name}.user.js`,
-			banner:
-				"(async () => {\nif(GM.info.scriptHandler === 'Greasemonkey') alert('Charity Overlay has dropped support for Greasemonkey!\\n\\nIn all honesty nobody should be using Greasemonkey in 2024.\\n\\nFor a lightweight, privacy focused alternative, my recommendation is to switch to FireMonkey.\\n\\nFor an open source, one size fits all solution, my recommendation is to switch to Violentmonkey.');",
-			footer: '})();',
 			globals: {
 				// Note:
 				// - VM.solid is just a third-party UMD bundle for solid-js since there is no official one
