@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'app/userscript/**'
+  workflow_dispatch: {}
 jobs:
   check:
     name: Userscript release
@@ -11,26 +12,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EndBug/version-check@v2
         id: version_check
+        if: github.event_name != 'workflow_dispatch'
         with:
           diff-search: true # Check the diffs too, and not just commit messages
           file-name: ./app/userscript/package.json
       - uses: oven-sh/setup-bun@v1
       - name: Install dependencies
-        if: steps.version_check.outputs.changed == 'true'
+        if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: bun install
       - name: Build userscript
-        if: steps.version_check.outputs.changed == 'true'
+        if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: cd app/userscript && bun run build
       - name: Generate changelog
-        if: steps.version_check.outputs.changed == 'true'
+        if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: git log $(git describe --tags --abbrev=0 --match "overlay@*")..HEAD --oneline | tee generated_changelog.txt
       - name: Create GitHub release
-        if: steps.version_check.outputs.changed == 'true'
+        if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
-          files: ./dist/CharityOverlay.user.js
+          files: app/userscript/dist/CharityOverlay.user.js
           fail_on_unmatched_files: true
-          body_path: ./generated_changelog.txt
+          body_path: generated_changelog.txt
           generate_release_notes: false
           draft: false
           prerelease: false
