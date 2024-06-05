@@ -7,25 +7,43 @@ import { InferSelectModel, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
-class APITeam {
+export class APITeam {
 	id: string;
 	namespace: string;
 
 	displayName: string;
 	description: string;
 
-	members: string[];
-
 	createdAt: Date;
 
-	constructor(team: InferSelectModel<typeof teams>, members: InferSelectModel<typeof teamMembers>[]) {
+	constructor(team: InferSelectModel<typeof teams>) {
 		this.id = team.id;
 		this.namespace = team.namespace;
 		this.displayName = team.displayName;
 		this.description = team.description;
 		this.createdAt = team.createdAt;
+	}
+}
 
-		this.members = members.map(m => m.userId);
+export class APITeamMember {
+	teamId: string;
+	user: APIUser;
+	
+	canManageTemplates: boolean;
+	canInviteMembers: boolean;
+	canManageMembers: boolean;
+
+	createdAt: Date;
+
+	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
+		this.teamId = member.teamId;
+		this.user = user;
+
+		this.canManageTemplates = member.canManageTemplates;
+		this.canInviteMembers = member.canInviteMembers;
+		this.canManageMembers = member.canManageMembers;
+
+		this.createdAt = member.createdAt;
 	}
 }
 
@@ -49,21 +67,25 @@ export default new Elysia()
 					throw err;
 				});
 
-				const members = await db.insert(teamMembers).values({
+				await db.insert(teamMembers).values({
 					teamId: team[0].id,
-					userId: session.user.id
-				}).returning();
+					userId: session.user.id,
 
-				return Response.json(new APITeam(team[0], members));
+					canManageTemplates: true,
+					canInviteMembers: true,
+					canManageMembers: true
+				});
+
+				return Response.json(new APITeam(team[0]));
 			}
 		},
 		{
-			detail: { description: 'Create a new team' },
+			detail: { summary: 'Create a new team' },
 			params: t.Object({
 				namespace: t.String({
 					minLength: 2,
 					maxLength: 16,
-					pattern: '^[a-zA-Z0-9]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
+					pattern: '^[a-zA-Z0-9\-\_]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
 				}),
 			}),
 			body: t.Object({
@@ -89,10 +111,10 @@ export default new Elysia()
 			});
 
 			// TODO: Remove this workaround? see user.ts
-			return Response.json(new APITeam(team, members));
+			return Response.json(new APITeam(team));
 		},
 		{
-			detail: { description: 'Get team details' },
+			detail: { summary: 'Get team details' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -109,23 +131,17 @@ export default new Elysia()
 				where: like(teamMembers.teamId, team.id)
 			});
 
-			return (
-				(
-					// get all members' user details from database
-					(await Promise.all(members.map(async member => { 
-						return await db.query.users.findFirst({
-							where: like(users.id, member.userId)
-						});
-					})))
-					// remove undefined
-					.filter(user => user != undefined)
-				// tell typescript we removed undefined
-				) as InferSelectModel<typeof users>[]
-			// convert to APIUser[]
-			).map(user => new APIUser(user)); 
+			return (await Promise.all(members.map(async member => {
+				const user = await db.query.users.findFirst({
+					where: like(users.id, member.userId)
+				});
+				if (user == undefined) return;
+
+				return new APITeamMember(member, new APIUser(user));
+			}))).filter(m => m != undefined) as APITeamMember[];
 		},
 		{
-			detail: { description: 'Get team members' },
+			detail: { summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -133,9 +149,9 @@ export default new Elysia()
 	)
 	.put('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Update team details' } }
+		{ detail: { summary: 'Update team details' } }
 	)
 	.delete('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete a team' } }
+		{ detail: { summary: 'Delete a team' } }
 	)

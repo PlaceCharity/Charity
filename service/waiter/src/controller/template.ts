@@ -5,21 +5,21 @@ import { NotImplementedError } from '~/types';
 export default new Elysia()
 	.get('/team/:namespace/template', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Get team templates' } }
+		{ detail: { summary: 'Get team templates' } }
 	)
 	.post('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Create a new template' } }
+		{ detail: { summary: 'Create a new template' } }
 	)
 	.get('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Get template details' } }
+		{ detail: { summary: 'Get template details' } }
 	)
 	.put('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Update template details' } }
+		{ detail: { summary: 'Update template details' } }
 	)
 	.delete('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { description: 'Delete a template' } }
+		{ detail: { summary: 'Delete a template' } }
 	)
