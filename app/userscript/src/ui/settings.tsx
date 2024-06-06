@@ -128,7 +128,7 @@ export async function init() {
 				</div>
 				<div class='charity-panel-footer'>
 					<div class='charity-panel-footer-branding'>
-						<span>Charity&nbsp;-&nbsp;v{GM.info.script.version}</span>
+						<span>Charity&nbsp;Overlay&nbsp;-&nbsp;v{GM.info.script.version}</span>
 						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
 							<img src={discordIconResource}></img>
 						</a>

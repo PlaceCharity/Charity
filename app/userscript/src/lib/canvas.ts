@@ -1,5 +1,6 @@
 import globalCss from '../styles.css';
 
+import * as resources from './resources';
 import * as template from './template';
 import * as utils from './utils';
 
@@ -44,15 +45,31 @@ function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
 	}
 }
 
-export function updateOverlayCanvas(dotSize = 2) {
+export async function updateOverlayCanvas(dotSize = 2) {
 	if (!selectedCanvas) return;
 	canvas.width = selectedCanvas.width;
 	canvas.height = selectedCanvas.height;
 	ctx = canvas.getContext('2d');
-	const dotSizes = [0, 1 / 4, 1 / 3, 1 / 2, 2 / 3, 3 / 4, 1];
-	canvas.style.maskImage = `conic-gradient(at ${dotSizes[dotSize]}px ${dotSizes[dotSize]}px, transparent 75%, black 0)`;
-	canvas.style.maskSize = '1px 1px';
-	canvas.style.maskPosition = `${(1 - dotSizes[dotSize]) / 2}px ${(1 - dotSizes[dotSize]) / 2}px`;
+	const dotSizes = [
+		0,
+		await resources.mask14,
+		await resources.mask13,
+		await resources.mask12,
+		await resources.mask23,
+		await resources.mask34,
+		1,
+	];
+	if (dotSizes[dotSize] === 0) {
+		canvas.style.maskImage = '';
+		canvas.style.display = 'none';
+	} else if (dotSizes[dotSize] === 1) {
+		canvas.style.maskImage = '';
+		canvas.style.display = '';
+	} else {
+		canvas.style.maskImage = `url(${dotSizes[dotSize]})`;
+		canvas.style.maskSize = '1px 1px';
+		canvas.style.display = '';
+	}
 	selectedCanvas.parentElement!.appendChild(canvas);
 }
 
@@ -75,8 +92,16 @@ export async function init() {
 }
 
 function draw() {
+	const canvasBounds = canvas.getBoundingClientRect();
+	const scaleFactor = canvasBounds.width / canvas.width;
+	const left = Math.floor((canvasBounds.x * -1) / scaleFactor) - 5;
+	const top = Math.floor((canvasBounds.y * -1) / scaleFactor) - 5;
+	const right = canvas.width - (left + Math.ceil(window.innerWidth / scaleFactor) + 10);
+	const bottom = canvas.height - (top + Math.ceil(window.innerHeight / scaleFactor) + 10);
+	canvas.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+
 	ctx.globalCompositeOperation = 'source-over';
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.reset();
 	ctx.globalCompositeOperation = 'destination-over';
 
 	const seenList: Set<string> = new Set();

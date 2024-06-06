@@ -91,7 +91,7 @@
 }
 
 .charity-setting-range::-webkit-slider-runnable-track {
-	background: #ddd;
+	@apply bg-gray-300;
 }
 
 .charity-setting-range::-webkit-slider-thumb {
@@ -101,6 +101,46 @@
 	@apply bg-white;
 	@apply shadow-[-500px_0_0_500px_#d93a00];
 	@apply outline outline-[3px] outline-black box-border;
+}
+
+.charity-setting-range::-moz-range-track {
+	@apply h-[29px];
+	@apply bg-gray-300;
+}
+
+.charity-setting-range::-moz-range-thumb {
+	@apply w-[29px] h-[29px];
+	@apply bg-white;
+	@apply shadow-[-500px_0_0_500px_#d93a00];
+	@apply outline outline-[3px] outline-black box-border rounded-none;
+}
+
+.charity-setting-range::-ms-fill-lower {
+	@apply bg-[#d93a00];
+}
+
+.charity-setting-range::-ms-thumb {
+	@apply w-[29px] h-[29px];
+	@apply bg-white;
+	@apply outline outline-[3px] outline-black box-border rounded-none;
+}
+
+.charity-setting-range::-ms-ticks-after {
+	@apply hidden;
+}
+
+.charity-setting-range::-ms-ticks-before {
+	@apply hidden;
+}
+
+.charity-setting-range::-ms-track {
+	@apply bg-gray-300 text-transparent;
+	@apply h-[29px];
+	@apply border-none;
+}
+
+.charity-setting-range::-ms-tooltip {
+	@apply hidden;
 }
 
 .charity-panel-close {
@@ -147,7 +187,6 @@
 
 .charity-panel-footer-credits {
 	@apply flex flex-col;
-	/* @apply text-center; */
 	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 	@apply p-[16px];
 	@apply text-center;
@@ -179,13 +218,3 @@
 	@apply align-middle;
 	@apply m-0;
 }
-
-/* .charity-panel-footer > span > a {
-	@apply text-black underline;
-}
-
-.charity-panel-footer > span > img {
-	@apply h-[32px];
-	@apply align-middle;
-	@apply m-0;
-} */

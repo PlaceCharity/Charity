@@ -15,8 +15,8 @@
 // @run-at      document-idle
 // @connect     *
 // @allFrames   true
-// @downloadURL https://github.com/PlaceCharity/
-// @updateURL   https://github.com/PlaceCharity/
+// @downloadURL https://update.greasyfork.org/scripts/497105/Charity%20Overlay.user.js
+// @updateURL   https://update.greasyfork.org/scripts/497105/Charity%20Overlay.user.js
 // @supportURL  https://discord.gg/anBdazHcrH
 // @homepageURL https://discord.gg/anBdazHcrH
 // @license     process.env.LICENSE
@@ -24,6 +24,11 @@
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2/dist/solid.min.js
+// @resource    mask-1-4 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-4.png
+// @resource    mask-1-3 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-3.png
+// @resource    mask-1-2 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-2.png
+// @resource    mask-2-3 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/2-3.png
+// @resource    mask-3-4 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/3-4.png
 // @resource    settings https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/settings.svg
 // @resource    close https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg
 // @resource    discord https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/discord.svg
