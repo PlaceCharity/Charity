@@ -147,7 +147,7 @@
 .charity-setting-toggle {
 	@apply w-[64px] h-[32px];
 	@apply m-0;
-	@apply shadow-[inset_-32px_0_0_3px_#ff4500,inset_0_0_0_3px_#ff4500];
+	@apply shadow-[inset_-32px_0_0_3px_#898d90,inset_0_0_0_3px_#898d90];
 	@apply transition-shadow duration-200 ease-out;
 	@apply appearance-none;
 	@apply border-3 border-solid border-[black] box-border rounded-none;
