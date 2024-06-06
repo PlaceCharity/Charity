@@ -28,6 +28,10 @@ export const close =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('close')
 	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg');
+export const openInNew =
+	GM.info.scriptHandler !== 'FireMonkey' ?
+		GM.getResourceUrl('close')
+	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/open-in-new.svg');
 export const discord =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('discord')
