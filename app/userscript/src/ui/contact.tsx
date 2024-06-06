@@ -26,6 +26,22 @@ export function closeContactPanel() {
 	contactPanelOpen = false;
 }
 
+let templateName: string = '';
+let faction: string = '';
+let contact: string = '';
+
+createEffect(() => {
+	if (templateName === canvas.templateName()) return;
+	if (faction === canvas.faction()) return;
+	if (contact === canvas.contact()) return;
+
+	templateName = canvas.templateName();
+	faction = canvas.faction();
+	contact = canvas.contact();
+
+	centerContactPanel();
+});
+
 createEffect(() => {
 	if (canvas.contactVisible()) {
 		contactPanel.wrapper.style.display = '';
