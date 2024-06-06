@@ -9,13 +9,24 @@ jobs:
     name: Userscript release
     runs-on: ubuntu-latest
     steps:
+      # Fetch repo
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # This is required for the auto-changelog
+      
+      # If this isn't dispatched manually, use version-check
       - uses: EndBug/version-check@v2
         id: version_check
         if: github.event_name != 'workflow_dispatch'
         with:
           diff-search: true # Check the diffs too, and not just commit messages
           file-name: ./app/userscript/package.json
+      # Prepare package.json for reading the version
+      # We could get it from version_check, but in order to support workflow_dispatch (where version_check doesn't happen), we do it manually.
+      - name: Read package.json
+        run: echo "PACKAGE_JSON=$(jq -c . < ./app/userscript/package.json)" >> $GITHUB_ENV
+
+      # Build the userscript
       - uses: oven-sh/setup-bun@v1
       - name: Install dependencies
         if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
@@ -23,9 +34,13 @@ jobs:
       - name: Build userscript
         if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: cd app/userscript && bun run build
+
+      # Generate the changelog
       - name: Generate changelog
         if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
-        run: git log $(git describe --tags --abbrev=0 --match "overlay@*")..HEAD --oneline | tee generated_changelog.txt
+        run: git log $(git describe --tags --abbrev=0 --match "userscript@*")..HEAD --oneline | grep "userscript:" | tee generated_changelog.txt
+      
+      # Create the release
       - name: Create GitHub release
         if: steps.version_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
@@ -37,5 +52,5 @@ jobs:
           draft: false
           prerelease: false
           make_latest: "true" # Intentionally a string
-          name: overlay@${{ steps.version_check.outputs.version }}
-          tag_name: overlay@${{ steps.version_check.outputs.version }}
+          name: userscript@${{ fromJson(env.PACKAGE_JSON).version }}
+          tag_name: userscript@${{ fromJson(env.PACKAGE_JSON).version }}
