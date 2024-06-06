@@ -93,7 +93,6 @@ export async function init() {
 	selectedCanvas.parentElement!.appendChild(style);
 
 	updateOverlayCanvas();
-	ctx.globalCompositeOperation = 'destination-over';
 	draw();
 }
 
@@ -107,6 +106,7 @@ function draw() {
 	canvas.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
 
 	ctx.reset();
+	ctx.globalCompositeOperation = 'destination-over';
 
 	const currentSeconds = Date.now() / 1000;
 
