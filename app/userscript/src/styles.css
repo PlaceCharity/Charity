@@ -3,10 +3,7 @@
 .charity-overlay {
 	@apply absolute top-0 left-0;
 	@apply pointer-events-none;
-	image-rendering: -moz-crisp-edges !important;
-	image-rendering: -webkit-crisp-edges !important;
-	image-rendering: pixelated !important;
-	image-rendering: crisp-edges !important;
+	@apply rendering-pixelated;
 }
 
 .charity-settings-icon {
@@ -182,19 +179,28 @@
 .charity-panel-footer-branding {
 	@apply flex items-center;
 	@apply border-b-3 border-b-solid border-b-black box-border;
+	@apply bg-[#ff4500] text-white;
 }
 
 .charity-panel-footer-branding > span {
 	@apply whitespace-nowrap;
 	@apply grow;
 	@apply px-[16px];
-	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
+	@apply text-[18px] leading-[24px] font-sans font-semibold;
+}
+
+.charity-panel-footer-branding > img {
+	@apply h-[32px];
+	@apply m-0 px-[24px];
+	@apply align-bottom;
+	@apply rendering-pixelated;
 }
 
 .charity-panel-footer-branding > a > img {
 	@apply h-[24px];
 	@apply m-0 p-[16px];
 	@apply border-l-3 border-l-solid border-l-black box-content;
+	@apply bg-white text-black;
 	@apply hover:bg-white;
 	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
 	@apply hover:cursor-pointer;

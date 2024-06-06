@@ -44,6 +44,12 @@ export const github =
 	:	Promise.resolve(
 			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/github.svg',
 		);
+export const charityLogo =
+	GM.info.scriptHandler !== 'FireMonkey' ?
+		GM.getResourceUrl('charity-logo')
+	:	Promise.resolve(
+			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/website/static/img/logo.png',
+		);
 export const factionPride =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('faction-pride')

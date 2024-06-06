@@ -34,6 +34,7 @@
 // @resource    open-in-new https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/open-in-new.svg
 // @resource    discord https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/discord.svg
 // @resource    github https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/github.svg
+// @resource    charity-logo https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/website/static/img/logo.png
 // @resource    faction-pride https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/factions/pride.gif
 // @resource    faction-osu https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/factions/osu.png
 // @grant       GM_addStyle

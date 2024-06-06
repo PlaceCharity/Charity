@@ -9,4 +9,14 @@ export default defineConfig({
 			important: true,
 		}),
 	],
+	rules: [
+		// For some reason, I can only return a string here if the name of the rule is a regex...
+		[/^rendering-pixelated$/, () => {
+			return `
+image-rendering: -moz-crisp-edges;
+image-rendering: -webkit-crisp-edges;
+image-rendering: pixelated;
+image-rendering: crisp-edges;`
+		}],
+	],
 });
