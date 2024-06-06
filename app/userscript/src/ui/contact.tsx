@@ -29,17 +29,14 @@ export function closeContactPanel() {
 let templateName: string = '';
 let faction: string = '';
 let contact: string = '';
-
 createEffect(() => {
 	if (templateName === canvas.templateName()) return;
 	if (faction === canvas.faction()) return;
 	if (contact === canvas.contact()) return;
-
+	centerContactPanel();
 	templateName = canvas.templateName();
 	faction = canvas.faction();
 	contact = canvas.contact();
-
-	centerContactPanel();
 });
 
 createEffect(() => {

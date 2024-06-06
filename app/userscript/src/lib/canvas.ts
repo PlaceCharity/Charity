@@ -210,11 +210,11 @@ async function updateContactInfo(template: template.Template) {
 
 	if (currentX < x1) return;
 	if (currentY < y1) return;
-	if (currentX > x2) return;
-	if (currentY > y2) return;
+	if (currentX >= x2) return;
+	if (currentY >= y2) return;
 
 	const alpha = template.image.data[(currentY - y1) * (template.image.width * 4) + (currentX - x1) * 4 + 3];
-	if (alpha === 0) return;
+	if (alpha <= 127) return;
 	currentContactInfoTemplate = template;
 
 	setFaction(currentContactInfoTemplate.faction);
