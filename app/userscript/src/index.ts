@@ -1,5 +1,6 @@
 import globalCss from './styles.css';
 import * as canvas from './lib/canvas';
+import * as contact from './ui/contact';
 import * as settings from './ui/settings';
 import * as template from './lib/template';
 import * as utils from './lib/utils';
@@ -23,4 +24,5 @@ if (utils.asyncAddStyleSupport()) {
 	await canvas.init();
 	await template.init();
 	await settings.init();
+	await contact.init();
 })();

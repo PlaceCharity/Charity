@@ -1,6 +1,8 @@
 import * as utils from './utils';
 
 export type Template = {
+	faction: string;
+	contact: string;
 	name: string | null;
 	sources: string[];
 	x: number;
@@ -12,7 +14,8 @@ export type Template = {
 	startTimestamp: number;
 	looping: boolean;
 	priority: number;
-	image: ImageBitmap;
+	bitmap: ImageBitmap;
+	image: ImageData;
 	blinkingPeriodMillis: number;
 	currentFrame: number;
 };
@@ -46,7 +49,7 @@ export async function init() {
 	loadTemplateFromURL(jsonTemplate, templateTree.get(jsonTemplate));
 }
 
-async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateTree) {
+async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateTree, parentName: string = 'Unknown') {
 	if (!utils.isValidURL(jsonTemplate)) return;
 	const templateURL = new URL(jsonTemplate);
 	templateURL.searchParams.append('date', utils.getCacheBustString());
@@ -65,11 +68,14 @@ async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateT
 
 	if (json) {
 		if (json.whitelist instanceof Array) {
-			for (let whitelistURL of json.whitelist) {
-				whitelistURL = utils.getUniqueString(whitelistURL.url);
-				if (whitelistURL) {
+			for (const whitelistObject of json.whitelist) {
+				const whitelistName = whitelistObject.name ?? 'Unknown';
+				const whitelistURL = utils.getUniqueString(whitelistObject.url ?? '');
+				if (whitelistURL !== null) {
 					templateTree.set(whitelistURL, new Map());
-					if (!alreadyLoaded.includes(whitelistURL)) loadTemplateFromURL(whitelistURL, templateTree.get(whitelistURL));
+					if (!alreadyLoaded.includes(whitelistURL)) {
+						loadTemplateFromURL(whitelistURL, templateTree.get(whitelistURL), whitelistName);
+					}
 				}
 			}
 		}
@@ -77,23 +83,27 @@ async function loadTemplateFromURL(jsonTemplate: string, templateTree: TemplateT
 			for (let i = 0; i < json.templates.length; i++) {
 				if (typeof json.templates[i].x !== 'number') return;
 				if (typeof json.templates[i].y !== 'number') return;
+				const bitmap = await getImageFromTemplateSources(json.templates[i].sources ?? []);
 				json.templates[i] = {
-					name: json.templates[i].name || null,
-					sources: json.templates[i].sources || [],
+					faction: json.faction ?? parentName,
+					contact: json.contact ?? 'None',
+					name: json.templates[i].name ?? 'Untitled',
+					sources: json.templates[i].sources ?? [],
 					x: json.templates[i].x,
 					y: json.templates[i].y,
-					frameWidth: json.templates[i].frameWidth || null,
-					frameHeight: json.templates[i].frameHeight || null,
-					frameCount: json.templates[i].frameCount || 1,
+					frameWidth: json.templates[i].frameWidth ?? null,
+					frameHeight: json.templates[i].frameHeight ?? null,
+					frameCount: json.templates[i].frameCount ?? 1,
 					secondsPerFrame:
-						json.templates[i].secondsPerFrame ||
-						json.templates[i].frameRate ||
-						json.templates[i].frameSpeed ||
+						json.templates[i].secondsPerFrame ??
+						json.templates[i].frameRate ??
+						json.templates[i].frameSpeed ??
 						Infinity,
-					startTimestamp: json.templates[i].startTimestamp || json.templates[i].startTime || 0,
-					looping: json.templates[i].looping || (json.templates[i].frameCount || 1) > 1,
+					startTimestamp: json.templates[i].startTimestamp ?? json.templates[i].startTime ?? 0,
+					looping: json.templates[i].looping ?? (json.templates[i].frameCount ?? 1) > 1,
 					currentFrame: -1,
-					image: await getImageFromTemplateSources(json.templates[i].sources || []),
+					bitmap: bitmap,
+					image: getImageDataFromBitmap(bitmap),
 				};
 			}
 			templateCache.set(uniqueString, json);
@@ -125,6 +135,15 @@ async function getImageFromTemplateSource(requests) {
 	if (!response.response.type.startsWith('image')) return getImageFromTemplateSource(requests);
 
 	return createImageBitmap(response.response);
+}
+
+function getImageDataFromBitmap(imageBitmap: ImageBitmap) {
+	const templateCanvas = document.createElement('canvas');
+	templateCanvas.width = imageBitmap.width;
+	templateCanvas.height = imageBitmap.height;
+	const templateCtx = templateCanvas.getContext('2d');
+	templateCtx.drawImage(imageBitmap, 0, 0);
+	return templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
 }
 
 export function getInitialTraverseQueue() {

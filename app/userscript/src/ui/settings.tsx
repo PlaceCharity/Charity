@@ -3,6 +3,7 @@ import { render } from 'solid-js/web';
 import { getPanel } from '@violentmonkey/ui';
 
 import * as canvas from '../lib/canvas';
+import * as contact from '../ui/contact';
 import * as resources from '../lib/resources';
 import * as utils from '../lib/utils';
 
@@ -21,10 +22,18 @@ export async function init() {
 	const factionPrideResource = await resources.factionPride;
 	const factionOsuResource = await resources.factionOsu;
 
-	const [dotSize, setDotSize] = createSignal(((await GM.getValue('dotSize')) as number) ?? 2);
+	const [dotSize, setDotSize] = createSignal((await GM.getValue('dotSize', 2)) as number);
+	const [contactInfo, setContactInfo] = createSignal((await GM.getValue('contactInfo', false)) as boolean);
 
 	createEffect(() => {
 		canvas.updateOverlayCanvas(dotSize());
+	});
+	createEffect(() => {
+		if (contactInfo()) {
+			contact.openContactPanel();
+		} else {
+			contact.closeContactPanel();
+		}
 	});
 
 	if (utils.valueChangeListenerSupport()) {
@@ -125,6 +134,18 @@ export async function init() {
 						value={dotSize()}
 						step='1'
 					/>
+					<div class='charity-panel-body-setting-header'>
+						<h2>Contact Info</h2>
+						<input
+							type='checkbox'
+							class='charity-setting-toggle'
+							checked={contactInfo()}
+							onClick={() => {
+								setContactInfo(!contactInfo());
+								GM.setValue('contactInfo', contactInfo());
+							}}
+						/>
+					</div>
 				</div>
 				<div class='charity-panel-footer'>
 					<div class='charity-panel-footer-branding'>
