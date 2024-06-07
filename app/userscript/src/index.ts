@@ -6,6 +6,7 @@ import * as template from './lib/template';
 import * as utils from './lib/utils';
 
 import './meta.js?userscript-metadata';
+import * as shortcut from '@violentmonkey/shortcut';
 
 if (utils.asyncAddStyleSupport()) {
 	GM.addStyle(globalCss);
@@ -25,4 +26,16 @@ if (utils.asyncAddStyleSupport()) {
 	await template.init();
 	await settings.init();
 	await contact.init();
+
+	// document.documentElement.addEventListener('keydown', (e: KeyboardEvent) => {
+	// 	if (!e.key || ['ctrl', 'control', 'shift', 'alt', 'meta', 'cmd'].includes(e.key.toLowerCase())) return;
+	// 	shortcut.buildKey({
+	// 		base: e.key,
+	// 		modifierState: {
+	// 			c: e.ctrlKey,
+	// 			m: e.metaKey,
+	// 		},
+	// 		caseSensitive: true,
+	// 	});
+	// });
 })();
