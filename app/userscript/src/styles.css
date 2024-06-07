@@ -179,7 +179,6 @@
 .charity-panel-footer-branding {
 	@apply flex items-center;
 	@apply border-b-3 border-b-solid border-b-black box-border;
-	@apply bg-[#ff4500] text-white;
 }
 
 .charity-panel-footer-branding > span {
