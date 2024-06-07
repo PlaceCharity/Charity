@@ -126,7 +126,7 @@ function draw() {
 				for (const template of templateJson.templates) {
 					try {
 						drawTemplate(template, currentSeconds);
-						updateContactInfo(template);
+						updateContactInfo(template, currentSeconds);
 					} catch (e) {
 						console.error(e);
 					}
@@ -199,7 +199,7 @@ export const [contact, setContact] = createSignal('');
 export const [templateName, setTemplateName] = createSignal('');
 export const [contactVisible, setContactVisible] = createSignal(false);
 
-async function updateContactInfo(template: template.Template) {
+async function updateContactInfo(template: template.Template, currentSeconds: number) {
 	if (currentX === previousX && currentY === previousY) return;
 	if (currentContactInfoTemplate !== null) return;
 
@@ -213,7 +213,14 @@ async function updateContactInfo(template: template.Template) {
 	if (currentX >= x2) return;
 	if (currentY >= y2) return;
 
-	const alpha = template.image.data[(currentY - y1) * (template.image.width * 4) + (currentX - x1) * 4 + 3];
+	const frameIndex = getCurrentFrameIndex(template, currentSeconds);
+
+	if (template.image.width === 0 || template.image.height === 0) return;
+	const gridWidth = Math.round(template.image.width / template.frameWidth ?? template.image.width);
+	const x = (frameIndex % gridWidth) * template.frameWidth + (currentX - x1);
+	const y = Math.floor(frameIndex / gridWidth) * template.frameHeight + (currentY - y1);
+
+	const alpha = template.image.data[y * (template.image.width * 4) + x * 4 + 3];
 	if (alpha <= 127) return;
 	currentContactInfoTemplate = template;
 
