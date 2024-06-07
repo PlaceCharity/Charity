@@ -8,6 +8,8 @@
 // @author      process.env.AUTHOR
 // @match       http://localhost/*
 // @match       http://localhost:8193/*
+// @match       https://pxls.space/*
+// @match       https://rplace.live/*
 // @match       https://reddit.com/r/place/*
 // @match       https://www.reddit.com/r/place/*
 // @match       https://new.reddit.com/r/place/*
@@ -15,8 +17,8 @@
 // @run-at      document-idle
 // @connect     *
 // @allFrames   true
-// @downloadURL https://update.greasyfork.org/scripts/497105/Charity%20Overlay.user.js
-// @updateURL   https://update.greasyfork.org/scripts/497105/Charity%20Overlay.user.js
+// @downloadURL https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js
+// @updateURL   https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js
 // @supportURL  https://discord.gg/anBdazHcrH
 // @homepageURL https://discord.gg/anBdazHcrH
 // @license     process.env.LICENSE
@@ -24,6 +26,7 @@
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/ui@0.7
 // @require     https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2/dist/solid.min.js
+// @require     https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // @resource    mask-1-4 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-4.png
 // @resource    mask-1-3 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-3.png
 // @resource    mask-1-2 https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/masks/1-2.png
