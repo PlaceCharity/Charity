@@ -28,10 +28,16 @@ export const close =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('close')
 	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg');
+export const version =
+	GM.info.scriptHandler !== 'FireMonkey' ?
+		GM.getResourceUrl('version')
+	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/version.png');
 export const openInNew =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('open-in-new')
-	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/open-in-new.svg');
+	:	Promise.resolve(
+			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/open-in-new.svg',
+		);
 export const discord =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('discord')
@@ -47,9 +53,7 @@ export const github =
 export const charityLogo =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('charity-logo')
-	:	Promise.resolve(
-			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/website/static/img/logo.png',
-		);
+	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/website/static/img/logo.png');
 export const factionPride =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('faction-pride')

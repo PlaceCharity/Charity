@@ -16,6 +16,7 @@ if (!utils.windowIsEmbedded()) {
 export async function init() {
 	const settingsIconResource = await resources.settings;
 	const closeIconResource = await resources.close;
+	const versionResource = await resources.version;
 	const discordIconResource = await resources.discord;
 	const githubIconResource = await resources.github;
 
@@ -109,6 +110,48 @@ export async function init() {
 	}
 
 	function SettingsPanel() {
+		const versionCanvas = document.createElement('canvas');
+		const versionCtx = versionCanvas.getContext('2d');
+		const versionImage = new Image();
+		versionImage.src = versionResource;
+		versionImage.onload = () => {
+			let versionWidth = 9;
+			const versionCharacters = [...GM.info.script.version];
+			for (let i = 0; i < versionCharacters.length; i++) {
+				if (['.'].includes(versionCharacters[i])) versionWidth += 3;
+				if (['1'].includes(versionCharacters[i])) versionWidth += 4;
+				if (['7'].includes(versionCharacters[i])) versionWidth += 7;
+				if (['2', '5'].includes(versionCharacters[i])) versionWidth += 8;
+				if (['0', '3', '4', '6', '8', '9'].includes(versionCharacters[i])) versionWidth += 9;
+			}
+
+			versionCanvas.width = versionWidth;
+			versionCanvas.height = 16;
+
+			let versionCursor = 9;
+			versionCtx.drawImage(versionImage, 0, 0, 9, 16, 0, 0, 9, 16);
+
+			for (let i = 0; i < versionCharacters.length; i++) {
+				if (versionCharacters[i] === '.') versionCtx.drawImage(versionImage, 9, 0, 3, 16, versionCursor, 0, 3, 16);
+				if (versionCharacters[i] === '0') versionCtx.drawImage(versionImage, 12, 0, 9, 16, versionCursor, 0, 9, 16);
+				if (versionCharacters[i] === '1') versionCtx.drawImage(versionImage, 21, 0, 4, 16, versionCursor, 0, 4, 16);
+				if (versionCharacters[i] === '2') versionCtx.drawImage(versionImage, 25, 0, 8, 16, versionCursor, 0, 8, 16);
+				if (versionCharacters[i] === '3') versionCtx.drawImage(versionImage, 33, 0, 9, 16, versionCursor, 0, 9, 16);
+				if (versionCharacters[i] === '4') versionCtx.drawImage(versionImage, 42, 0, 9, 16, versionCursor, 0, 9, 16);
+				if (versionCharacters[i] === '5') versionCtx.drawImage(versionImage, 51, 0, 8, 16, versionCursor, 0, 8, 16);
+				if (versionCharacters[i] === '6') versionCtx.drawImage(versionImage, 59, 0, 9, 16, versionCursor, 0, 9, 16);
+				if (versionCharacters[i] === '7') versionCtx.drawImage(versionImage, 68, 0, 7, 16, versionCursor, 0, 7, 16);
+				if (versionCharacters[i] === '8') versionCtx.drawImage(versionImage, 75, 0, 9, 16, versionCursor, 0, 9, 16);
+				if (versionCharacters[i] === '9') versionCtx.drawImage(versionImage, 84, 0, 9, 16, versionCursor, 0, 9, 16);
+
+				if (['.'].includes(versionCharacters[i])) versionCursor += 3;
+				if (['1'].includes(versionCharacters[i])) versionCursor += 4;
+				if (['7'].includes(versionCharacters[i])) versionCursor += 7;
+				if (['2', '5'].includes(versionCharacters[i])) versionCursor += 8;
+				if (['0', '3', '4', '6', '8', '9'].includes(versionCharacters[i])) versionCursor += 9;
+			}
+		};
+
 		return (
 			<div>
 				<div class='charity-panel-header'>
@@ -150,8 +193,10 @@ export async function init() {
 				</div>
 				<div class='charity-panel-footer'>
 					<div class='charity-panel-footer-branding'>
-						<img src={charityLogoResource} />
-						<span>v{GM.info.script.version}</span>
+						<div>
+							<img src={charityLogoResource} />
+							{versionCanvas}
+						</div>
 						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
 							<img src={discordIconResource}></img>
 						</a>

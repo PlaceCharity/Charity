@@ -179,20 +179,26 @@
 .charity-panel-footer-branding {
 	@apply flex items-center;
 	@apply border-b-3 border-b-solid border-b-black box-border;
+	@apply bg-[#ff99aa];
 }
 
-.charity-panel-footer-branding > span {
-	@apply whitespace-nowrap;
+.charity-panel-footer-branding > div {
+	@apply flex items-end justify-center;
 	@apply grow;
-	@apply px-[16px];
-	@apply text-[18px] leading-[24px] font-sans font-semibold;
 }
 
-.charity-panel-footer-branding > img {
+.charity-panel-footer-branding > div > img {
 	@apply h-[32px];
-	@apply m-0 px-[24px];
+	@apply m-0 pr-[16px];
 	@apply align-bottom;
 	@apply rendering-pixelated;
+	@apply pointer-events-none;
+}
+
+.charity-panel-footer-branding > div > canvas {
+	@apply h-[16px];
+	@apply rendering-pixelated;
+	@apply pointer-events-none;
 }
 
 .charity-panel-footer-branding > a > img {

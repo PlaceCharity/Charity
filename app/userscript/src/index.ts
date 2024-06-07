@@ -6,7 +6,7 @@ import * as template from './lib/template';
 import * as utils from './lib/utils';
 
 import './meta.js?userscript-metadata';
-import * as shortcut from '@violentmonkey/shortcut';
+// import * as shortcut from '@violentmonkey/shortcut';
 
 if (utils.asyncAddStyleSupport()) {
 	GM.addStyle(globalCss);
