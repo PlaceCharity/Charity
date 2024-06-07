@@ -1,4 +1,4 @@
-[![Charity](https://github.com/PlaceCharity/Charity/raw/main/assets/readme.png)](https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js)  
+[![Charity](https://github.com/PlaceCharity/Charity/raw/main/assets/card.png)](https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js)  
 [![Version](https://img.shields.io/github/package-json/v/PlaceCharity/Charity?filename=app%2Fuserscript%2Fpackage.json&style=flat-square&label=Version&color=0284c7)](https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js)
 [![License](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2FPlaceCharity%2FCharity%2Fraw%2Fmain%2Fapp%2Fuserscript%2Fpackage.json&query=%24.license&style=flat-square&logoColor=white&label=License&color=d97706)](https://github.com/PlaceCharity/Charity/blob/main/app/userscript/LICENSE)  
 [![Github Installs](https://img.shields.io/github/downloads/PlaceCharity/Charity/total?style=flat-square&logoColor=white&label=Github%20Installs&color=1e971e)](https://github.com/PlaceCharity/Charity/releases/latest/download/CharityOverlay.user.js)
