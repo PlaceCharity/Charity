@@ -21,5 +21,7 @@ image-rendering: pixelated;
 image-rendering: crisp-edges;`;
 			},
 		],
+		['list-square', { 'list-style-type': 'square' }],
+		['content-empty', { content: '""' }],
 	],
 });

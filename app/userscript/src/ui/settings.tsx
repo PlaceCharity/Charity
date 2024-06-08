@@ -88,6 +88,7 @@ export async function init() {
 		theme: 'dark',
 	});
 	settingsPanel.body.classList.add('charity-settings-panel');
+	const [fadeShown, setFadeShown] = createSignal(false);
 
 	let settingsPanelOpen = false;
 	function openSettings() {
@@ -95,11 +96,6 @@ export async function init() {
 			settingsIcon.hide();
 			settingsPanel.show();
 			document.body.appendChild(settingsPanel.host);
-			settingsPanel.wrapper.style.inset = `0px auto auto 0px`;
-			const { width, height } = settingsPanel.body.getBoundingClientRect();
-			const x = window.innerWidth / 2 - width / 2;
-			const y = window.innerHeight / 2 - height / 2;
-			settingsPanel.wrapper.style.inset = `${y}px auto auto ${x}px`;
 			settingsPanelOpen = !settingsPanelOpen;
 		}
 	}
@@ -153,8 +149,8 @@ export async function init() {
 		};
 
 		return (
-			<div>
-				<div class='charity-panel-header'>
+			<div class='charity-settings-container'>
+				<div class={`charity-panel-header ${fadeShown() ? 'charity-panel-header-fade' : ''}`}>
 					<h2>Charity Settings</h2>
 					<div class='charity-panel-close' onClick={closeSettings}>
 						<img src={closeIconResource} />
@@ -192,18 +188,6 @@ export async function init() {
 					</div>
 				</div>
 				<div class='charity-panel-footer'>
-					<div class='charity-panel-footer-branding'>
-						<div>
-							<img src={charityLogoResource} />
-							{versionCanvas}
-						</div>
-						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
-							<img src={discordIconResource}></img>
-						</a>
-						<a href='https://github.com/PlaceCharity/Charity' target='_blank'>
-							<img src={githubIconResource}></img>
-						</a>
-					</div>
 					<div class='charity-panel-footer-credits'>
 						<span>Made&nbsp;with&nbsp;❤️&nbsp;by</span>
 						<ul>
@@ -223,12 +207,29 @@ export async function init() {
 							</li>
 						</ul>
 					</div>
+					<div class='charity-panel-footer-branding'>
+						<div>
+							<img src={charityLogoResource} />
+							{versionCanvas}
+						</div>
+						<a href='https://discord.gg/anBdazHcrH' target='_blank'>
+							<img src={discordIconResource}></img>
+						</a>
+						<a href='https://github.com/PlaceCharity/Charity' target='_blank'>
+							<img src={githubIconResource}></img>
+						</a>
+					</div>
 				</div>
 			</div>
 		);
 	}
 
 	render(SettingsPanel, settingsPanel.body);
+
+	settingsPanel.body.addEventListener('scroll', () => {
+		if (settingsPanel.body.scrollTop === 0) setFadeShown(false);
+		if (settingsPanel.body.scrollTop !== 0) setFadeShown(true);
+	});
 }
 
 // export function getdotSize() {

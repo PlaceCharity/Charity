@@ -47,24 +47,52 @@
 	@apply visible;
 	@apply w-full sm:w-[400px] h-full;
 	@apply fixed top-0 right-0;
-	@apply p-[21px];
-	@apply border-3 border-solid border-black box-border;
-	@apply bg-white;
+	@apply p-0 p-r-[3px];
+	@apply border-3 border-solid border-black box-border border-r-0;
+	@apply bg-black;
 	@apply flex flex-col;
 	@apply text-black;
+	@apply overflow-y-auto;
+}
+
+.charity-settings-container {
+	@apply flex flex-col;
+	@apply bg-white;
+	@apply min-h-full;
 }
 
 .charity-panel-header {
-	@apply flex justify-center items-center;
+	@apply sticky top-0;
+	@apply p-[21px];
+	@apply flex flex-col justify-center items-center;
+	@apply bg-white;
+	@apply z-50;
 }
 
 .charity-panel-header > h2 {
 	@apply text-black text-[24px] leading-[28px] font-sans font-semibold;
-	@apply mt-5px p-0 p-b-[8px];
+	@apply m-0 p-0;
+	@apply z-10;
+}
+
+.charity-panel-header::after {
+	@apply content-empty;
+	@apply absolute;
+	@apply top-full;
+	@apply w-full h-[32px];
+	@apply bg-gradient-to-t from-transparent to-white;
+	@apply pointer-events-none;
+	@apply opacity-0;
+}
+
+.charity-panel-header.charity-panel-header-fade::after {
+	@apply opacity-100;
 }
 
 .charity-panel-body {
-	@apply flex flex-col items-center justify-center;
+	@apply flex-grow;
+	@apply px-[21px];
+	@apply flex flex-col items-center;
 }
 
 .charity-panel-body-setting-header {
@@ -86,6 +114,9 @@
 	@apply rounded-none;
 	@apply border-3 border-solid border-black box-border;
 	@apply overflow-hidden;
+	@apply shadow-none;
+	@apply p-0;
+	@apply focus:outline-none;
 }
 
 .charity-setting-range::-webkit-slider-runnable-track {
@@ -98,7 +129,8 @@
 	@apply w-[26px] h-[32px];
 	@apply bg-white;
 	@apply shadow-[-500px_0_0_500px_#ff4500];
-	@apply outline outline-[3px] outline-black box-border;
+	@apply border-none;
+	@apply outline outline-[3px] outline-black box-border rounded-none;
 }
 
 .charity-setting-range::-moz-range-track {
@@ -110,6 +142,7 @@
 	@apply w-[26px] h-[32px];
 	@apply bg-white;
 	@apply shadow-[-500px_0_0_500px_#ff4500];
+	@apply border-none;
 	@apply outline outline-[3px] outline-black box-border rounded-none;
 }
 
@@ -120,6 +153,7 @@
 .charity-setting-range::-ms-thumb {
 	@apply w-[26px] h-[32px];
 	@apply bg-white;
+	@apply border-none;
 	@apply outline outline-[3px] outline-black box-border rounded-none;
 }
 
@@ -150,6 +184,7 @@
 	@apply border-3 border-solid border-[black] box-border rounded-none;
 	@apply bg-black;
 	@apply cursor-pointer;
+	@apply focus:outline-none;
 }
 
 .charity-setting-toggle:checked {
@@ -171,25 +206,27 @@
 }
 
 .charity-panel-footer {
-	@apply absolute w-full bottom-0 left-0;
+	@apply sticky;
+	@apply w-full bottom-0 left-0;
 	@apply bg-white;
 	@apply border-t-3 border-t-solid border-t-black box-border;
 }
 
 .charity-panel-footer-branding {
 	@apply flex items-center;
-	@apply border-b-3 border-b-solid border-b-black box-border;
+	@apply border-t-3 border-t-solid border-t-black box-border;
 	@apply bg-[#ff99aa];
 }
 
 .charity-panel-footer-branding > div {
 	@apply flex items-end justify-center;
 	@apply grow;
+	@apply gap-[16px];
 }
 
 .charity-panel-footer-branding > div > img {
 	@apply h-[32px];
-	@apply m-0 pr-[16px];
+	@apply m-0 p-0;
 	@apply align-bottom;
 	@apply rendering-pixelated;
 	@apply pointer-events-none;
@@ -214,30 +251,39 @@
 
 .charity-panel-footer-credits {
 	@apply flex flex-col;
-	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 	@apply p-[16px];
 	@apply text-center;
 	@apply whitespace-nowrap;
 }
 
 .charity-panel-footer-credits > span {
-	@apply h-[32px];
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 }
 
 .charity-panel-footer-credits > ul {
+	@apply self-center;
 	@apply text-left;
-	@apply m-0;
+	@apply m-0 p-0;
+}
+
+.charity-panel-footer-credits > ul > li {
+	@apply list-square list-inside;
+	@apply h-[24px];
+}
+
+.charity-panel-footer-credits > ul > li > span {
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold no-underline hover:no-underline;
 }
 
 .charity-panel-footer-credits > ul > li > a {
 	@apply h-[32px];
 	@apply align-middle;
 	@apply m-0;
-	@apply text-black no-underline hover:no-underline;
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold no-underline hover:no-underline;
 }
 
 .charity-panel-footer-credits > ul > li > a > span {
-	@apply underline;
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold underline;
 }
 
 .charity-panel-footer-credits > ul > li > a > img {
