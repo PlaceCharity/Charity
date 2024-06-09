@@ -1,7 +1,13 @@
 @unocss preflights;
 
+.charity-overlay-container {
+	@apply absolute;
+	@apply pointer-events-none;
+	@apply origin-top-left;
+}
+
 .charity-overlay {
-	@apply absolute top-0 left-0;
+	@apply w-full h-full;
 	@apply pointer-events-none;
 	@apply rendering-pixelated;
 }
