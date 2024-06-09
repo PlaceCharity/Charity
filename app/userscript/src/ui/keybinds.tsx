@@ -5,8 +5,10 @@ const [changingKeybind, setChangingKeybind] = createSignal('');
 
 export let dotSizeIncreaseKeybind: Accessor<{ display: string; register: string }>;
 let setDotSizeIncreaseKeybind: Setter<{ display: string; register: string }>;
+
 export let dotSizeDecreaseKeybind: Accessor<{ display: string; register: string }>;
 let setDotSizeDecreaseKeybind: Setter<{ display: string; register: string }>;
+
 export let contactInfoKeybind: Accessor<{ display: string; register: string }>;
 let setContactInfoKeybind: Setter<{ display: string; register: string }>;
 
@@ -114,7 +116,13 @@ function setKeybind(e: KeyboardEvent) {
 		displayKey += 'Alt + ';
 		shortcutComponents.shift();
 	}
-	displayKey += e.key.charAt(0).toUpperCase() + e.key.slice(1);
+	console.log(e);
+	const keyCode =
+		e.code
+			.replace(/^Key|Digit/, '')
+			.charAt(0)
+			.toUpperCase() + e.code.replace(/^Key|Digit/, '').slice(1);
+	displayKey += keyCode === '' ? e.key : keyCode;
 
 	if (changingKeybind() === 'dotSizeIncrease') {
 		if (e.key === 'Escape' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {

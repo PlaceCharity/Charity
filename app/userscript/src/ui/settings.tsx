@@ -30,6 +30,9 @@ export async function init() {
 
 	const [dotSize, setDotSize] = createSignal((await GM.getValue('dotSize', 2)) as number);
 	const [contactInfo, setContactInfo] = createSignal((await GM.getValue('contactInfo', false)) as boolean);
+	const [settingsIconEnabled, setSettingsIconEnabled] = createSignal(
+		(await GM.getValue('settingsIconEnabled', true)) as boolean,
+	);
 
 	createEffect(() => {
 		canvas.updateOverlayCanvas(dotSize());
@@ -67,7 +70,7 @@ export async function init() {
 	});
 	settingsIcon.setMovable(true);
 	settingsIcon.body.classList.add('charity-settings-icon');
-	if (!utils.menuCommandSupport()) {
+	if (settingsIconEnabled()) {
 		render(() => {
 			let disableClick = false;
 			return (
@@ -108,7 +111,7 @@ export async function init() {
 	}
 	function closeSettings() {
 		settingsPanel.hide();
-		if (!utils.menuCommandSupport()) settingsIcon.show();
+		if (settingsIconEnabled()) settingsIcon.show();
 		settingsPanelOpen = false;
 	}
 
@@ -208,6 +211,20 @@ export async function init() {
 								}}
 							/>
 						</div>
+						<Show when={utils.menuCommandSupport()}>
+							<div class='charity-panel-body-setting-header'>
+								<h2>Settings Icon</h2>
+								<input
+									type='checkbox'
+									class='charity-setting-toggle'
+									checked={settingsIconEnabled()}
+									onClick={() => {
+										setSettingsIconEnabled(!settingsIconEnabled());
+										GM.setValue('settingsIconEnabled', settingsIconEnabled());
+									}}
+								/>
+							</div>
+						</Show>
 					</div>
 				</Show>
 				<Show when={keybindPanelOpen()}>

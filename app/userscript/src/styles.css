@@ -99,7 +99,7 @@
 .charity-panel-body-setting-header {
 	@apply flex justify-between items-center;
 	@apply w-full max-w-[500px];
-	@apply mt-5px p-0;
+	@apply mt-5px p-0 gap-[8px];
 }
 
 .charity-panel-body-setting-header > h2 {
@@ -118,6 +118,7 @@
 	@apply flex items-center;
 	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
 	@apply hover:cursor-pointer;
+	@apply shadow-none focus:outline-none focus-visible:outline-none;
 }
 
 .charity-setting-button > img {
@@ -218,6 +219,7 @@
 	@apply flex items-center justify-center;
 	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
 	@apply hover:cursor-pointer;
+	@apply shadow-none focus:outline-none;
 }
 
 .charity-panel-back {
