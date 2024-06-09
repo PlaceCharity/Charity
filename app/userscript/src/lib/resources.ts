@@ -28,15 +28,19 @@ export const close =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('close')
 	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/close.svg');
+export const back =
+	GM.info.scriptHandler !== 'FireMonkey' ?
+		GM.getResourceUrl('back')
+	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/back.svg');
 export const version =
 	GM.info.scriptHandler !== 'FireMonkey' ?
 		GM.getResourceUrl('version')
 	:	Promise.resolve('https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/version.png');
-export const openInNew =
+export const keyboard =
 	GM.info.scriptHandler !== 'FireMonkey' ?
-		GM.getResourceUrl('open-in-new')
+		GM.getResourceUrl('keyboard')
 	:	Promise.resolve(
-			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/open-in-new.svg',
+			'https://raw.githubusercontent.com/PlaceCharity/Charity/main/app/userscript/assets/icons/keyboard.svg',
 		);
 export const discord =
 	GM.info.scriptHandler !== 'FireMonkey' ?

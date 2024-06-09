@@ -53,6 +53,7 @@
 	@apply flex flex-col;
 	@apply text-black;
 	@apply overflow-y-auto;
+	@apply scrollbar-thin;
 }
 
 .charity-settings-container {
@@ -104,11 +105,28 @@
 .charity-panel-body-setting-header > h2 {
 	@apply my-[8px];
 	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
+	@apply whitespace-nowrap;
+}
+
+.charity-setting-button {
+	@apply w-full h-auto;
+	@apply text-black text-[14px] leading-[20px] font-sans font-semibold;
+	@apply bg-[#d4d7d9];
+	@apply border-3 border-solid border-black box-border rounded-none;
+	@apply p-y-[9px] p-l-[13px] p-r-0;
+	@apply cursor-pointer;
+	@apply flex items-center;
+	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
+	@apply hover:cursor-pointer;
+}
+
+.charity-setting-button > img {
+	@apply w-[20px] h-[20px];
+	@apply m-0 mr-[8px];
 }
 
 .charity-setting-range {
 	@apply appearance-none;
-	-webkit-appearance: none !important;
 	@apply w-full max-w-[500px] h-[32px];
 	@apply cursor-pointer;
 	@apply rounded-none;
@@ -120,12 +138,11 @@
 }
 
 .charity-setting-range::-webkit-slider-runnable-track {
-	@apply bg-gray-300;
+	@apply bg-[#d4d7d9];
 }
 
 .charity-setting-range::-webkit-slider-thumb {
 	@apply appearance-none;
-	-webkit-appearance: none !important;
 	@apply w-[26px] h-[32px];
 	@apply bg-white;
 	@apply shadow-[-500px_0_0_500px_#ff4500];
@@ -135,7 +152,7 @@
 
 .charity-setting-range::-moz-range-track {
 	@apply h-[32px];
-	@apply bg-gray-300;
+	@apply bg-[#d4d7d9];
 }
 
 .charity-setting-range::-moz-range-thumb {
@@ -166,7 +183,7 @@
 }
 
 .charity-setting-range::-ms-track {
-	@apply bg-gray-300 text-transparent;
+	@apply bg-[#d4d7d9] text-transparent;
 	@apply h-[32px];
 	@apply border-none;
 }
@@ -178,7 +195,7 @@
 .charity-setting-toggle {
 	@apply w-[64px] h-[32px];
 	@apply m-0;
-	@apply shadow-[inset_-32px_0_0_3px_#898d90,inset_0_0_0_3px_#898d90];
+	@apply shadow-[inset_-32px_0_0_3px_#d4d7d9,inset_0_0_0_3px_#d4d7d9];
 	@apply transition-shadow duration-200 ease-out;
 	@apply appearance-none;
 	@apply border-3 border-solid border-[black] box-border rounded-none;
@@ -189,6 +206,32 @@
 
 .charity-setting-toggle:checked {
 	@apply shadow-[inset_32px_0_0_3px_#00cc78,inset_0_0_0_3px_#00cc78];
+}
+
+.charity-setting-keybind {
+	@apply w-auto h-auto min-w-[44px] min-h-[44px];
+	@apply text-black text-[14px] leading-[20px] font-sans font-semibold;
+	@apply bg-[#d4d7d9];
+	@apply border-3 border-solid border-black box-border rounded-none;
+	@apply p-y-[9px] p-x-[13px];
+	@apply cursor-pointer;
+	@apply flex items-center justify-center;
+	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
+	@apply hover:cursor-pointer;
+}
+
+.charity-panel-back {
+	@apply absolute;
+	@apply top-0 left-0;
+	@apply flex items-center justify-center;
+	@apply w-[29px] h-[29px];
+	@apply border-r-3 border-r-solid border-r-black border-b-3 border-b-solid border-b-black box-content;
+	@apply cursor-pointer;
+}
+
+.charity-panel-back > img {
+	@apply w-[20px] h-[20px];
+	@apply m-0;
 }
 
 .charity-panel-close {

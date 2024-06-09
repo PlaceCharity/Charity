@@ -23,5 +23,6 @@ image-rendering: crisp-edges;`;
 		],
 		['list-square', { 'list-style-type': 'square' }],
 		['content-empty', { content: '""' }],
+		['scrollbar-thin', { 'scrollbar-width': 'thin' }],
 	],
 });
