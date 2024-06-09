@@ -3,6 +3,9 @@ import * as shortcut from '@violentmonkey/shortcut';
 
 const [changingKeybind, setChangingKeybind] = createSignal('');
 
+export let showOverlayKeybind: Accessor<{ display: string; register: string }>;
+let setShowOverlayKeybind: Setter<{ display: string; register: string }>;
+
 export let dotSizeIncreaseKeybind: Accessor<{ display: string; register: string }>;
 let setDotSizeIncreaseKeybind: Setter<{ display: string; register: string }>;
 
@@ -13,6 +16,12 @@ export let contactInfoKeybind: Accessor<{ display: string; register: string }>;
 let setContactInfoKeybind: Setter<{ display: string; register: string }>;
 
 export async function init() {
+	[showOverlayKeybind, setShowOverlayKeybind] = createSignal(
+		await GM.getValue('showOverlayKeybind', {
+			display: 'V',
+			register: 'v',
+		}),
+	);
 	[dotSizeIncreaseKeybind, setDotSizeIncreaseKeybind] = createSignal(
 		await GM.getValue('dotSizeIncreaseKeybind', {
 			display: 'PageUp',
@@ -36,6 +45,20 @@ export async function init() {
 export function KeybindsBody() {
 	return (
 		<div class='charity-panel-body'>
+			<div class='charity-panel-body-setting-header'>
+				<h2>Show Overlay</h2>
+				<button
+					class='charity-setting-keybind'
+					onKeyDown={setKeybind}
+					onClick={() => {
+						setChangingKeybind('showOverlay');
+					}}
+					onFocusOut={resetChangingKeybind}
+				>
+					<Show when={changingKeybind() === 'showOverlay'}>...</Show>
+					<Show when={changingKeybind() !== 'showOverlay'}>{showOverlayKeybind().display}</Show>
+				</button>
+			</div>
 			<div class='charity-panel-body-setting-header'>
 				<h2>Increase Dot Size</h2>
 				<button
@@ -124,6 +147,15 @@ function setKeybind(e: KeyboardEvent) {
 			.toUpperCase() + e.code.replace(/^Key|Digit/, '').slice(1);
 	displayKey += keyCode === '' ? e.key : keyCode;
 
+	if (changingKeybind() === 'showOverlay') {
+		if (e.key === 'Escape' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+			setShowOverlayKeybind({ display: 'None', register: '' });
+			GM.setValue('showOverlayKeybind', showOverlayKeybind());
+		} else {
+			setShowOverlayKeybind({ display: displayKey, register: shortcutKey });
+			GM.setValue('showOverlayKeybind', showOverlayKeybind());
+		}
+	}
 	if (changingKeybind() === 'dotSizeIncrease') {
 		if (e.key === 'Escape' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
 			setDotSizeIncreaseKeybind({ display: 'None', register: '' });

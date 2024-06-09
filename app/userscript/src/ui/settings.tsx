@@ -28,12 +28,20 @@ export async function init() {
 	const factionPrideResource = await resources.factionPride;
 	const factionOsuResource = await resources.factionOsu;
 
+	const [showOverlay, setShowOverlay] = createSignal((await GM.getValue('showOverlay', true)) as boolean);
 	const [dotSize, setDotSize] = createSignal((await GM.getValue('dotSize', 2)) as number);
 	const [contactInfo, setContactInfo] = createSignal((await GM.getValue('contactInfo', false)) as boolean);
 	const [settingsIconEnabled, setSettingsIconEnabled] = createSignal(
 		(await GM.getValue('settingsIconEnabled', true)) as boolean,
 	);
 
+	createEffect(() => {
+		if (showOverlay()) {
+			canvas.showOverlay();
+		} else {
+			canvas.hideOverlay();
+		}
+	});
 	createEffect(() => {
 		canvas.updateOverlayCanvas(dotSize());
 	});
@@ -183,6 +191,18 @@ export async function init() {
 							Keybinds...
 						</button>
 						<div class='charity-panel-body-setting-header'>
+							<h2>Show Overlay</h2>
+							<input
+								type='checkbox'
+								class='charity-setting-toggle'
+								checked={showOverlay()}
+								onClick={() => {
+									setShowOverlay(!showOverlay());
+									GM.setValue('showOverlay', showOverlay());
+								}}
+							/>
+						</div>
+						<div class='charity-panel-body-setting-header'>
 							<h2>Dot Size</h2>
 							<h2>{['0', '¼', '⅓', '½', '⅔', '¾', '1'][dotSize()]}</h2>
 						</div>
@@ -289,6 +309,11 @@ export async function init() {
 			})
 			.replace(/^i:/, '');
 
+		if (keybinds.showOverlayKeybind().register === shortcutKey) {
+			setShowOverlay(!showOverlay());
+			GM.setValue('showOverlay', showOverlay());
+			e.preventDefault();
+		}
 		if (keybinds.dotSizeIncreaseKeybind().register === shortcutKey) {
 			setDotSize(Math.min(dotSize() + 1, 6));
 			GM.setValue('dotSize', dotSize());

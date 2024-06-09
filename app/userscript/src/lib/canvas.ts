@@ -260,6 +260,10 @@ function resetContactInfo() {
 	setContactVisible(false);
 }
 
-export function getSelectedCanvas() {
-	return selectedCanvas;
+export function hideOverlay() {
+	canvas.style.opacity = '0%';
+}
+
+export function showOverlay() {
+	canvas.style.opacity = '';
 }
