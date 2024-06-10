@@ -152,13 +152,16 @@ export default new Elysia()
 				)
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+			
 
 			const link = await db.update(links).set({
-				teamId: team.id,
-				slug: context.params.slug,
 				url: context.body.url,
-				text: context.body.text
-			}).where(like(links.slug, context.params.slug)).returning();
+				text: context.body.text,
+				slug: context.body.slug
+			}).where(and(
+				like(links.teamId, team.id),
+				like(links.slug, context.params.slug)
+			)).returning();
 			if (link.length <= 0) throw new ResourceNotFoundError();
 
 			return Response.json(new APILink(link[0]));
@@ -167,18 +170,19 @@ export default new Elysia()
 			detail: { summary: 'Update link details' },
 			params: t.Object({
 				namespace: t.String(),
-				slug: t.String({
+				slug: t.String()
+			}),
+			body: t.Object({
+				url: t.Optional(t.String({ format: 'uri' })),
+				text: t.Optional(t.String({
+					minLength: 1,
+					maxLength: 32
+				})),
+				slug: t.Optional(t.String({
 					minLength: 1,
 					maxLength: 32,
 					pattern: '^[a-zA-Z0-9\-\_]+$'
-				})
-			}),
-			body: t.Object({
-				url: t.String({ format: 'uri' }),
-				text: t.String({
-					minLength: 1,
-					maxLength: 32
-				})
+				}))
 			})
 		}
 	)
