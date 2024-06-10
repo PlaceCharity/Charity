@@ -1,9 +1,9 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
 import { teams, teamMembers, users } from '~/instance/database/schema';
-import { InferSelectModel, like } from 'drizzle-orm';
+import { InferSelectModel, and, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
@@ -161,10 +161,84 @@ export default new Elysia()
 		}
 	)
 	.put('/team/:namespace', 
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update team details' } }
+		async (context) => {
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			} else {
+				const team = await db.query.teams.findFirst({
+					where: like(teams.namespace, context.params.namespace)
+				});
+				if (team == undefined) throw new ResourceNotFoundError();
+
+				// Check permissions to see if we can edit the team
+				const member = await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, session.user.id)
+					)
+				});
+				if (member == undefined || !member.canManageMembers) throw new NotAuthorizedError();
+
+				const updatedTeam = await db.update(teams).set({
+					namespace: context.body.namespace,
+					displayName: context.body.displayName,
+					description: context.body.description
+				}).where(like(teams.id, team.id)).returning().catch((err) => {
+					if (err instanceof SQLiteError) {
+						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+							throw new AlreadyExistsError('Namespace');
+						}
+					}
+					throw err;
+				});
+				if (updatedTeam.length == 0) throw new ResourceNotFoundError();
+
+				return Response.json(new APITeam(updatedTeam[0]));
+			}
+		},
+		{
+			detail: { summary: 'Update team details' },
+			params: t.Object({
+				namespace: t.String()
+			}),
+			body: t.Object({
+				namespace: t.Optional(Namespace),
+				displayName: t.Optional(DisplayName),
+				description: t.Optional(Description)
+			})
+		}
 	)
 	.delete('/team/:namespace', 
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete a team' } }
+		async (context) => {
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			} else {
+				const team = await db.query.teams.findFirst({
+					where: like(teams.namespace, context.params.namespace)
+				});
+				if (team == undefined) throw new ResourceNotFoundError();
+
+				// Check permissions to see if we can delete the team
+				const member = await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, session.user.id)
+					)
+				});
+				if (member == undefined || !member.canManageMembers) throw new NotAuthorizedError();
+
+				const deletedTeam = await db.delete(teams).where(like(teams.id, team.id)).returning();
+				if (!deletedTeam || deletedTeam.length == 0) throw new ResourceNotFoundError();
+
+				return;
+			}
+		},
+		{
+			detail: { summary: 'Delete a team' },
+			params: t.Object({
+				namespace: t.String()
+			})
+		}
 	)
