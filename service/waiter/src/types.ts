@@ -77,17 +77,7 @@ export class AlreadyExistsError extends Error {
 	}
 }
 
-// Validation types
-
-export const Slug = t.String({
-	minLength: 1,
-	maxLength: 32,
-	pattern: '^[a-zA-Z0-9\-\_]+$'
-});
-
-// Return types
-
 export { APIUser } from '~/controller/user';
 export { APITeam, APITeamMember, Namespace } from '~/controller/team';
 export { PartialAPIInvite, APIInvite } from '~/controller/team/invite';
-export { APILink } from '~/controller/team/link';
+export { APILink, Slug } from '~/controller/team/link';
