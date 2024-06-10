@@ -1,5 +1,5 @@
 import { SQLiteError } from 'bun:sqlite';
-import { InferSelectModel, and, like } from 'drizzle-orm';
+import { InferSelectModel, and, eq, like } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 import db from '~/instance/database';
 import { links, teams } from '~/instance/database/schema';
@@ -116,8 +116,43 @@ export default new Elysia()
 		}
 	)
 	.put('/team/:namespace/link/:slug',
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update link details' } }
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			
+			const link = await db.update(links).set({
+				teamId: team.id,
+				slug: context.params.slug,
+				url: context.body.url,
+				text: context.body.text
+			}).where(eq(links.slug, context.params.slug)).returning().catch((err) => {
+				throw err;
+			});
+			if (link.length <= 0) throw new ResourceNotFoundError();
+
+			return Response.json(new APILink(link[0]));
+		},
+		{
+			detail: { summary: 'Update link details' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String({
+					minLength: 1,
+					maxLength: 32,
+					pattern: '^[a-zA-Z0-9\-\_]+$'
+				})
+			}),
+			body: t.Object({
+				url: t.String({ format: 'uri' }),
+				text: t.String({
+					minLength: 1,
+					maxLength: 32
+				})
+			})
+		}
 	)
 	.delete('/team/:namespace/link/:slug',
 		() => { throw new NotImplementedError() },
