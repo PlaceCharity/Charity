@@ -37,3 +37,4 @@ console.log(`🍽️ Waiter is running at ${app.server?.hostname}:${app.server?.
 
 // Export the app for Eden client
 export type Waiter = typeof app;
+export * from './types';

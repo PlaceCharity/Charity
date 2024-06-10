@@ -2,6 +2,8 @@
   "name": "waiter",
   "version": "1.0.0",
   "private": "true",
+  "module": "src/main.ts",
+  "exports": "./src/main.ts",
   "scripts": {
     "check": "tsc --noEmit",
     "dev": "bun run --watch src/main.ts",
@@ -34,6 +36,5 @@
   "trustedDependencies": [
     "better-sqlite3",
     "drizzle-kit"
-  ],
-  "module": "src/main.js"
+  ]
 }
