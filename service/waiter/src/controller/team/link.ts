@@ -1,5 +1,5 @@
 import { SQLiteError } from 'bun:sqlite';
-import { InferSelectModel, and, eq, like } from 'drizzle-orm';
+import { InferSelectModel, and, like } from 'drizzle-orm';
 import { Context, Elysia, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
@@ -158,7 +158,7 @@ export default new Elysia()
 				slug: context.params.slug,
 				url: context.body.url,
 				text: context.body.text
-			}).where(eq(links.slug, context.params.slug)).returning().catch((err) => {
+			}).where(like(links.slug, context.params.slug)).returning().catch((err) => {
 				throw err;
 			});
 			if (link.length <= 0) throw new ResourceNotFoundError();
