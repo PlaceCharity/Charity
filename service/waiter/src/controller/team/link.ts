@@ -4,7 +4,7 @@ import { Context, Elysia, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
 import { links, teamMembers, teams } from '~/instance/database/schema';
-import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, Slug } from '~/types';
 
 export class APILink {
 	id: string;
@@ -72,6 +72,7 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
+			// Create and return the link
 			const link = await db.insert(links).values({
 				teamId: team.id,
 				slug: context.params.slug,
@@ -92,11 +93,7 @@ export default new Elysia()
 			detail: { summary: 'Create a new link' },
 			params: t.Object({
 				namespace: t.String(),
-				slug: t.String({
-					minLength: 1,
-					maxLength: 32,
-					pattern: '^[a-zA-Z0-9\-\_]+$'
-				})
+				slug: Slug
 			}),
 			body: t.Object({
 				url: t.String({ format: 'uri' }),
@@ -155,7 +152,7 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 			
-
+			// Update and return the link
 			const link = await db.update(links).set({
 				url: context.body.url,
 				text: context.body.text,
@@ -187,11 +184,7 @@ export default new Elysia()
 					minLength: 1,
 					maxLength: 32
 				})),
-				slug: t.Optional(t.String({
-					minLength: 1,
-					maxLength: 32,
-					pattern: '^[a-zA-Z0-9\-\_]+$'
-				}))
+				slug: t.Optional(Slug)
 			})
 		}
 	)
@@ -218,6 +211,7 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
+			// Delete the link
 			const link = await db.delete(links).where(and(
 				like(links.teamId, team.id),
 				like(links.slug, context.params.slug),
