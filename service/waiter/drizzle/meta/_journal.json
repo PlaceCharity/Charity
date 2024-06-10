@@ -15,6 +15,27 @@
       "when": 1716548441422,
       "tag": "0001_wooden_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1717946640732,
+      "tag": "0002_silly_zeigeist",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1717947004985,
+      "tag": "0003_wonderful_gamora",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1717959643562,
+      "tag": "0004_hesitant_daimon_hellstrom",
+      "breakpoints": true
     }
   ]
 }

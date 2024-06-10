@@ -79,14 +79,32 @@ export const teamMembers = table('teamMember', {
 	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
 	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
 
+	// I'm still not sure about this permission system
+	// I think I want to have one specific team member who is the "owner" of the team, and can do everything
+	// Including kicking out people who have canManageMembers
+	// Because right now the idea is, if you have canManageMembers, you can kick out anyone who doesn't have it, but not people who have it
 	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
 	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
-	canManageMembers: integer('canRemoveMembers', { mode: 'boolean' }).notNull().default(false),
+	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 }, (tm) => ({
 	compoundKey: primaryKey({ columns: [ tm.teamId, tm.userId ] })
 }));
+
+export const invites = table('invite', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	key: text('key').notNull().$default(() => uuidv4()),
+
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	inviterId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+
+	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
+	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
+	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});
 
 export const links = table('link', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),

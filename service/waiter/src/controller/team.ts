@@ -7,6 +7,10 @@ import { InferSelectModel, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
+import TemplateController from './team/template';
+import LinkController from './team/link';
+import InviteController from './team/invite';
+
 export class APITeam {
 	id: string;
 	namespace: string;
@@ -48,6 +52,9 @@ export class APITeamMember {
 }
 
 export default new Elysia()
+	.use(TemplateController)
+	.use(LinkController)
+	.use(InviteController)
 	.post('/team/:namespace',
 		async (context) => {
 			const session = await getSession(context as Context);
@@ -61,7 +68,7 @@ export default new Elysia()
 				}).returning().catch((err) => {
 					if (err instanceof SQLiteError) {
 						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-							throw new AlreadyExistsError('namespace');
+							throw new AlreadyExistsError('Namespace');
 						}
 					}
 					throw err;

@@ -23,6 +23,28 @@ export class NotAuthenticatedError extends Error {
 	}
 }
 
+export class NotAuthorizedError extends Error {
+	message: 'NOT_AUTHORIZED';
+	status: 403;
+
+	constructor() {
+		super();
+		this.message = 'NOT_AUTHORIZED';
+		this.status = 403;
+	}
+}
+
+export class BadRequestError extends Error {
+	message: 'BAD_REQUEST';
+	status: 400;
+
+	constructor() {
+		super();
+		this.message = 'BAD_REQUEST';
+		this.status = 400;
+	}
+}
+
 // This signifies that a *resource* wasn't found, unlike NotFoundError which
 // signifies that a *route* wasn't found.
 //
@@ -55,4 +77,5 @@ export class AlreadyExistsError extends Error {
 
 export { APIUser } from '~/controller/user';
 export { APITeam, APITeamMember } from '~/controller/team';
-export { APILink } from '~/controller/link';
+export { PartialAPIInvite, APIInvite } from '~/controller/team/invite';
+export { APILink } from '~/controller/team/link';

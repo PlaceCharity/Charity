@@ -45,7 +45,7 @@ export default new Elysia()
 			detail: { summary: 'Get team links' },
 			params: t.Object({
 				namespace: t.String()
-			}),
+			})
 		}
 	)
 	.post('/team/:namespace/link/:slug',
@@ -63,7 +63,7 @@ export default new Elysia()
 			}).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-						throw new AlreadyExistsError('link');
+						throw new AlreadyExistsError('Link');
 					}
 				}
 				throw err;
