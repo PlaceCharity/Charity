@@ -6,8 +6,10 @@ import * as resources from './resources';
 import * as template from './template';
 import * as utils from './utils';
 
+const canvasContainer = document.createElement('div');
 let canvasElements: HTMLCanvasElement[] = [];
 let selectedCanvas: HTMLCanvasElement;
+const canvasObserver = new MutationObserver(updateOverlayStyles);
 
 const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
@@ -15,6 +17,7 @@ let ctx: CanvasRenderingContext2D;
 let canvasBounds: DOMRect;
 let scaleFactor: number;
 
+canvasContainer.classList.add('charity-overlay-container');
 canvas.classList.add('charity-overlay');
 
 async function findCanvases() {
@@ -37,17 +40,36 @@ async function findCanvases() {
 function selectBestCanvas(canvasElements: HTMLCanvasElement[]) {
 	if (canvasElements.length === 0) return null;
 	selectedCanvas = canvasElements[0];
+	let selectionChanged = false;
 	let selectedBounds = selectedCanvas.getBoundingClientRect();
 	for (let i = 0; i < canvasElements.length; i++) {
 		const canvas = canvasElements[i];
-		const canvasBounds = canvas.getBoundingClientRect();
+		const attemptBounds = canvas.getBoundingClientRect();
 		const selectedArea = selectedBounds.width * selectedBounds.height;
-		const canvasArea = canvasBounds.width * canvasBounds.height;
-		if (canvasArea > selectedArea) {
+		const attemptArea = attemptBounds.width * attemptBounds.height;
+		if (attemptArea > selectedArea || i === 0) {
 			selectedCanvas = canvas;
-			selectedBounds = canvasBounds;
+			selectedBounds = attemptBounds;
+			selectionChanged = true;
 		}
 	}
+	if (selectionChanged) {
+		canvasObserver.disconnect();
+		canvasObserver.observe(selectedCanvas, { attributes: true });
+	}
+	updateOverlayStyles();
+}
+
+function updateOverlayStyles() {
+	const computedStyle = getComputedStyle(selectedCanvas);
+	const selectedBounds = selectedCanvas.getBoundingClientRect();
+	canvasContainer.style.width = `${selectedCanvas.width}px`;
+	canvasContainer.style.height = `${selectedCanvas.height}px`;
+	canvasContainer.style.left = computedStyle.left === 'auto' ? '0px' : `${selectedBounds.x}px`;
+	canvasContainer.style.top = computedStyle.top === 'auto' ? '0px' : `${selectedBounds.y}px`;
+	canvasContainer.style.zIndex = computedStyle.zIndex;
+	canvasContainer.style.transform =
+		computedStyle.transform === 'none' ? 'none' : `scale(${selectedBounds.width / selectedCanvas.width})`;
 }
 
 export async function updateOverlayCanvas(dotSize = 2) {
@@ -72,10 +94,10 @@ export async function updateOverlayCanvas(dotSize = 2) {
 		canvas.style.display = '';
 	} else {
 		canvas.style.maskImage = `url(${dotSizes[dotSize]})`;
-		canvas.style.maskSize = '1px 1px';
+		canvas.style.maskSize = `1px 1px`;
 		canvas.style.display = '';
 	}
-	selectedCanvas.parentElement!.appendChild(canvas);
+	canvasContainer.appendChild(canvas);
 }
 
 export async function init() {
@@ -86,6 +108,8 @@ export async function init() {
 	if (selectedCanvas === undefined) return;
 	console.log('Found Canvas:');
 	console.log(selectedCanvas);
+
+	selectedCanvas.parentElement!.appendChild(canvasContainer);
 
 	const style = document.createElement('style');
 	style.setAttribute('type', 'text/css');
@@ -126,7 +150,7 @@ function draw() {
 				for (const template of templateJson.templates) {
 					try {
 						drawTemplate(template, currentSeconds);
-						updateContactInfo(template);
+						updateContactInfo(template, currentSeconds);
 					} catch (e) {
 						console.error(e);
 					}
@@ -199,7 +223,7 @@ export const [contact, setContact] = createSignal('');
 export const [templateName, setTemplateName] = createSignal('');
 export const [contactVisible, setContactVisible] = createSignal(false);
 
-async function updateContactInfo(template: template.Template) {
+async function updateContactInfo(template: template.Template, currentSeconds: number) {
 	if (currentX === previousX && currentY === previousY) return;
 	if (currentContactInfoTemplate !== null) return;
 
@@ -213,7 +237,14 @@ async function updateContactInfo(template: template.Template) {
 	if (currentX >= x2) return;
 	if (currentY >= y2) return;
 
-	const alpha = template.image.data[(currentY - y1) * (template.image.width * 4) + (currentX - x1) * 4 + 3];
+	const frameIndex = getCurrentFrameIndex(template, currentSeconds);
+
+	if (template.image.width === 0 || template.image.height === 0) return;
+	const gridWidth = Math.round(template.image.width / template.frameWidth ?? template.image.width);
+	const x = (frameIndex % gridWidth) * template.frameWidth + (currentX - x1);
+	const y = Math.floor(frameIndex / gridWidth) * template.frameHeight + (currentY - y1);
+
+	const alpha = template.image.data[y * (template.image.width * 4) + x * 4 + 3];
 	if (alpha <= 127) return;
 	currentContactInfoTemplate = template;
 
@@ -229,6 +260,10 @@ function resetContactInfo() {
 	setContactVisible(false);
 }
 
-export function getSelectedCanvas() {
-	return selectedCanvas;
+export function hideOverlay() {
+	canvas.style.opacity = '0%';
+}
+
+export function showOverlay() {
+	canvas.style.opacity = '';
 }

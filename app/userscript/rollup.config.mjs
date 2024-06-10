@@ -25,7 +25,13 @@ export default defineConfig(
 					.replace('process.env.LICENSE', pkg.license),
 			),
 		],
-		external: defineExternal(['@violentmonkey/ui', '@violentmonkey/dom', 'solid-js', 'solid-js/web']),
+		external: defineExternal([
+			'@violentmonkey/ui',
+			'@violentmonkey/dom',
+			'@violentmonkey/shortcut',
+			'solid-js',
+			'solid-js/web',
+		]),
 		output: {
 			format: 'iife',
 			file: `dist/${name}.user.js`,
@@ -37,6 +43,7 @@ export default defineConfig(
 				'solid-js/web': 'VM.solid.web',
 				'@violentmonkey/dom': 'VM',
 				'@violentmonkey/ui': 'VM',
+				'@violentmonkey/shortcut': 'VM.shortcut',
 			},
 			indent: false,
 		},
