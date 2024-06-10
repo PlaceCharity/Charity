@@ -158,9 +158,7 @@ export default new Elysia()
 				slug: context.params.slug,
 				url: context.body.url,
 				text: context.body.text
-			}).where(like(links.slug, context.params.slug)).returning().catch((err) => {
-				throw err;
-			});
+			}).where(like(links.slug, context.params.slug)).returning();
 			if (link.length <= 0) throw new ResourceNotFoundError();
 
 			return Response.json(new APILink(link[0]));
