@@ -57,6 +57,7 @@ export default new Elysia()
 				throw new NotAuthenticatedError();
 			}
 
+			// Get team
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
@@ -139,6 +140,7 @@ export default new Elysia()
 				throw new NotAuthenticatedError();
 			}
 
+			// Get team
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
@@ -201,6 +203,7 @@ export default new Elysia()
 				throw new NotAuthenticatedError();
 			}
 
+			// Get team
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
