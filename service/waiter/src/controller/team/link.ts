@@ -1,9 +1,10 @@
 import { SQLiteError } from 'bun:sqlite';
 import { InferSelectModel, and, eq, like } from 'drizzle-orm';
-import { Elysia, t } from 'elysia';
+import { Context, Elysia, t } from 'elysia';
+import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
-import { links, teams } from '~/instance/database/schema';
-import { AlreadyExistsError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { links, teamMembers, teams } from '~/instance/database/schema';
+import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
 export class APILink {
 	id: string;
@@ -50,10 +51,25 @@ export default new Elysia()
 	)
 	.post('/team/:namespace/link/:slug',
 		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
 			const link = await db.insert(links).values({
 				teamId: team.id,
@@ -117,12 +133,26 @@ export default new Elysia()
 	)
 	.put('/team/:namespace/link/:slug',
 		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
-			
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
 			const link = await db.update(links).set({
 				teamId: team.id,
 				slug: context.params.slug,
