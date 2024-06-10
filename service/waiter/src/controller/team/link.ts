@@ -161,7 +161,14 @@ export default new Elysia()
 			}).where(and(
 				like(links.teamId, team.id),
 				like(links.slug, context.params.slug)
-			)).returning();
+			)).returning().catch((err) => {
+				if (err instanceof SQLiteError) {
+					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+						throw new AlreadyExistsError('Link');
+					}
+				}
+				throw err;
+			});
 			if (link.length <= 0) throw new ResourceNotFoundError();
 
 			return Response.json(new APILink(link[0]));
@@ -220,11 +227,7 @@ export default new Elysia()
 			detail: { summary: 'Delete a link' },
 			params: t.Object({
 				namespace: t.String(),
-				slug: t.String({
-					minLength: 1,
-					maxLength: 32,
-					pattern: '^[a-zA-Z0-9\-\_]+$'
-				})
+				slug: t.String()
 			}),
 		}
 	)
