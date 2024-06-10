@@ -44,5 +44,8 @@
 		"esbuild",
 		"sharp",
 		"svelte-preprocess"
-	]
+	],
+	"dependencies": {
+		"waiter": "workspace:*"
+	}
 }
