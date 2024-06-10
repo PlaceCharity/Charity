@@ -16,7 +16,7 @@ export const authConfig: AuthConfig = {
         DiscordProvider({
             clientId: env.DISCORD_CLIENT_ID,
             clientSecret: env.DISCORD_CLIENT_SECRET,
-			authorization: 'https://discord.com/api/oauth2/authorize?scope=identify+guilds'
+			authorization: 'https://discord.com/api/oauth2/authorize?scope=identify+guilds+email'
         })
     ],
 	session: {
