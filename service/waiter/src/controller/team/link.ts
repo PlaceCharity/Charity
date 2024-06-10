@@ -183,6 +183,44 @@ export default new Elysia()
 		}
 	)
 	.delete('/team/:namespace/link/:slug',
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete a link' } }
+		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			const link = await db.delete(links).where(and(
+				like(links.teamId, team.id),
+				like(links.slug, context.params.slug),
+			)).returning();
+			if (!link || link.length == 0) throw new ResourceNotFoundError();
+
+			return Response.json(new APILink(link[0]));
+		},
+		{
+			detail: { summary: 'Delete a link' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String({
+					minLength: 1,
+					maxLength: 32,
+					pattern: '^[a-zA-Z0-9\-\_]+$'
+				})
+			}),
+		}
 	)
