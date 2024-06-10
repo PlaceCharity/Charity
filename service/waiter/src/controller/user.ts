@@ -53,7 +53,7 @@ export default new Elysia()
 
 			// Get user by ID
 			const user = await db.query.users.findFirst({
-				where: like(users.id, context.params.id)
+				where: like(users.id, id)
 			});
 			if (user == undefined) throw new ResourceNotFoundError();
 			return Response.json(new APIUser(user));
