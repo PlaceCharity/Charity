@@ -224,7 +224,7 @@ export default new Elysia()
 			)).returning();
 			if (!link || link.length == 0) throw new ResourceNotFoundError();
 
-			return Response.json(new APILink(link[0]));
+			return;
 		},
 		{
 			detail: { summary: 'Delete a link' },
