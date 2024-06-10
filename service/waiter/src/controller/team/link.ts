@@ -1,9 +1,10 @@
 import { SQLiteError } from 'bun:sqlite';
 import { InferSelectModel, and, like } from 'drizzle-orm';
-import { Elysia, t } from 'elysia';
+import { Context, Elysia, t } from 'elysia';
+import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
-import { links, teams } from '~/instance/database/schema';
-import { AlreadyExistsError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { links, teamMembers, teams } from '~/instance/database/schema';
+import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, Slug } from '~/types';
 
 export class APILink {
 	id: string;
@@ -50,11 +51,28 @@ export default new Elysia()
 	)
 	.post('/team/:namespace/link/:slug',
 		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
+			// Get team
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			// Create and return the link
 			const link = await db.insert(links).values({
 				teamId: team.id,
 				slug: context.params.slug,
@@ -75,11 +93,7 @@ export default new Elysia()
 			detail: { summary: 'Create a new link' },
 			params: t.Object({
 				namespace: t.String(),
-				slug: t.String({
-					minLength: 1,
-					maxLength: 32,
-					pattern: '^[a-zA-Z0-9\-\_]+$'
-				})
+				slug: Slug
 			}),
 			body: t.Object({
 				url: t.String({ format: 'uri' }),
@@ -116,10 +130,101 @@ export default new Elysia()
 		}
 	)
 	.put('/team/:namespace/link/:slug',
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update link details' } }
+		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+			
+			// Update and return the link
+			const link = await db.update(links).set({
+				url: context.body.url,
+				text: context.body.text,
+				slug: context.body.slug
+			}).where(and(
+				like(links.teamId, team.id),
+				like(links.slug, context.params.slug)
+			)).returning().catch((err) => {
+				if (err instanceof SQLiteError) {
+					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+						throw new AlreadyExistsError('Link');
+					}
+				}
+				throw err;
+			});
+			if (link.length <= 0) throw new ResourceNotFoundError();
+
+			return Response.json(new APILink(link[0]));
+		},
+		{
+			detail: { summary: 'Update link details' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
+			}),
+			body: t.Object({
+				url: t.Optional(t.String({ format: 'uri' })),
+				text: t.Optional(t.String({
+					minLength: 1,
+					maxLength: 32
+				})),
+				slug: t.Optional(Slug)
+			})
+		}
 	)
 	.delete('/team/:namespace/link/:slug',
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete a link' } }
+		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			}
+
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can create links
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			// Delete the link
+			const link = await db.delete(links).where(and(
+				like(links.teamId, team.id),
+				like(links.slug, context.params.slug),
+			)).returning();
+			if (!link || link.length == 0) throw new ResourceNotFoundError();
+
+			return;
+		},
+		{
+			detail: { summary: 'Delete a link' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
+			}),
+		}
 	)

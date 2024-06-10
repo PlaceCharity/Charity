@@ -11,6 +11,21 @@ import TemplateController from './team/template';
 import LinkController from './team/link';
 import InviteController from './team/invite';
 
+export const Namespace = t.String({
+	minLength: 2,
+	maxLength: 16,
+	pattern: '^[a-zA-Z0-9\-\_]+$'
+});
+
+export const DisplayName = t.String({
+	minLength: 1,
+	maxLength: 32
+});
+
+export const Description = t.String({
+	maxLength: 500
+});
+
 export class APITeam {
 	id: string;
 	namespace: string;
@@ -89,20 +104,11 @@ export default new Elysia()
 		{
 			detail: { summary: 'Create a new team' },
 			params: t.Object({
-				namespace: t.String({
-					minLength: 2,
-					maxLength: 16,
-					pattern: '^[a-zA-Z0-9\-\_]+$' // TODO: Add this regex too somehow idk how to combine regexes lol ^(user|new|api|home|account|pxls|admin)$
-				}),
+				namespace: Namespace
 			}),
 			body: t.Object({
-				displayName: t.String({
-					minLength: 1,
-					maxLength: 32
-				}),
-				description: t.String({
-					maxLength: 500
-				})
+				displayName: DisplayName,
+				description: Description
 			})
 		}
 	)
