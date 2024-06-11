@@ -97,7 +97,9 @@ export default new Elysia()
 
 					canManageTemplates: true,
 					canInviteMembers: true,
-					canManageMembers: true
+					canManageMembers: true,
+
+					isOwner: true
 				});
 
 				return Response.json(new APITeam(team[0]));
