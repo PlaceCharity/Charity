@@ -7,6 +7,8 @@ import { users } from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
 import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
+const tags = ['user'];
+
 export class APIUser {
 	id: string;
 	name: string;
@@ -26,12 +28,12 @@ export class APIUser {
 export default new Elysia()
 	.put('/user', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update currently authenticated user details' } }
+		{ detail: { tags, summary: 'Update currently authenticated user details' } }
 	)
 	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
 		{
-			detail: { summary: 'Delete a user', description: 'Use `@me` as the ID to delete the currently authenticated user' },
+			detail: { tags, summary: 'Delete a user', description: 'Use `@me` as the ID to delete the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})
@@ -59,7 +61,7 @@ export default new Elysia()
 			return Response.json(new APIUser(user));
 		},
 		{ 
-			detail: { summary: 'Get user details', description: 'Use `@me` as the ID to get the currently authenticated user' },
+			detail: { tags, summary: 'Get user details', description: 'Use `@me` as the ID to get the currently authenticated user' },
 			params: t.Object({
 				id: t.String()
 			})

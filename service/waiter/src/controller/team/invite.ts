@@ -7,6 +7,8 @@ import db from '~/instance/database';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
+const tags = ['team/invite'];
+
 export class PartialAPIInvite {
 	id: string;
 
@@ -79,6 +81,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Get team pending invites',
 				description: 'Requires canManageMembers permission to get all invites, otherwise only returns invites created by the current user'
 			},
@@ -130,6 +133,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Create a new invite'
 			},
 			params: t.Object({
@@ -193,6 +197,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Get invite details',
 				description: 'Requires either the canManageMembers permission or the correct key for the invite'
 			},
@@ -261,7 +266,7 @@ export default new Elysia()
 			return Response.json(new APITeamMember(member[0], new APIUser(user)));
 		},
 		{
-			detail: { summary: 'Accept an invite' },
+			detail: { tags, summary: 'Accept an invite' },
 			params: t.Object({
 				namespace: t.String(),
 				id: t.String()
@@ -322,6 +327,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Revoke or decline an invite',
 				description: 'This requires you to either have created the invite, to have its key, or to have canManageMembers permission'
 			},

@@ -11,6 +11,8 @@ import TemplateController from './team/template';
 import LinkController from './team/link';
 import InviteController from './team/invite';
 
+const tags = ['team'];
+
 export const Namespace = t.String({
 	minLength: 2,
 	maxLength: 16,
@@ -102,7 +104,7 @@ export default new Elysia()
 			}
 		},
 		{
-			detail: { summary: 'Create a new team' },
+			detail: { tags, summary: 'Create a new team' },
 			params: t.Object({
 				namespace: Namespace
 			}),
@@ -127,7 +129,7 @@ export default new Elysia()
 			return Response.json(new APITeam(team));
 		},
 		{
-			detail: { summary: 'Get team details' },
+			detail: { tags, summary: 'Get team details' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -158,7 +160,7 @@ export default new Elysia()
 			}))).filter(m => m != undefined) as APITeamMember[];
 		},
 		{
-			detail: { summary: 'Get team members' },
+			detail: { tags, summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -198,9 +200,9 @@ export default new Elysia()
 	)
 	.put('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update team details' } }
+		{ detail: { tags, summary: 'Update team details' } }
 	)
 	.delete('/team/:namespace', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete a team' } }
+		{ detail: { tags, summary: 'Delete a team' } }
 	)

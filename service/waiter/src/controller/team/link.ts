@@ -6,6 +6,8 @@ import db from '~/instance/database';
 import { links, slugs, teamMembers, teams } from '~/instance/database/schema';
 import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, } from '~/types';
 
+const tags = ['team/link'];
+
 export const Slug = t.String({
 	minLength: 1,
 	maxLength: 32,
@@ -62,7 +64,7 @@ export default new Elysia()
 			}))).filter(m => m != undefined) as APILink[];
 		},
 		{
-			detail: { summary: 'Get team links' },
+			detail: { tags, summary: 'Get team links' },
 			params: t.Object({
 				namespace: t.String()
 			})
@@ -102,7 +104,6 @@ export default new Elysia()
 			// Create the link
 			const link = await db.insert(links).values({
 				teamId: team.id,
-				slug: context.params.slug,
 				url: context.body.url,
 				text: context.body.text
 			}).returning();
@@ -117,7 +118,7 @@ export default new Elysia()
 			return Response.json(new APILink(link[0], slug[0]));
 		},
 		{
-			detail: { summary: 'Create a new link' },
+			detail: { tags, summary: 'Create a new link' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: Slug
@@ -157,7 +158,7 @@ export default new Elysia()
 			return Response.json(new APILink(link, slug));
 		},
 		{
-			detail: { summary: 'Get link details' },
+			detail: { tags, summary: 'Get link details' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()
@@ -231,7 +232,7 @@ export default new Elysia()
 			return Response.json(new APILink(link[0], updatedSlug[0]));
 		},
 		{
-			detail: { summary: 'Update link details' },
+			detail: { tags, summary: 'Update link details' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()
@@ -293,7 +294,7 @@ export default new Elysia()
 			return;
 		},
 		{
-			detail: { summary: 'Delete a link' },
+			detail: { tags, summary: 'Delete a link' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()
