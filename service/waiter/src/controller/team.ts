@@ -2,8 +2,8 @@ import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
 import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
-import { teams, teamMembers, users } from '~/instance/database/schema';
-import { InferSelectModel, like } from 'drizzle-orm';
+import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
+import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
@@ -148,7 +148,11 @@ export default new Elysia()
 				const user = await db.query.users.findFirst({
 					where: like(users.id, member.userId)
 				});
-				if (user == undefined) return;
+				if (user == undefined) {
+					// It's better to throw an error here than to return an incomplete list
+					console.error('Team member without a corresponding user', JSON.stringify({ user, member, team }));
+					throw new InternalServerError();
+				};
 
 				return new APITeamMember(member, new APIUser(user));
 			}))).filter(m => m != undefined) as APITeamMember[];
@@ -157,6 +161,38 @@ export default new Elysia()
 			detail: { summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
+			})
+		}
+	)
+	.get('/team/:namespace/slug/:slug',
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug),
+				)
+			});
+			if (slug == undefined) throw new ResourceNotFoundError();
+
+			if (slug.linkId != undefined) {
+				return context.redirect(`/team/${context.params.namespace}/link/${slug.slug}`, 302);
+			} else if (slug.templateId != undefined) {
+				return context.redirect(`/team/${context.params.namespace}/template/${slug.slug}`, 302);
+			} else {
+				console.error('Slug with no corresponding link OR template', JSON.stringify({ slug, team }));
+				throw new InternalServerError();
+			}
+		},
+		{
+			detail: { tags, summary: 'Get resource from slug' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
 			})
 		}
 	)

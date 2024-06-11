@@ -1,9 +1,9 @@
 import { SQLiteError } from 'bun:sqlite';
 import { InferSelectModel, and, like } from 'drizzle-orm';
-import { Context, Elysia, t } from 'elysia';
+import { Context, Elysia, InternalServerError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
-import { links, teamMembers, teams } from '~/instance/database/schema';
+import { links, slugs, teamMembers, teams } from '~/instance/database/schema';
 import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, } from '~/types';
 
 export const Slug = t.String({
@@ -22,11 +22,11 @@ export class APILink {
 
 	createdAt: Date;
 
-	constructor(link: InferSelectModel<typeof links>) {
+	constructor(link: InferSelectModel<typeof links>, slug: InferSelectModel<typeof slugs>) {
 		this.id = link.id;
 		this.teamId = link.teamId;
 
-		this.slug = link.slug;
+		this.slug = slug.slug;
 		this.url = link.url;
 		this.text = link.text;
 
@@ -46,7 +46,20 @@ export default new Elysia()
 				where: like(links.teamId, team.id)
 			});
 
-			return teamLinks.map((link) => new APILink(link));
+			return (await Promise.all(teamLinks.map(async link => {
+				const slug = await db.query.slugs.findFirst({
+					where: and(
+						like(slugs.teamId, team.id),
+						like(slugs.linkId, link.id)
+					)
+				});
+				if (slug == undefined) {
+					console.error('Link without a corresponding slug', JSON.stringify({ slug, link, team }));
+					throw new InternalServerError();
+				}
+
+				return new APILink(link, slug);
+			}))).filter(m => m != undefined) as APILink[];
 		},
 		{
 			detail: { summary: 'Get team links' },
@@ -78,22 +91,30 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
-			// Create and return the link
+			// Check if slug is taken
+			if ((await db.query.slugs.findFirst({
+				where: and(
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug)
+				)
+			})) != undefined) throw new AlreadyExistsError('Slug');
+
+			// Create the link
 			const link = await db.insert(links).values({
 				teamId: team.id,
 				slug: context.params.slug,
 				url: context.body.url,
 				text: context.body.text
-			}).returning().catch((err) => {
-				if (err instanceof SQLiteError) {
-					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-						throw new AlreadyExistsError('Link');
-					}
-				}
-				throw err;
-			});
+			}).returning();
 
-			return Response.json(new APILink(link[0]));
+			// Create the slug
+			const slug = await db.insert(slugs).values({
+				teamId: team.id,
+				slug: context.params.slug,
+				linkId: link[0].id
+			}).returning();
+
+			return Response.json(new APILink(link[0], slug[0]));
 		},
 		{
 			detail: { summary: 'Create a new link' },
@@ -117,15 +138,23 @@ export default new Elysia()
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
-			const link = await db.query.links.findFirst({
+			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(links.teamId, team.id),
-					like(links.slug, context.params.slug),
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug),
 				)
 			});
-			if (link == undefined) throw new ResourceNotFoundError();
+			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
+			
+			const link = await db.query.links.findFirst({
+				where: like(links.id, slug.linkId),
+			});
+			if (link == undefined) {
+				console.error('Slug with linkId without a corresponding link', JSON.stringify({ link, slug, team }));
+				throw new InternalServerError();
+			}
 
-			return Response.json(new APILink(link));
+			return Response.json(new APILink(link, slug));
 		},
 		{
 			detail: { summary: 'Get link details' },
@@ -157,26 +186,49 @@ export default new Elysia()
 				)
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			// Find slug
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug)
+				)
+			});
+			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
 			
-			// Update and return the link
+			// Update the link
 			const link = await db.update(links).set({
 				url: context.body.url,
-				text: context.body.text,
-				slug: context.body.slug
+				text: context.body.text
 			}).where(and(
-				like(links.teamId, team.id),
-				like(links.slug, context.params.slug)
-			)).returning().catch((err) => {
-				if (err instanceof SQLiteError) {
-					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-						throw new AlreadyExistsError('Link');
+				like(links.id, slug.linkId),
+			)).returning();
+			if (link.length < 1) {
+				console.error('Slug with linkId without a corresponding link', JSON.stringify({ link, slug, team }));
+			}
+			
+			// Update the slug
+			let updatedSlug: InferSelectModel<typeof slugs>[] = [slug];
+			if (context.body.slug != undefined) {
+				updatedSlug = await db.update(slugs).set({
+					slug: context.body.slug
+				}).where(and(
+					like(slugs.id, slug.id),
+				)).returning().catch((err) => {
+					if (err instanceof SQLiteError) {
+						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+							throw new AlreadyExistsError('Slug');
+						}
 					}
+					throw err;
+				});
+				if (updatedSlug.length < 1) {
+					console.error('Slug disappeared from under us while updating link', JSON.stringify({ updatedSlug, slug, link, team }));
+					throw new InternalServerError();
 				}
-				throw err;
-			});
-			if (link.length <= 0) throw new ResourceNotFoundError();
+			}
 
-			return Response.json(new APILink(link[0]));
+			return Response.json(new APILink(link[0], updatedSlug[0]));
 		},
 		{
 			detail: { summary: 'Update link details' },
@@ -208,7 +260,7 @@ export default new Elysia()
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
-			// Check permissions to see if we can create links
+			// Check permissions to see if we can manage links
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
 					like(teamMembers.teamId, team.id),
@@ -217,12 +269,26 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
+			// Find the slug
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug)
+				)
+			});
+			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
+
 			// Delete the link
 			const link = await db.delete(links).where(and(
 				like(links.teamId, team.id),
-				like(links.slug, context.params.slug),
+				like(links.id, slug.linkId),
 			)).returning();
-			if (!link || link.length == 0) throw new ResourceNotFoundError();
+			if (link.length < 1) {
+				console.error('Link disappeared from under us while deleting', JSON.stringify({ link, slug, team }));
+				throw new InternalServerError();
+			};
+
+			// The slug should have been deleted, as it has onDelete: cascade
 
 			return;
 		},

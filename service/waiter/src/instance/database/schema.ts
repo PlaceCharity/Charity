@@ -1,5 +1,5 @@
 // Schema
-import { sqliteTable as table, text, integer, blob, primaryKey, unique } from 'drizzle-orm/sqlite-core';
+import { sqliteTable as table, text, integer, blob, primaryKey, unique, check, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 // Auth.js stuff
 import { AdapterAccount } from '@auth/core/adapters';
@@ -73,7 +73,9 @@ export const teams = table('team', {
 	description: text('description').notNull(),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
-});
+}, (t) => ({
+	index: uniqueIndex('teamNamespaceIndex').on(t.namespace)
+}));
 
 export const teamMembers = table('teamMember', {
 	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
@@ -106,15 +108,42 @@ export const invites = table('invite', {
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
 
-export const links = table('link', {
+export const slugs = table('slug', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
 
 	slug: text('slug').notNull(),
+
+	linkId: text('linkId').references(() => links.id, { onDelete: 'cascade' }),
+	templateId: text('templateId').references(() => templates.id, { onDelete: 'cascade' }),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+}, (s) => ({
+	// FIXME: Right now, drizzle-kit doesn't support checks, but the ORM does, so we can define this and it will let us but it doesn't actually get used
+	// https://github.com/drizzle-team/drizzle-orm/issues/880
+	linkOrTemplateCheck: check('linkOrTemplateCheck', 
+		sql`(linkId IS NOT NULL AND templateId IS NULL) OR (linkId IS NULL AND templateId IS NOT NULL)`
+	),
+	uniqueToTeam: unique().on(s.teamId, s.slug),
+
+	index: uniqueIndex('teamSlugIndex').on(s.teamId, s.slug)
+}));
+
+export const links = table('link', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+
 	url: text('url').notNull(),
 	text: text('text').notNull(),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
-}, (links) => ({
-	unique: unique().on(links.teamId, links.slug)
-}));
+});
+
+export const templates = table('template', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+
+	displayName: text('displayName').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});

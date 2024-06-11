@@ -253,7 +253,10 @@ export default new Elysia()
 			const user = await db.query.users.findFirst({
 				where: like(users.id, session.user.id)
 			});
-			if (user == undefined) throw new InternalServerError(); // What the hell, no, this should never happen
+			if (user == undefined) {
+				console.error('Team member created after accepting invite does not have a corresponding user', JSON.stringify({ user, member, invite, team }));
+				throw new InternalServerError();
+			};
 
 			return Response.json(new APITeamMember(member[0], new APIUser(user)));
 		},
