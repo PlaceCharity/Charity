@@ -26,9 +26,9 @@ export class APIUser {
 }
 
 export default new Elysia()
-	.patch('/user', 
+	.patch('/user/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Update currently authenticated user details' } }
+		{ detail: { tags, summary: 'Update user details', description: 'Use `@me` as the ID to update the currently authenticated user' } }
 	)
 	.delete('/user/:id', 
 		() => { throw new NotImplementedError() },
