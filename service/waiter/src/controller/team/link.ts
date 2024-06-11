@@ -289,7 +289,13 @@ export default new Elysia()
 				throw new InternalServerError();
 			};
 
-			// The slug should have been deleted, as it has onDelete: cascade
+			// FIXME: The slug should be deleted, but ON DELETE CASCADE doesn't work, maybe because our CHECK doesn't work, more probably because it's just nullable and so it ignores ON DELETE CASCADE.
+			// So, delete the slug manually for now.
+			const deletedSlug = await db.delete(slugs).where(like(slugs.id, slug.id)).returning();
+			if (deletedSlug.length < 1) {
+				console.error('Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)', JSON.stringify({ deletedSlug, slug, team }));
+				throw new InternalServerError();
+			}
 
 			return;
 		},
