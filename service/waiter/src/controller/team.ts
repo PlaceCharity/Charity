@@ -54,6 +54,8 @@ export class APITeamMember {
 	canInviteMembers: boolean;
 	canManageMembers: boolean;
 
+	isOwner: boolean;
+
 	createdAt: Date;
 
 	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
@@ -63,6 +65,8 @@ export class APITeamMember {
 		this.canManageTemplates = member.canManageTemplates;
 		this.canInviteMembers = member.canInviteMembers;
 		this.canManageMembers = member.canManageMembers;
+
+		this.isOwner = member.isOwner;
 
 		this.createdAt = member.createdAt;
 	}
