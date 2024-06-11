@@ -45,7 +45,7 @@ export class APIInvite extends PartialAPIInvite {
 }
 
 export default new Elysia()
-	.get('/team/:namespace/invite', 
+	.get('/team/:namespace/invites', 
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);

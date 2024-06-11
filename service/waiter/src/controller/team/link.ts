@@ -37,7 +37,7 @@ export class APILink {
 }
 
 export default new Elysia()
-	.get('/team/:namespace/link',
+	.get('/team/:namespace/links',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)

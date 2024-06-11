@@ -5,11 +5,11 @@ import { NotImplementedError } from '~/types';
 const tags = ['team/template/entry'];
 
 export default new Elysia()
-	.get('/team/:namespace/template/:slug/entry', 
+	.get('/team/:namespace/template/:slug/entries', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get template entries' } }
 	)
-	.put('/team/:namespace/template/:slug/entry', 
+	.post('/team/:namespace/template/:slug/entry', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Create a new entry' } }
 	)

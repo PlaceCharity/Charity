@@ -8,7 +8,7 @@ const tags = ['team/template'];
 
 export default new Elysia()
 	.use(EntryController)
-	.get('/team/:namespace/template', 
+	.get('/team/:namespace/templates', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get team templates' } }
 	)

@@ -137,7 +137,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.get('/team/:namespace/member',
+	.get('/team/:namespace/members',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)
