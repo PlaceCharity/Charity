@@ -210,7 +210,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.put('/team/:namespace/invite/:id', // TODO: should this be POST /team/:namespace/member...?
+	.patch('/team/:namespace/invite/:id', // TODO: should this be POST /team/:namespace/member...?
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);

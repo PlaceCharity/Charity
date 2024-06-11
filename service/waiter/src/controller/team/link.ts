@@ -70,7 +70,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.post('/team/:namespace/link/:slug',
+	.put('/team/:namespace/link/:slug',
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
@@ -165,7 +165,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.put('/team/:namespace/link/:slug',
+	.patch('/team/:namespace/link/:slug',
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);

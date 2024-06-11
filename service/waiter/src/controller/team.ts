@@ -200,7 +200,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.put('/team/:namespace', 
+	.patch('/team/:namespace', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Update team details' } }
 	)

@@ -12,7 +12,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get team templates' } }
 	)
-	.post('/team/:namespace/template/:slug', 
+	.put('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Create a new template' } }
 	)
@@ -20,7 +20,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get template details' } }
 	)
-	.put('/team/:namespace/template/:slug', 
+	.patch('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Update template details' } }
 	)

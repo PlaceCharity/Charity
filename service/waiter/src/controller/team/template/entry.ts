@@ -9,7 +9,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get template entries' } }
 	)
-	.post('/team/:namespace/template/:slug/entry', 
+	.put('/team/:namespace/template/:slug/entry', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Create a new entry' } }
 	)
@@ -17,7 +17,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Get entry details' } }
 	)
-	.put('/team/:namespace/template/:slug/entry/:id', 
+	.patch('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Update entry details' } }
 	)
