@@ -36,6 +36,27 @@
       "when": 1717959643562,
       "tag": "0004_hesitant_daimon_hellstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1718041362531,
+      "tag": "0005_modern_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1718131616625,
+      "tag": "0006_rainy_orphan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1718131850073,
+      "tag": "0007_amazing_felicia_hardy",
+      "breakpoints": true
     }
   ]
 }

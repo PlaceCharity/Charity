@@ -7,6 +7,8 @@ import db from '~/instance/database';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
+const tags = ['team/invite'];
+
 export class PartialAPIInvite {
 	id: string;
 
@@ -43,7 +45,7 @@ export class APIInvite extends PartialAPIInvite {
 }
 
 export default new Elysia()
-	.get('/team/:namespace/invite', 
+	.get('/team/:namespace/invites', 
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
@@ -79,6 +81,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Get team pending invites',
 				description: 'Requires canManageMembers permission to get all invites, otherwise only returns invites created by the current user'
 			},
@@ -130,6 +133,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Create a new invite'
 			},
 			params: t.Object({
@@ -193,6 +197,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Get invite details',
 				description: 'Requires either the canManageMembers permission or the correct key for the invite'
 			},
@@ -205,7 +210,7 @@ export default new Elysia()
 			})
 		}
 	)
-	.put('/team/:namespace/invite/:id', // TODO: should this be POST /team/:namespace/member...?
+	.patch('/team/:namespace/invite/:id', // TODO: should this be POST /team/:namespace/member...?
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
@@ -253,12 +258,15 @@ export default new Elysia()
 			const user = await db.query.users.findFirst({
 				where: like(users.id, session.user.id)
 			});
-			if (user == undefined) throw new InternalServerError(); // What the hell, no, this should never happen
+			if (user == undefined) {
+				console.error('Team member created after accepting invite does not have a corresponding user', JSON.stringify({ user, member, invite, team }));
+				throw new InternalServerError();
+			};
 
 			return Response.json(new APITeamMember(member[0], new APIUser(user)));
 		},
 		{
-			detail: { summary: 'Accept an invite' },
+			detail: { tags, summary: 'Accept an invite' },
 			params: t.Object({
 				namespace: t.String(),
 				id: t.String()
@@ -319,6 +327,7 @@ export default new Elysia()
 		},
 		{
 			detail: {
+				tags,
 				summary: 'Revoke or decline an invite',
 				description: 'This requires you to either have created the invite, to have its key, or to have canManageMembers permission'
 			},

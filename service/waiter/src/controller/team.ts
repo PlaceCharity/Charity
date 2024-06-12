@@ -2,14 +2,16 @@ import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
 import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
-import { teams, teamMembers, users } from '~/instance/database/schema';
-import { InferSelectModel, and, like } from 'drizzle-orm';
+import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
+import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
 
 import TemplateController from './team/template';
 import LinkController from './team/link';
 import InviteController from './team/invite';
+
+const tags = ['team'];
 
 export const Namespace = t.String({
 	minLength: 2,
@@ -52,6 +54,8 @@ export class APITeamMember {
 	canInviteMembers: boolean;
 	canManageMembers: boolean;
 
+	isOwner: boolean;
+
 	createdAt: Date;
 
 	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
@@ -61,6 +65,8 @@ export class APITeamMember {
 		this.canManageTemplates = member.canManageTemplates;
 		this.canInviteMembers = member.canInviteMembers;
 		this.canManageMembers = member.canManageMembers;
+
+		this.isOwner = member.isOwner;
 
 		this.createdAt = member.createdAt;
 	}
@@ -95,14 +101,16 @@ export default new Elysia()
 
 					canManageTemplates: true,
 					canInviteMembers: true,
-					canManageMembers: true
+					canManageMembers: true,
+
+					isOwner: true
 				});
 
 				return Response.json(new APITeam(team[0]));
 			}
 		},
 		{
-			detail: { summary: 'Create a new team' },
+			detail: { tags, summary: 'Create a new team' },
 			params: t.Object({
 				namespace: Namespace
 			}),
@@ -127,13 +135,13 @@ export default new Elysia()
 			return Response.json(new APITeam(team));
 		},
 		{
-			detail: { summary: 'Get team details' },
+			detail: { tags, summary: 'Get team details' },
 			params: t.Object({
 				namespace: t.String()
 			})
 		}
 	)
-	.get('/team/:namespace/member',
+	.get('/team/:namespace/members',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)
@@ -148,19 +156,23 @@ export default new Elysia()
 				const user = await db.query.users.findFirst({
 					where: like(users.id, member.userId)
 				});
-				if (user == undefined) return;
+				if (user == undefined) {
+					// It's better to throw an error here than to return an incomplete list
+					console.error('Team member without a corresponding user', JSON.stringify({ user, member, team }));
+					throw new InternalServerError();
+				};
 
 				return new APITeamMember(member, new APIUser(user));
 			}))).filter(m => m != undefined) as APITeamMember[];
 		},
 		{
-			detail: { summary: 'Get team members' },
+			detail: { tags, summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
 		}
 	)
-	.put('/team/:namespace', 
+	.patch('/team/:namespace', 
 		async (context) => {
 			const session = await getSession(context as Context);
 			if (!session || !session.user) {
@@ -239,6 +251,38 @@ export default new Elysia()
 			detail: { summary: 'Delete a team' },
 			params: t.Object({
 				namespace: t.String()
+			})
+		}
+	)
+	.get('/team/:namespace/slug/:slug',
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: like(teams.namespace, context.params.namespace),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					like(slugs.teamId, team.id),
+					like(slugs.slug, context.params.slug),
+				)
+			});
+			if (slug == undefined) throw new ResourceNotFoundError();
+
+			if (slug.linkId != undefined) {
+				return context.redirect(`/team/${context.params.namespace}/link/${slug.slug}`, 302);
+			} else if (slug.templateId != undefined) {
+				return context.redirect(`/team/${context.params.namespace}/template/${slug.slug}`, 302);
+			} else {
+				console.error('Slug with no corresponding link OR template', JSON.stringify({ slug, team }));
+				throw new InternalServerError();
+			}
+		},
+		{
+			detail: { tags, summary: 'Get resource from slug' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
 			})
 		}
 	)

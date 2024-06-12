@@ -2,24 +2,26 @@ import { env } from '~/util/env';
 import { Elysia } from 'elysia';
 import { NotImplementedError } from '~/types';
 
+const tags = ['team/template/entry'];
+
 export default new Elysia()
-	.get('/team/:namespace/template/:slug/entry', 
+	.get('/team/:namespace/template/:slug/entries', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Get template entries' } }
+		{ detail: { tags, summary: 'Get template entries' } }
 	)
 	.post('/team/:namespace/template/:slug/entry', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Create a new entry' } }
+		{ detail: { tags, summary: 'Create a new entry' } }
 	)
 	.get('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Get entry details' } }
+		{ detail: { tags, summary: 'Get entry details' } }
 	)
-	.put('/team/:namespace/template/:slug/entry/:id', 
+	.patch('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update entry details' } }
+		{ detail: { tags, summary: 'Update entry details' } }
 	)
 	.delete('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete an entry' } }
+		{ detail: { tags, summary: 'Delete an entry' } }
 	)

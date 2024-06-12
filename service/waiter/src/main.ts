@@ -1,4 +1,5 @@
 import { env } from '~/util/env';
+import packageJson from '../package.json';
 
 // Elysia imports
 import { Elysia, ValidationError } from 'elysia';
@@ -12,7 +13,23 @@ import TeamController from './controller/team';
 
 // Set up Elysia and listen
 export const app = new Elysia()
-    .use(swagger({ provider: 'scalar' }))
+    .use(swagger({
+		provider: 'scalar',
+		documentation: {
+			info: {
+				title: 'Waiter Documentation',
+				version: packageJson.version
+			},
+			tags: [
+				{ name: 'user' },
+				{ name: 'team' },
+				{ name: 'team/link' },
+				{ name: 'team/invite' },
+				{ name: 'team/template' },
+				{ name: 'team/template/entry' },
+			]
+		}
+	}))
 	.error({
 		[new NotImplementedError().message]: NotImplementedError,
 		[new NotAuthenticatedError().message]: NotAuthenticatedError,

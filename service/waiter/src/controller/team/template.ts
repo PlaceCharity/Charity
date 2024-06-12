@@ -4,25 +4,27 @@ import { NotImplementedError } from '~/types';
 
 import EntryController from './template/entry';
 
+const tags = ['team/template'];
+
 export default new Elysia()
 	.use(EntryController)
-	.get('/team/:namespace/template', 
+	.get('/team/:namespace/templates', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Get team templates' } }
-	)
-	.post('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Create a new template' } }
-	)
-	.get('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Get template details' } }
+		{ detail: { tags, summary: 'Get team templates' } }
 	)
 	.put('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Update template details' } }
+		{ detail: { tags, summary: 'Create a new template' } }
+	)
+	.get('/team/:namespace/template/:slug', 
+		() => { throw new NotImplementedError() },
+		{ detail: { tags, summary: 'Get template details' } }
+	)
+	.patch('/team/:namespace/template/:slug', 
+		() => { throw new NotImplementedError() },
+		{ detail: { tags, summary: 'Update template details' } }
 	)
 	.delete('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
-		{ detail: { summary: 'Delete a template' } }
+		{ detail: { tags, summary: 'Delete a template' } }
 	)
