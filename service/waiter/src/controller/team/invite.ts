@@ -49,9 +49,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -94,9 +92,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -116,17 +112,24 @@ export default new Elysia()
 			// Check permissions to see what permissions we can give
 			if (
 				((context.body.canManageTemplates ?? false) == true && !member.canManageTemplates)
+				|| ((context.body.canManageLinks ?? false) == true && !member.canManageLinks)
 				|| ((context.body.canInviteMembers ?? false) == true && !member.canInviteMembers)
 				|| ((context.body.canManageMembers ?? false) == true && !member.canManageMembers)
-			) throw new BadRequestError();
+				|| ((context.body.canEditTeam ?? false) == true && !member.canEditTeam)
+			) throw new NotAuthorizedError();
 
 			// Create invite
 			const invite = await db.insert(invites).values({
 				teamId: team.id,
 				inviterId: session.user.id,
+
 				canManageTemplates: context.body.canManageTemplates ?? false,
+				canManageLinks: context.body.canManageLinks ?? false,
+
 				canInviteMembers: context.body.canInviteMembers ?? false,
-				canManageMembers: context.body.canManageMembers ?? false
+				canManageMembers: context.body.canManageMembers ?? false,
+
+				canEditTeam: context.body.canEditTeam ?? false
 			}).returning();
 
 			return Response.json(new APIInvite(invite[0]));
@@ -141,8 +144,12 @@ export default new Elysia()
 			}),
 			body: t.Object({
 				canManageTemplates: t.Optional(t.Boolean()),
+				canManageLinks: t.Optional(t.Boolean()),
+
 				canInviteMembers: t.Optional(t.Boolean()),
-				canManageMembers: t.Optional(t.Boolean())
+				canManageMembers: t.Optional(t.Boolean()),
+
+				canEditTeam: t.Optional(t.Boolean())
 			})
 		}
 	)
@@ -165,9 +172,7 @@ export default new Elysia()
 			if (invite == undefined) {
 				// Don't leak that the invite doesn't exist
 				// (Use the correct error that you would get if the invite did exist)
-				if (!session || !session.user) {
-					throw new NotAuthenticatedError();
-				}
+				if (!session || !session.user) throw new NotAuthenticatedError();
 
 				throw new NotAuthorizedError();
 			};
@@ -175,9 +180,7 @@ export default new Elysia()
 			// Check for key
 			if (context.query.key != invite.key) {
 				// Check for session
-				if (!session || !session.user) {
-					throw new NotAuthenticatedError();
-				}
+				if (!session || !session.user) throw new NotAuthenticatedError();
 
 				// Check if we created the invite
 				if (session.user.id != invite.inviterId) {
@@ -214,9 +217,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -295,9 +296,7 @@ export default new Elysia()
 			if (invite == undefined) {
 				// Don't leak that the invite doesn't exist
 				// (Use the correct error that you would get if the invite did exist)
-				if (!session || !session.user) {
-					throw new NotAuthenticatedError();
-				}
+				if (!session || !session.user) throw new NotAuthenticatedError();
 
 				throw new NotAuthorizedError();
 			};
@@ -305,9 +304,7 @@ export default new Elysia()
 			// Check for key
 			if (context.body.key != invite.key) {
 				// Check for session
-				if (!session || !session.user) {
-					throw new NotAuthenticatedError();
-				}
+				if (!session || !session.user) throw new NotAuthenticatedError();
 
 				// Check if we created the invite
 				if (session.user.id != invite.inviterId) {
