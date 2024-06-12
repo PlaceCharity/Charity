@@ -210,7 +210,7 @@ export default new Elysia()
 			}
 		},
 		{
-			detail: { summary: 'Update team details' },
+			detail: { tags, summary: 'Update team details' },
 			params: t.Object({
 				namespace: t.String()
 			}),
@@ -248,7 +248,7 @@ export default new Elysia()
 			}
 		},
 		{
-			detail: { summary: 'Delete a team' },
+			detail: { tags, summary: 'Delete a team' },
 			params: t.Object({
 				namespace: t.String()
 			})
