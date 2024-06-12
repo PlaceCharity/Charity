@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { APIUser, AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { APIUser, AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import db from '~/instance/database';
 import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
@@ -212,7 +212,7 @@ export default new Elysia()
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Delete a team' } }
 	)
-	.delete('/team/:namespace/member/:id', 
+	.delete('/team/:namespace/member/:id',
 		async (context) => {
 			const session = await getSession(context as Context);
 			if (!session || !session.user) {
@@ -257,7 +257,7 @@ export default new Elysia()
 					like(teamMembers.teamId, team.id),
 					like(teamMembers.userId, targetMember.userId)
 				)).returning();
-				if (!deletedTeamMember || deletedTeamMember.length == 0) throw new ResourceNotFoundError();
+				if (!deletedTeamMember || deletedTeamMember.length == 0) throw new InternalServerError();
 
 				return;
 			}
@@ -267,6 +267,75 @@ export default new Elysia()
 			params: t.Object({
 				namespace: t.String(),
 				id: t.String()
+			})
+		}
+	)
+	.patch('/team/:namespace/member/:id',
+		async (context) => {
+			const session = await getSession(context as Context);
+			if (!session || !session.user) {
+				throw new NotAuthenticatedError();
+			} else {
+				let id = context.params.id;
+				if (context.params.id == '@me') {
+					id = session.user.id;
+				}
+
+				const team = await db.query.teams.findFirst({
+					where: like(teams.namespace, context.params.namespace)
+				});
+				if (team == undefined) throw new ResourceNotFoundError();
+
+				const actingMember = await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, session.user.id)
+					)
+				});
+				if (actingMember == undefined) throw new NotAuthorizedError();
+
+				// Check permissions to see what permissions we can give
+				if (
+					(((context.body.canManageTemplates ?? false) == true && !actingMember.canManageTemplates)
+					|| ((context.body.canInviteMembers ?? false) == true && !actingMember.canInviteMembers)
+					|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers))
+					&& !actingMember.isOwner
+				) throw new BadRequestError();
+
+				const targetMember = await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, id)
+					)
+				});
+				if (targetMember == undefined) throw new ResourceNotFoundError();
+
+				// Check permissions to see if we can update the team member
+				if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers || targetMember.isOwner)) throw new NotAuthorizedError();
+
+				const updatedTeamMember = await db.update(teamMembers).set({
+					canManageTemplates: context.body.canManageTemplates,
+					canManageMembers: context.body.canManageMembers,
+					canInviteMembers: context.body.canInviteMembers,
+				}).where(and(
+					like(teamMembers.teamId, team.id),
+					like(teamMembers.userId, targetMember.userId)
+				)).returning();
+				if (!updatedTeamMember || updatedTeamMember.length == 0) throw new InternalServerError();
+
+				return;
+			}
+		},
+		{
+			detail: { tags, summary: 'Update a team member\'s details' },
+			params: t.Object({
+				namespace: t.String(),
+				id: t.String()
+			}),
+			body: t.Object({
+				canManageTemplates: t.Optional(t.Boolean()),
+				canInviteMembers: t.Optional(t.Boolean()),
+				canManageMembers: t.Optional(t.Boolean())
 			})
 		}
 	)
