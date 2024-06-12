@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5ae657d3-2367-47b0-a54d-b213cbffec33",
+  "id": "2e10bf83-abcf-41a3-9b34-a99ef6d8a3ff",
   "prevId": "49ab3268-98a1-4d3e-9958-8ff5ddee2dfd",
   "tables": {
     "account": {
@@ -151,6 +151,14 @@
           "autoincrement": false,
           "default": false
         },
+        "canManageLinks": {
+          "name": "canManageLinks",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "canInviteMembers": {
           "name": "canInviteMembers",
           "type": "integer",
@@ -161,6 +169,14 @@
         },
         "canManageMembers": {
           "name": "canManageMembers",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "canEditTeam": {
+          "name": "canEditTeam",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -445,6 +461,14 @@
           "autoincrement": false,
           "default": false
         },
+        "canManageLinks": {
+          "name": "canManageLinks",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "canInviteMembers": {
           "name": "canInviteMembers",
           "type": "integer",
@@ -461,13 +485,20 @@
           "autoincrement": false,
           "default": false
         },
-        "isOwner": {
-          "name": "isOwner",
+        "canEditTeam": {
+          "name": "canEditTeam",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "isOwner": {
+          "name": "isOwner",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "createdAt": {
           "name": "createdAt",
