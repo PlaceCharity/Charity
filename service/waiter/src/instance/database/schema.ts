@@ -89,7 +89,8 @@ export const teamMembers = table('teamMember', {
 
 	canEditTeam: integer('canEditTeam', { mode: 'boolean' }).notNull().default(false),
 
-	isOwner: integer('isOwner', { mode: 'boolean' }).notNull().default(false),
+	// Non-owners should have this column be *null*, not false! So that the unique constraint works properly
+	isOwner: integer('isOwner', { mode: 'boolean' }),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 }, (tm) => ({

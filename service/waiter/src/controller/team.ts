@@ -74,7 +74,7 @@ export class APITeamMember {
 
 		this.canEditTeam = member.canEditTeam;
 
-		this.isOwner = member.isOwner;
+		this.isOwner = member.isOwner ?? false;
 
 		this.createdAt = member.createdAt;
 	}
