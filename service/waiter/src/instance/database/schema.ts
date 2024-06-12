@@ -82,8 +82,12 @@ export const teamMembers = table('teamMember', {
 	userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
 
 	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
+	canManageLinks: integer('canManageLinks', { mode: 'boolean' }).notNull().default(false),
+
 	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
 	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
+
+	canEditTeam: integer('canEditTeam', { mode: 'boolean' }).notNull().default(false),
 
 	isOwner: integer('isOwner', { mode: 'boolean' }).notNull().default(false),
 
@@ -102,8 +106,12 @@ export const invites = table('invite', {
 	inviterId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
 
 	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
+	canManageLinks: integer('canManageLinks', { mode: 'boolean' }).notNull().default(false),
+
 	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
 	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
+
+	canEditTeam: integer('canEditTeam', { mode: 'boolean' }).notNull().default(false),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });

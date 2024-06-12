@@ -74,9 +74,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -91,7 +89,7 @@ export default new Elysia()
 					like(teamMembers.userId, session.user.id)
 				)
 			});
-			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
 
 			// Check if slug is taken
 			if ((await db.query.slugs.findFirst({
@@ -169,9 +167,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -186,7 +182,7 @@ export default new Elysia()
 					like(teamMembers.userId, session.user.id)
 				)
 			});
-			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
 
 			// Find slug
 			const slug = await db.query.slugs.findFirst({
@@ -251,9 +247,7 @@ export default new Elysia()
 		async (context) => {
 			// Get session
 			const session = await getSession(context as Context);
-			if (!session || !session.user) {
-				throw new NotAuthenticatedError();
-			}
+			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Get team
 			const team = await db.query.teams.findFirst({
@@ -268,7 +262,7 @@ export default new Elysia()
 					like(teamMembers.userId, session.user.id)
 				)
 			});
-			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
 
 			// Find the slug
 			const slug = await db.query.slugs.findFirst({

@@ -46,11 +46,9 @@ export default new Elysia()
 			if (context.params.id == '@me') {
 				// Get currently authenticated user
 				const session = await getSession(context as Context);
-				if (!session || !session.user) {
-					throw new NotAuthenticatedError();
-				} else {
-					id = session.user.id;
-				}
+				if (!session || !session.user) throw new NotAuthenticatedError();
+				
+				id = session.user.id;
 			}
 
 			// Get user by ID
