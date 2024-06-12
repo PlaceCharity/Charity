@@ -16,8 +16,12 @@ export class PartialAPIInvite {
 	inviterId: string;
 
 	canManageTemplates: boolean;
+	canManageLinks: boolean;
+
 	canInviteMembers: boolean;
 	canManageMembers: boolean;
+
+	canEditTeam: boolean;
 
 	createdAt: Date;
 
@@ -28,8 +32,12 @@ export class PartialAPIInvite {
 		this.inviterId = invite.inviterId;
 
 		this.canManageTemplates = invite.canManageTemplates;
+		this.canManageLinks = invite.canManageLinks;
+
 		this.canInviteMembers = invite.canInviteMembers;
 		this.canManageMembers = invite.canManageMembers;
+
+		this.canEditTeam = invite.canEditTeam;
 
 		this.createdAt = invite.createdAt;
 	}
@@ -243,8 +251,12 @@ export default new Elysia()
 				userId: session.user.id,
 
 				canManageTemplates: invite.canManageMembers,
+				canManageLinks: invite.canManageLinks,
+
 				canInviteMembers: invite.canInviteMembers,
-				canManageMembers: invite.canManageMembers
+				canManageMembers: invite.canManageMembers,
+
+				canEditTeam: invite.canEditTeam
 			}).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_PRIMARYKEY') {
