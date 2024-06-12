@@ -377,7 +377,9 @@ export default new Elysia()
 			if (
 				(((context.body.canManageTemplates ?? false) == true && !actingMember.canManageTemplates)
 				|| ((context.body.canInviteMembers ?? false) == true && !actingMember.canInviteMembers)
-				|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers))
+				|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers)
+				|| ((context.body.canManageLinks ?? false) == true && !actingMember.canManageLinks)
+				|| ((context.body.canEditTeam ?? false) == true && !actingMember.canEditTeam))
 				&& !actingMember.isOwner
 			) throw new BadRequestError();
 
@@ -396,6 +398,8 @@ export default new Elysia()
 				canManageTemplates: context.body.canManageTemplates,
 				canManageMembers: context.body.canManageMembers,
 				canInviteMembers: context.body.canInviteMembers,
+				canManageLinks: context.body.canManageLinks,
+				canEditTeam: context.body.canEditTeam
 			}).where(and(
 				like(teamMembers.teamId, team.id),
 				like(teamMembers.userId, targetMember.userId)
@@ -413,7 +417,9 @@ export default new Elysia()
 			body: t.Object({
 				canManageTemplates: t.Optional(t.Boolean()),
 				canInviteMembers: t.Optional(t.Boolean()),
-				canManageMembers: t.Optional(t.Boolean())
+				canManageMembers: t.Optional(t.Boolean()),
+				canManageLinks: t.Optional(t.Boolean()),
+				canEditTeam: t.Optional(t.Boolean())
 			})
 		}
 	)
