@@ -69,7 +69,11 @@ export const teams = table('team', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 	namespace: text('namespace').notNull().unique(),
 
+	// Used in Overlay
 	displayName: text('displayName').notNull(),
+	contactInfo: text('contactInfo').notNull(),
+
+	// Just for the site
 	description: text('description').notNull(),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
@@ -152,7 +156,11 @@ export const templates = table('template', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
 
+	// Used in overlay
 	displayName: text('displayName').notNull(),
+
+	// Just for the site
+	description: text('description').notNull(),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });

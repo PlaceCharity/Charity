@@ -16,24 +16,31 @@ const tags = ['team'];
 
 export const Namespace = t.String({
 	minLength: 2,
-	maxLength: 16,
+	maxLength: 20,
 	pattern: '^[a-zA-Z0-9\-\_]+$'
 });
 
 export const DisplayName = t.String({
 	minLength: 1,
-	maxLength: 32
+	maxLength: 64
 });
 
 export const Description = t.String({
 	maxLength: 500
 });
 
+export const ContactInfo = t.String({
+	minLength: 1,
+	maxLength: 96
+})
+
 export class APITeam {
 	id: string;
 	namespace: string;
 
 	displayName: string;
+	contactInfo: string;
+
 	description: string;
 
 	createdAt: Date;
@@ -41,8 +48,12 @@ export class APITeam {
 	constructor(team: InferSelectModel<typeof teams>) {
 		this.id = team.id;
 		this.namespace = team.namespace;
+
 		this.displayName = team.displayName;
+		this.contactInfo = team.contactInfo;
+
 		this.description = team.description;
+
 		this.createdAt = team.createdAt;
 	}
 }
@@ -95,6 +106,7 @@ export default new Elysia()
 			const team = await db.insert(teams).values({
 				namespace: context.params.namespace,
 				displayName: context.body.displayName,
+				contactInfo: context.body.contactInfo,
 				description: context.body.description
 			}).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
@@ -130,7 +142,8 @@ export default new Elysia()
 			}),
 			body: t.Object({
 				displayName: DisplayName,
-				description: Description
+				description: Description,
+				contactInfo: ContactInfo
 			})
 		}
 	)
@@ -177,7 +190,8 @@ export default new Elysia()
 			const updatedTeam = await db.update(teams).set({
 				namespace: context.body.namespace,
 				displayName: context.body.displayName,
-				description: context.body.description
+				description: context.body.description,
+				contactInfo: context.body.contactInfo
 			}).where(like(teams.id, team.id)).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
@@ -198,7 +212,8 @@ export default new Elysia()
 			body: t.Object({
 				namespace: t.Optional(Namespace),
 				displayName: t.Optional(DisplayName),
-				description: t.Optional(Description)
+				description: t.Optional(Description),
+				contactInfo: t.Optional(ContactInfo)
 			})
 		}
 	)
@@ -262,139 +277,6 @@ export default new Elysia()
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()
-			})
-		}
-	)
-	.delete('/team/:namespace/member/:id',
-		async (context) => {
-			const session = await getSession(context as Context);
-			if (!session || !session.user) throw new NotAuthenticatedError();
-
-			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
-			});
-			if (team == undefined) throw new ResourceNotFoundError();
-
-			const actingMember = await db.query.teamMembers.findFirst({
-				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
-				)
-			});
-			if (actingMember == undefined) throw new NotAuthorizedError();
-
-			const targetMember = context.params.id == '@me'
-				? actingMember
-				: await db.query.teamMembers.findFirst({
-					where: and(
-						like(teamMembers.teamId, team.id),
-						like(teamMembers.userId, context.params.id)
-					)
-				});
-			if (targetMember == undefined) throw new ResourceNotFoundError();
-
-			// Make sure we aren't deleting the owner
-			if (targetMember.isOwner) throw new BadRequestError();
-
-			// Ignore permission checks if we are deleting ourselves
-			if (targetMember.userId != session.user.id) {
-				if (
-					!actingMember.isOwner && (
-						!actingMember.canManageMembers
-						|| targetMember.canManageMembers // You can't manage members that have canManageMembers unless you're an owner
-					)
-				) throw new NotAuthorizedError();
-			}
-
-			const deletedTeamMember = await db.delete(teamMembers).where(and(
-				like(teamMembers.teamId, team.id),
-				like(teamMembers.userId, targetMember.userId)
-			)).returning();
-			if (!deletedTeamMember || deletedTeamMember.length == 0) {
-				console.error('Team member disappeared from under us during delete', JSON.stringify({ deletedTeamMember, targetMember, actingMember, team }));
-				throw new InternalServerError();
-			}
-
-			return;
-		},
-		{
-			detail: { tags, summary: 'Delete a team member' },
-			params: t.Object({
-				namespace: t.String(),
-				id: t.String()
-			})
-		}
-	)
-	.patch('/team/:namespace/member/:id',
-		async (context) => {
-			const session = await getSession(context as Context);
-			if (!session || !session.user) throw new NotAuthenticatedError();
-
-			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
-			});
-			if (team == undefined) throw new ResourceNotFoundError();
-
-			const actingMember = await db.query.teamMembers.findFirst({
-				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
-				)
-			});
-			if (actingMember == undefined) throw new NotAuthorizedError();
-
-			// Check permissions to see what permissions we can give
-			if (
-				!actingMember.isOwner &&
-				(((context.body.canManageTemplates ?? false) == true && !actingMember.canManageTemplates)
-				|| ((context.body.canInviteMembers ?? false) == true && !actingMember.canInviteMembers)
-				|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers)
-				|| ((context.body.canManageLinks ?? false) == true && !actingMember.canManageLinks)
-				|| ((context.body.canEditTeam ?? false) == true && !actingMember.canEditTeam))
-			) throw new BadRequestError();
-
-			const targetMember = context.params.id == '@me'
-				? actingMember
-				: await db.query.teamMembers.findFirst({
-					where: and(
-						like(teamMembers.teamId, team.id),
-						like(teamMembers.userId, context.params.id)
-					)
-				});
-			if (targetMember == undefined) throw new ResourceNotFoundError();
-
-			// Check permissions to see if we can update the team member
-			if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers || targetMember.isOwner)) throw new BadRequestError();
-
-			const updatedTeamMember = await db.update(teamMembers).set({
-				canManageTemplates: context.body.canManageTemplates,
-				canManageMembers: context.body.canManageMembers,
-				canInviteMembers: context.body.canInviteMembers,
-				canManageLinks: context.body.canManageLinks,
-				canEditTeam: context.body.canEditTeam
-			}).where(and(
-				like(teamMembers.teamId, team.id),
-				like(teamMembers.userId, targetMember.userId)
-			)).returning();
-			if (!updatedTeamMember || updatedTeamMember.length == 0) {
-				console.error('Team member disappeared from under us during update', JSON.stringify({ updatedTeamMember, targetMember, actingMember, team }));
-				throw new InternalServerError();
-			}
-
-			return;
-		},
-		{
-			detail: { tags, summary: 'Update a team member\'s details' },
-			params: t.Object({
-				namespace: t.String(),
-				id: t.String()
-			}),
-			body: t.Object({
-				canManageTemplates: t.Optional(t.Boolean()),
-				canInviteMembers: t.Optional(t.Boolean()),
-				canManageMembers: t.Optional(t.Boolean()),
-				canManageLinks: t.Optional(t.Boolean()),
-				canEditTeam: t.Optional(t.Boolean())
 			})
 		}
 	)
