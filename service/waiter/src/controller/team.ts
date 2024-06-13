@@ -9,6 +9,7 @@ import { SQLiteError } from 'bun:sqlite';
 
 import TemplateController from './team/template';
 import LinkController from './team/link';
+import MemberController from './team/member';
 import InviteController from './team/invite';
 
 const tags = ['team'];
@@ -83,6 +84,7 @@ export class APITeamMember {
 export default new Elysia()
 	.use(TemplateController)
 	.use(LinkController)
+	.use(MemberController)
 	.use(InviteController)
 	.post('/team/:namespace',
 		async (context) => {
@@ -148,37 +150,6 @@ export default new Elysia()
 		},
 		{
 			detail: { tags, summary: 'Get team details' },
-			params: t.Object({
-				namespace: t.String()
-			})
-		}
-	)
-	.get('/team/:namespace/members',
-		async (context) => {
-			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
-			});
-			if (team == undefined) throw new ResourceNotFoundError();
-
-			const members = await db.query.teamMembers.findMany({
-				where: like(teamMembers.teamId, team.id)
-			});
-
-			return (await Promise.all(members.map(async member => {
-				const user = await db.query.users.findFirst({
-					where: like(users.id, member.userId)
-				});
-				if (user == undefined) {
-					// It's better to throw an error here than to return an incomplete list
-					console.error('Team member without a corresponding user', JSON.stringify({ user, member, team }));
-					throw new InternalServerError();
-				};
-
-				return new APITeamMember(member, new APIUser(user));
-			}))).filter(m => m != undefined) as APITeamMember[];
-		},
-		{
-			detail: { tags, summary: 'Get team members' },
 			params: t.Object({
 				namespace: t.String()
 			})
