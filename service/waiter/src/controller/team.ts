@@ -299,11 +299,6 @@ export default new Elysia()
 			const session = await getSession(context as Context);
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
-			let id = context.params.id;
-			if (context.params.id == '@me') {
-				id = session.user.id;
-			}
-
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)
 			});
@@ -317,28 +312,37 @@ export default new Elysia()
 			});
 			if (actingMember == undefined) throw new NotAuthorizedError();
 
-			const targetMember = await db.query.teamMembers.findFirst({
-				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, id)
-				)
-			});
+			const targetMember = context.params.id == '@me'
+				? actingMember
+				: await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, context.params.id)
+					)
+				});
 			if (targetMember == undefined) throw new ResourceNotFoundError();
 
 			// Make sure we aren't deleting the owner
-			if (targetMember.isOwner) throw new NotAuthorizedError();
+			if (targetMember.isOwner) throw new BadRequestError();
 
 			// Ignore permission checks if we are deleting ourselves
-			if (id != session.user.id) {
-				// Check permissions to see if we can delete the team member
-				if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers)) throw new NotAuthorizedError();
+			if (targetMember.userId != session.user.id) {
+				if (
+					!actingMember.isOwner && (
+						!actingMember.canManageMembers
+						|| targetMember.canManageMembers // You can't manage members that have canManageMembers unless you're an owner
+					)
+				) throw new NotAuthorizedError();
 			}
 
 			const deletedTeamMember = await db.delete(teamMembers).where(and(
 				like(teamMembers.teamId, team.id),
 				like(teamMembers.userId, targetMember.userId)
 			)).returning();
-			if (!deletedTeamMember || deletedTeamMember.length == 0) throw new InternalServerError();
+			if (!deletedTeamMember || deletedTeamMember.length == 0) {
+				console.error('Team member disappeared from under us during delete', JSON.stringify({ deletedTeamMember, targetMember, actingMember, team }));
+				throw new InternalServerError();
+			}
 
 			return;
 		},
@@ -354,11 +358,6 @@ export default new Elysia()
 		async (context) => {
 			const session = await getSession(context as Context);
 			if (!session || !session.user) throw new NotAuthenticatedError();
-				
-			let id = context.params.id;
-			if (context.params.id == '@me') {
-				id = session.user.id;
-			}
 
 			const team = await db.query.teams.findFirst({
 				where: like(teams.namespace, context.params.namespace)
@@ -375,24 +374,26 @@ export default new Elysia()
 
 			// Check permissions to see what permissions we can give
 			if (
+				!actingMember.isOwner &&
 				(((context.body.canManageTemplates ?? false) == true && !actingMember.canManageTemplates)
 				|| ((context.body.canInviteMembers ?? false) == true && !actingMember.canInviteMembers)
 				|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers)
 				|| ((context.body.canManageLinks ?? false) == true && !actingMember.canManageLinks)
 				|| ((context.body.canEditTeam ?? false) == true && !actingMember.canEditTeam))
-				&& !actingMember.isOwner
 			) throw new BadRequestError();
 
-			const targetMember = await db.query.teamMembers.findFirst({
-				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, id)
-				)
-			});
+			const targetMember = context.params.id == '@me'
+				? actingMember
+				: await db.query.teamMembers.findFirst({
+					where: and(
+						like(teamMembers.teamId, team.id),
+						like(teamMembers.userId, context.params.id)
+					)
+				});
 			if (targetMember == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can update the team member
-			if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers || targetMember.isOwner)) throw new NotAuthorizedError();
+			if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers || targetMember.isOwner)) throw new BadRequestError();
 
 			const updatedTeamMember = await db.update(teamMembers).set({
 				canManageTemplates: context.body.canManageTemplates,
@@ -404,7 +405,10 @@ export default new Elysia()
 				like(teamMembers.teamId, team.id),
 				like(teamMembers.userId, targetMember.userId)
 			)).returning();
-			if (!updatedTeamMember || updatedTeamMember.length == 0) throw new InternalServerError();
+			if (!updatedTeamMember || updatedTeamMember.length == 0) {
+				console.error('Team member disappeared from under us during update', JSON.stringify({ updatedTeamMember, targetMember, actingMember, team }));
+				throw new InternalServerError();
+			}
 
 			return;
 		},
