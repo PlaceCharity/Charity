@@ -122,11 +122,11 @@ export default new Elysia()
 			// Check permissions to see what permissions we can give
 			if (
 				!actingMember.isOwner &&
-				(((context.body.canManageTemplates ?? false) == true && !actingMember.canManageTemplates)
-				|| ((context.body.canInviteMembers ?? false) == true && !actingMember.canInviteMembers)
-				|| ((context.body.canManageMembers ?? false) == true && !actingMember.canManageMembers)
-				|| ((context.body.canManageLinks ?? false) == true && !actingMember.canManageLinks)
-				|| ((context.body.canEditTeam ?? false) == true && !actingMember.canEditTeam))
+				((context.body.canManageTemplates != undefined && !actingMember.canManageTemplates)
+				|| (context.body.canInviteMembers != undefined && !actingMember.canInviteMembers)
+				|| (context.body.canManageMembers != undefined && !actingMember.canManageMembers)
+				|| (context.body.canManageLinks != undefined && !actingMember.canManageLinks)
+				|| (context.body.canEditTeam != undefined && !actingMember.canEditTeam))
 			) throw new BadRequestError();
 
 			const targetMember = context.params.id == '@me'
