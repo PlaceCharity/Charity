@@ -57,6 +57,13 @@
       "when": 1718211660488,
       "tag": "0007_big_william_stryker",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1718290418841,
+      "tag": "0008_bright_arachne",
+      "breakpoints": true
     }
   ]
 }

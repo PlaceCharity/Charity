@@ -1,6 +1,7 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { APIUser, AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
 import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
@@ -55,40 +56,6 @@ export class APITeam {
 		this.description = team.description;
 
 		this.createdAt = team.createdAt;
-	}
-}
-
-export class APITeamMember {
-	teamId: string;
-	user: APIUser;
-	
-	canManageTemplates: boolean;
-	canManageLinks: boolean;
-
-	canInviteMembers: boolean;
-	canManageMembers: boolean;
-
-	canEditTeam: boolean;
-
-	isOwner: boolean;
-
-	createdAt: Date;
-
-	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
-		this.teamId = member.teamId;
-		this.user = user;
-
-		this.canManageTemplates = member.canManageTemplates;
-		this.canManageLinks = member.canManageLinks;
-
-		this.canInviteMembers = member.canInviteMembers;
-		this.canManageMembers = member.canManageMembers;
-
-		this.canEditTeam = member.canEditTeam;
-
-		this.isOwner = member.isOwner ?? false;
-
-		this.createdAt = member.createdAt;
 	}
 }
 

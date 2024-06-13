@@ -54,4 +54,15 @@ console.log(`🍽️ Waiter is running at ${app.server?.hostname}:${app.server?.
 
 // Export the app for Eden client
 export type Waiter = typeof app;
-export * from './types';
+
+// Rest of the exports
+export {
+	// Errors
+	NotImplementedError, NotAuthenticatedError, NotAuthorizedError, BadRequestError, ResourceNotFoundError, AlreadyExistsError
+} from './types';
+export { APIUser } from '~/controller/user';
+export { APITeam } from '~/controller/team';
+export { APITeamMember } from '~/controller/team/member';
+export { PartialAPIInvite, APIInvite } from '~/controller/team/invite';
+export { APILink } from '~/controller/team/link';
+export { APITemplate } from '~/controller/team/template';

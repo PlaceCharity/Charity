@@ -4,15 +4,9 @@ import { Context, Elysia, InternalServerError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
 import { links, slugs, teamMembers, teams } from '~/instance/database/schema';
-import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, } from '~/types';
+import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, Slug } from '~/types';
 
 const tags = ['team/link'];
-
-export const Slug = t.String({
-	minLength: 1,
-	maxLength: 32,
-	pattern: '^[a-zA-Z0-9\-\_]+$'
-});
 
 export class APILink {
 	id: string;

@@ -1,6 +1,8 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, t } from 'elysia';
-import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, APITeamMember, APIUser } from '~/types';
+import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError } from '~/types';
+import { APIUser } from '~/controller/user';
+import { APITeamMember } from './member';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
 import { invites, teamMembers, teams, users } from '~/instance/database/schema';
 import db from '~/instance/database';
