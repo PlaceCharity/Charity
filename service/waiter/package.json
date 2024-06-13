@@ -5,12 +5,13 @@
   "module": "src/main.ts",
   "exports": "./src/main.ts",
   "scripts": {
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit && bun run db:check",
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
     "db:push": "drizzle-kit push",
     "db:migration:generate": "drizzle-kit generate",
     "db:migration:apply": "bun run src/instance/database/migrate.ts",
+    "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio"
   },
   "paths": {
