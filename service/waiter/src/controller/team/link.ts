@@ -1,10 +1,10 @@
 import { SQLiteError } from 'bun:sqlite';
 import { InferSelectModel, and, like } from 'drizzle-orm';
-import { Context, Elysia, InternalServerError, t } from 'elysia';
+import { Context, Elysia, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
 import { links, slugs, teamMembers, teams } from '~/instance/database/schema';
-import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, Slug } from '~/types';
+import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, Slug } from '~/types';
 
 const tags = ['team/link'];
 
@@ -49,10 +49,10 @@ export default new Elysia()
 						like(slugs.linkId, link.id)
 					)
 				});
-				if (slug == undefined) {
-					console.error('Link without a corresponding slug', JSON.stringify({ slug, link, team }));
-					throw new InternalServerError();
-				}
+				if (slug == undefined) throw new KnownInternalServerError({
+					message: 'Link without a corresponding slug',
+					slug, link, team
+				});
 
 				return new APILink(link, slug);
 			}))).filter(m => m != undefined) as APILink[];
@@ -142,10 +142,10 @@ export default new Elysia()
 			const link = await db.query.links.findFirst({
 				where: like(links.id, slug.linkId),
 			});
-			if (link == undefined) {
-				console.error('Slug with linkId without a corresponding link', JSON.stringify({ link, slug, team }));
-				throw new InternalServerError();
-			}
+			if (link == undefined) throw new KnownInternalServerError({
+				message: 'Slug with linkId without a corresponding link',
+				link, slug, team
+			});
 
 			return Response.json(new APILink(link, slug));
 		},
@@ -213,10 +213,10 @@ export default new Elysia()
 					}
 					throw err;
 				});
-				if (updatedSlug.length < 1) {
-					console.error('Slug disappeared from under us while updating link', JSON.stringify({ updatedSlug, slug, link, team }));
-					throw new InternalServerError();
-				}
+				if (updatedSlug.length < 1) throw new KnownInternalServerError({
+					message: 'Slug disappeared from under us while updating link',
+					updatedSlug, slug, link, team
+				});
 			}
 
 			return Response.json(new APILink(link[0], updatedSlug[0]));
@@ -272,18 +272,18 @@ export default new Elysia()
 				like(links.teamId, team.id),
 				like(links.id, slug.linkId),
 			)).returning();
-			if (link.length < 1) {
-				console.error('Link disappeared from under us while deleting', JSON.stringify({ link, slug, team }));
-				throw new InternalServerError();
-			};
+			if (link.length < 1) throw new KnownInternalServerError({
+				message: 'Link disappeared from under us while deleting',
+				link, slug, team
+			});
 
 			// FIXME: The slug should be deleted, but ON DELETE CASCADE doesn't work, maybe because our CHECK doesn't work, more probably because it's just nullable and so it ignores ON DELETE CASCADE.
 			// So, delete the slug manually for now.
 			const deletedSlug = await db.delete(slugs).where(like(slugs.id, slug.id)).returning();
-			if (deletedSlug.length < 1) {
-				console.error('Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)', JSON.stringify({ deletedSlug, slug, team }));
-				throw new InternalServerError();
-			}
+			if (deletedSlug.length < 1) throw new KnownInternalServerError({
+				message: 'Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)',
+				deletedSlug, slug, team
+			});
 
 			return;
 		},

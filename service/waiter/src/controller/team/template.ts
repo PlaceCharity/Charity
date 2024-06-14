@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
-import { Context, Elysia, InternalServerError, t } from 'elysia';
-import { AlreadyExistsError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { Context, Elysia, t } from 'elysia';
+import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import { InferSelectModel, and, like } from 'drizzle-orm';
 import { slugs, teamMembers, teams, templates } from '~/instance/database/schema';
 import db from '~/instance/database';
@@ -61,10 +61,10 @@ export default new Elysia()
 						like(slugs.templateId, template.id)
 					)
 				});
-				if (slug == undefined) {
-					console.error('Template without a corresponding slug', JSON.stringify({ slug, template, team }));
-					throw new InternalServerError();
-				}
+				if (slug == undefined) throw new KnownInternalServerError({
+					message: 'Template without a corresponding slug',
+					slug, template, team
+				});
 
 				return new APITemplate(template, slug);
 			}))).filter(m => m != undefined) as APITemplate[];
@@ -151,10 +151,10 @@ export default new Elysia()
 			const template = await db.query.templates.findFirst({
 				where: like(templates.id, slug.templateId),
 			});
-			if (template == undefined) {
-				console.error('Slug with templateId without a corresponding template', JSON.stringify({ template, slug, team }));
-				throw new InternalServerError();
-			}
+			if (template == undefined) throw new KnownInternalServerError({
+				message: 'Slug with templateId without a corresponding template',
+				template, slug, team
+			});
 
 			return Response.json(new APITemplate(template, slug));
 		},

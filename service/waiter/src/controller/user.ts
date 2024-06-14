@@ -1,5 +1,5 @@
 import { env } from '~/util/env';
-import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
+import { Context, Elysia, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';

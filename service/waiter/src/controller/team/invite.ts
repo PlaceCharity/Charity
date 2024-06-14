@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
-import { Context, Elysia, InternalServerError, t } from 'elysia';
-import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError } from '~/types';
+import { Context, Elysia, t } from 'elysia';
+import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, KnownInternalServerError } from '~/types';
 import { APIUser } from '~/controller/user';
 import { APITeamMember } from './member';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
@@ -273,10 +273,10 @@ export default new Elysia()
 			const user = await db.query.users.findFirst({
 				where: like(users.id, session.user.id)
 			});
-			if (user == undefined) {
-				console.error('Team member created after accepting invite does not have a corresponding user', JSON.stringify({ user, member, invite, team }));
-				throw new InternalServerError();
-			};
+			if (user == undefined) throw new KnownInternalServerError({
+				detail: 'Team member created after accepting invite does not have a corresponding user',
+				user, member, invite, team
+			});
 
 			return Response.json(new APITeamMember(member[0], new APIUser(user)));
 		},

@@ -4,46 +4,38 @@ import { t } from 'elysia';
 // Remember that these should be registered in the main Elysia object in main.ts!
 
 export class NotImplementedError extends Error {
-	message: 'NOT_IMPLEMENTED';
-	status: 501;
+	message: 'NOT_IMPLEMENTED' = 'NOT_IMPLEMENTED';
+	status: 501 = 501;
 
 	constructor() {
 		super();
-		this.message = 'NOT_IMPLEMENTED';
-		this.status = 501;
 	}
 }
 
 export class NotAuthenticatedError extends Error {
-	message: 'NOT_AUTHENTICATED';
-	status: 401;
+	message: 'NOT_AUTHENTICATED' = 'NOT_AUTHENTICATED';
+	status: 401 = 401;
 
 	constructor() {
 		super();
-		this.message = 'NOT_AUTHENTICATED';
-		this.status = 401;
 	}
 }
 
 export class NotAuthorizedError extends Error {
-	message: 'NOT_AUTHORIZED';
-	status: 403;
+	message: 'NOT_AUTHORIZED' = 'NOT_AUTHORIZED';
+	status: 403 = 403;
 
 	constructor() {
 		super();
-		this.message = 'NOT_AUTHORIZED';
-		this.status = 403;
 	}
 }
 
 export class BadRequestError extends Error {
-	message: 'BAD_REQUEST';
-	status: 400;
+	message: 'BAD_REQUEST' = 'BAD_REQUEST';
+	status: 400 = 400;
 
 	constructor() {
 		super();
-		this.message = 'BAD_REQUEST';
-		this.status = 400;
 	}
 }
 
@@ -53,30 +45,35 @@ export class BadRequestError extends Error {
 // Example: GET /team/not-a-team -> ResourceNotFoundError
 //          GET /not-a-route -> NotFoundError
 export class ResourceNotFoundError extends Error {
-	message: 'RESOURCE_NOT_FOUND';
-	status: 404;
+	message: 'RESOURCE_NOT_FOUND' = 'RESOURCE_NOT_FOUND';
+	status: 404 = 404;
 
 	constructor() {
 		super();
-		this.message = 'RESOURCE_NOT_FOUND';
-		this.status = 404;
 	}
 }
 
 export class AlreadyExistsError extends Error {
-	message: 'ALREADY_EXISTS';
-	status: 409;
+	message: 'ALREADY_EXISTS' = 'ALREADY_EXISTS';
+	status: 409 = 409;
 
 	details: string;
 
 	constructor(details: string) {
 		super();
-		this.message = 'ALREADY_EXISTS';
-		this.status = 409;
 		this.details = details;
 	}
 }
 
+export class KnownInternalServerError extends Error {
+	message: 'KNOWN_INTERNAL_SERVER_ERROR' = 'KNOWN_INTERNAL_SERVER_ERROR';
+	internal: object;
+
+	constructor(internal: object) {
+		super();
+		this.internal = internal;
+	}
+}
 
 // Validation
 export const Slug = t.String({

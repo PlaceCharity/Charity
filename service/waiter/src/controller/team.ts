@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
-import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { Context, Elysia, NotFoundError, t } from 'elysia';
+import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
 import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
@@ -234,10 +234,10 @@ export default new Elysia()
 				return context.redirect(`/team/${context.params.namespace}/link/${slug.slug}`, 302);
 			} else if (slug.templateId != undefined) {
 				return context.redirect(`/team/${context.params.namespace}/template/${slug.slug}`, 302);
-			} else {
-				console.error('Slug with no corresponding link OR template', JSON.stringify({ slug, team }));
-				throw new InternalServerError();
-			}
+			} else throw new KnownInternalServerError({
+				message: 'Slug with no corresponding link OR template',
+				slug, team
+			});
 		},
 		{
 			detail: { tags, summary: 'Get resource from slug' },

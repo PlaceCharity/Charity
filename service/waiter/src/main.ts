@@ -6,7 +6,7 @@ import { Elysia, ValidationError } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 
 // Our imports
-import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError, NotAuthorizedError, BadRequestError } from './types';
+import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError, NotAuthorizedError, BadRequestError, KnownInternalServerError } from './types';
 import auth from './instance/auth';
 import UserController from './controller/user';
 import TeamController from './controller/team';
@@ -36,12 +36,23 @@ export const app = new Elysia()
 		[new NotAuthorizedError().message]: NotAuthorizedError,
 		[new BadRequestError().message]: BadRequestError,
 		[new ResourceNotFoundError().message]: ResourceNotFoundError,
-		[new AlreadyExistsError('Example').message]: AlreadyExistsError
+		[new AlreadyExistsError('Example').message]: AlreadyExistsError,
+		[new KnownInternalServerError({}).message]: KnownInternalServerError
 	})
 	.onError(({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
-		console.debug(`[DEBUG] ${code}\n`, error);
+		// Log errors by severity
+		// TODO: replace this with some log storage thing
+		if (['NOT_IMPLEMENTED', 'NOT_AUTHENTICATED', 'NOT_AUTHORIZED', 'BAD_REQUEST', 'RESOURCE_NOT_FOUND', 'ALREADY_EXISTS'].includes(code)) {
+			// User error
+			console.debug(error);
+		} else {
+			// Internal error
+			console.error(error);
+		}
+		
 		if (code == 'VALIDATION') return { code, details: JSON.parse(error.message) };
 		if (code == 'ALREADY_EXISTS') return { code, details: error.details };
+
 		return { code };
 	})
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')

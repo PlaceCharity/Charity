@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
-import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { Context, Elysia, NotFoundError, t } from 'elysia';
+import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
 import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
@@ -60,11 +60,10 @@ export default new Elysia()
 				const user = await db.query.users.findFirst({
 					where: like(users.id, member.userId)
 				});
-				if (user == undefined) {
-					// It's better to throw an error here than to return an incomplete list
-					console.error('Team member without a corresponding user', JSON.stringify({ user, member, team }));
-					throw new InternalServerError();
-				};
+				if (user == undefined) throw new KnownInternalServerError({
+					message: 'Team member without a corresponding user',
+					user, member, team
+				});
 
 				return new APITeamMember(member, new APIUser(user));
 			}))).filter(m => m != undefined) as APITeamMember[];
@@ -121,10 +120,10 @@ export default new Elysia()
 				like(teamMembers.teamId, team.id),
 				like(teamMembers.userId, targetMember.userId)
 			)).returning();
-			if (!deletedTeamMember || deletedTeamMember.length == 0) {
-				console.error('Team member disappeared from under us during delete', JSON.stringify({ deletedTeamMember, targetMember, actingMember, team }));
-				throw new InternalServerError();
-			}
+			if (!deletedTeamMember || deletedTeamMember.length == 0) throw new KnownInternalServerError({
+				message: 'Team member disappeared from under us during delete',
+				deletedTeamMember, targetMember, actingMember, team
+			});
 
 			return;
 		},
@@ -187,10 +186,10 @@ export default new Elysia()
 				like(teamMembers.teamId, team.id),
 				like(teamMembers.userId, targetMember.userId)
 			)).returning();
-			if (!updatedTeamMember || updatedTeamMember.length == 0) {
-				console.error('Team member disappeared from under us during update', JSON.stringify({ updatedTeamMember, targetMember, actingMember, team }));
-				throw new InternalServerError();
-			}
+			if (!updatedTeamMember || updatedTeamMember.length == 0) throw new KnownInternalServerError({
+				message: 'Team member disappeared from under us during update',
+				updatedTeamMember, targetMember, actingMember, team
+			});
 
 			return;
 		},
