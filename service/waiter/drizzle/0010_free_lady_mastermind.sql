@@ -1,0 +1,1 @@
+ALTER TABLE `file` ADD `references` integer DEFAULT 0 NOT NULL;

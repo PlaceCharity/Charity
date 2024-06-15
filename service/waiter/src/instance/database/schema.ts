@@ -65,6 +65,14 @@ export const users = table('user', {
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
 
+export const files = table('file', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+
+	references: integer('references').notNull().default(0),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});
+
 export const teams = table('team', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 	namespace: text('namespace').notNull().unique(),

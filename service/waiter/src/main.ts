@@ -8,6 +8,7 @@ import { swagger } from '@elysiajs/swagger';
 // Our imports
 import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError, NotAuthorizedError, BadRequestError, KnownInternalServerError } from './types';
 import auth from './instance/auth';
+import FileController from './controller/file';
 import UserController from './controller/user';
 import TeamController from './controller/team';
 
@@ -57,6 +58,7 @@ export const app = new Elysia()
 	})
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')
 	.use(auth)
+	.use(FileController)
 	.use(UserController)
     .use(TeamController)
 	.listen(env.PORT);
