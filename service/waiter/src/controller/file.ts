@@ -25,17 +25,23 @@ export default new Elysia()
 				Key: file[0].id,
 				ContentLength: context.body.contentLength,
 				ContentType: context.body.contentType
-			})
+			});
 
-			const ticket = await getSignedUrl(files.s3, command, { expiresIn: 300 });
+			const ticket = await getSignedUrl(files.s3, command, {
+				expiresIn: 300,
+				signableHeaders: new Set(['content-length', 'content-type'])
+			});
 
-			return Response.json({ ticket });
+			return Response.json({
+				id: file[0].id,
+				ticket
+			});
 		},
 		{
 			detail: { tags, summary: 'Create a file upload ticket' },
 			body: t.Object({
 				contentLength: t.Integer({
-					minimum: 0,
+					minimum: 1,
 					maximum: 1024 /* bytes */ * 1024 /* kibibytes */ * 10 /* mebibytes */
 				}),
 				contentType: t.Union([

@@ -68,7 +68,7 @@ export const users = table('user', {
 export const files = table('file', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
 
-	references: integer('references').notNull().default(0),
+	uploaderId: text('uploaderId').references(() => users.id, { onDelete: 'set default' }),
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
@@ -166,6 +166,20 @@ export const templates = table('template', {
 
 	// Used in overlay
 	displayName: text('displayName').notNull(),
+
+	// Just for the site
+	description: text('description').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+});
+
+export const entries = table('entry', {
+	id: text('id').notNull().primaryKey().$default(() => uuidv4()),
+	templateId: text('templateId').notNull().references(() => templates.id, { onDelete: 'cascade' }),
+
+	// Used in overlay
+	displayName: text('displayName').notNull(),
+	fileId: text('fileId').references(() => files.id, { onDelete: 'set default' }),
 
 	// Just for the site
 	description: text('description').notNull(),

@@ -2,7 +2,7 @@ import { Auth, AuthConfig, createActionURL } from '@auth/core';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { Context, Elysia } from 'elysia';
 import db from '~/instance/database';
-import { users } from '~/instance/database/schema';
+import * as schema from '~/instance/database/schema';
 import { env } from '~/util/env';
 import DiscordProvider from '@auth/core/providers/discord';
 import { eq } from 'drizzle-orm/sqlite-core/expressions';
