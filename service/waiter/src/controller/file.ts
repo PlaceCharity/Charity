@@ -29,7 +29,7 @@ export default new Elysia()
 
 			const ticket = await getSignedUrl(files.s3, command, {
 				expiresIn: 300,
-				signableHeaders: new Set(['content-length', 'content-type'])
+				signableHeaders: new Set(['Content-Length', 'Content-Type'])
 			});
 
 			return Response.json({
