@@ -48,7 +48,7 @@ export default new Elysia()
 	.get('/team/:namespace/members',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -81,7 +81,7 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -141,7 +141,7 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 

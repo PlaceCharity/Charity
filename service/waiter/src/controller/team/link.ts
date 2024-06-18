@@ -34,7 +34,7 @@ export default new Elysia()
 	.get('/team/:namespace/links',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -72,7 +72,7 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -85,11 +85,11 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
 
-			// Check if slug is taken
+			// Check if slug is taken (we do this explicitly instead of letting SQLITE do a unique error for us, because we create the link before the slug)
 			if ((await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			})) != undefined) throw new AlreadyExistsError('Slug');
 
@@ -103,7 +103,7 @@ export default new Elysia()
 			// Create the slug
 			const slug = await db.insert(schema.slugs).values({
 				teamId: team.id,
-				slug: context.params.slug,
+				slug: context.params.slug.toLowerCase(),
 				linkId: link[0].id
 			}).returning();
 
@@ -127,14 +127,14 @@ export default new Elysia()
 	.get('/team/:namespace/link/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug),
+					eq(schema.slugs.slug, context.params.slug.toLowerCase()),
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
@@ -165,7 +165,7 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -182,7 +182,7 @@ export default new Elysia()
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
@@ -202,7 +202,7 @@ export default new Elysia()
 			let updatedSlug: InferSelectModel<typeof schema.slugs>[] = [slug];
 			if (context.body.slug != undefined) {
 				updatedSlug = await db.update(schema.slugs).set({
-					slug: context.body.slug
+					slug: context.body.slug.toLowerCase()
 				}).where(and(
 					eq(schema.slugs.id, slug.id),
 				)).returning().catch((err) => {
@@ -245,7 +245,7 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -262,7 +262,7 @@ export default new Elysia()
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();

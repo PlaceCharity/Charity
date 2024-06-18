@@ -71,7 +71,7 @@ export default new Elysia()
 
 			// Create team
 			const team = await db.insert(schema.teams).values({
-				namespace: context.params.namespace,
+				namespace: context.params.namespace.toLowerCase(),
 				displayName: context.body.displayName,
 				contactInfo: context.body.contactInfo,
 				description: context.body.description
@@ -117,7 +117,7 @@ export default new Elysia()
 	.get('/team/:namespace', 
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -137,7 +137,7 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 				
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -151,7 +151,7 @@ export default new Elysia()
 			if (member == undefined || !member.canEditTeam) throw new NotAuthorizedError();
 
 			const updatedTeam = await db.update(schema.teams).set({
-				namespace: context.body.namespace,
+				namespace: context.body.namespace != undefined ? context.body.namespace.toLowerCase() : undefined, // can't toLowerCase on undefined
 				displayName: context.body.displayName,
 				description: context.body.description,
 				contactInfo: context.body.contactInfo
@@ -186,7 +186,7 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 				
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -215,7 +215,7 @@ export default new Elysia()
 		async (context) => {
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -258,22 +258,22 @@ export default new Elysia()
 	.get('/team/:namespace/slug/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug),
+					eq(schema.slugs.slug, context.params.slug.toLowerCase()),
 				)
 			});
 			if (slug == undefined) throw new ResourceNotFoundError();
 
 			if (slug.linkId != undefined) {
-				return context.redirect(`/team/${context.params.namespace}/link/${slug.slug}`, 302);
+				return context.redirect(`/team/${team.namespace}/link/${slug.slug}`, 302);
 			} else if (slug.templateId != undefined) {
-				return context.redirect(`/team/${context.params.namespace}/template/${slug.slug}`, 302);
+				return context.redirect(`/team/${team.namespace}/template/${slug.slug}`, 302);
 			} else throw new KnownInternalServerError({
 				message: 'Slug with no corresponding link OR template',
 				slug, team

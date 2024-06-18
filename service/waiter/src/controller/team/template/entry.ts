@@ -51,7 +51,7 @@ export default new Elysia()
 		async (context) => {
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -59,7 +59,7 @@ export default new Elysia()
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
@@ -97,7 +97,7 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -105,7 +105,7 @@ export default new Elysia()
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
@@ -168,7 +168,7 @@ export default new Elysia()
 		async (context) => {
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: eq(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase())
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
@@ -176,7 +176,7 @@ export default new Elysia()
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
-					eq(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
