@@ -131,44 +131,6 @@ export default new Elysia()
 			})
 		}
 	)
-	.get('/team/:namespace/overlay',
-		async (context) => {
-			// Get team
-			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
-			});
-			if (team == undefined) throw new ResourceNotFoundError();
-
-			// Get templates
-			const templates = await db.query.templates.findMany({
-				where: like(schema.templates.teamId, team.id)
-			});
-
-			return Response.json({
-				faction: team.displayName,
-				contact: team.contactInfo,
-				templates: [],
-				whitelist: [ ...await Promise.all(templates.map(async (template) => {
-					const slug = await db.query.slugs.findFirst({
-						where: like(schema.slugs.templateId, template.id)
-					});
-					if (slug == undefined) throw new KnownInternalServerError({
-						message: 'Template with no corresponding slug',
-						slug, template, templates, team
-					});
-
-					return { name: template.displayName, url: new URL(`/team/${team.namespace}/template/${slug.slug}/overlay`, env.BASE_URL).toString() };
-				})) ],
-				blacklist: []
-			} as OverlayTemplate);
-		},
-		{
-			detail: { tags, summary: 'Get overlay template definition reflecting this team\'s templates and relationships' },
-			params: t.Object({
-				namespace: t.String()
-			})
-		}
-	)
 	.patch('/team/:namespace', 
 		async (context) => {
 			const session = await getSession(context as Context);
@@ -244,6 +206,50 @@ export default new Elysia()
 		},
 		{
 			detail: { tags, summary: 'Delete a team' },
+			params: t.Object({
+				namespace: t.String()
+			})
+		}
+	)
+	.get('/team/:namespace/overlay',
+		async (context) => {
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: like(schema.teams.namespace, context.params.namespace)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Get templates
+			const templates = await db.query.templates.findMany({
+				where: like(schema.templates.teamId, team.id)
+			});
+
+			return Response.json({
+				faction: team.displayName,
+				contact: team.contactInfo,
+				templates: [],
+				whitelist: [
+					// Faction's templates
+					...await Promise.all(templates.map(async (template) => {
+						const slug = await db.query.slugs.findFirst({
+							where: like(schema.slugs.templateId, template.id)
+						});
+						if (slug == undefined) throw new KnownInternalServerError({
+							message: 'Template with no corresponding slug',
+							slug, template, templates, team
+						});
+
+						return { name: template.displayName, url: new URL(`/team/${team.namespace}/template/${slug.slug}/overlay`, env.BASE_URL).toString() };
+					}))
+					// TODO: Allies
+				],
+				blacklist: [
+					// TODO: Enemies
+				]
+			} as OverlayTemplate);
+		},
+		{
+			detail: { tags, summary: 'Get overlay template definition reflecting this team\'s templates and relationships' },
 			params: t.Object({
 				namespace: t.String()
 			})

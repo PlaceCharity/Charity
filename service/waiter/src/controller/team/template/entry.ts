@@ -48,8 +48,46 @@ export class APIEntry {
 
 export default new Elysia()
 	.get('/team/:namespace/template/:slug/entries', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Get template entries' } }
+		async (context) => {
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: like(schema.teams.namespace, context.params.namespace)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Get slug
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					like(schema.slugs.teamId, team.id),
+					like(schema.slugs.slug, context.params.slug)
+				)
+			});
+			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
+
+			// Get template
+			const template = await db.query.templates.findFirst({
+				where: like(schema.templates.id, slug.templateId)
+			});
+			if (template == undefined) throw new KnownInternalServerError({
+				message: 'Slug with templateId but with no corresponding template',
+				team, slug, template
+			});
+
+			// Get entries
+			const entries = await db.query.entries.findMany({
+				where: like(schema.entries.templateId, template.id)
+			});
+
+			// Return them with their file url
+			return await Promise.all(entries.map(async entry => new APIEntry(entry, entry.fileId != undefined ? await files.get(entry.fileId) ?? '' : '')));
+		},
+		{
+			detail: { tags, summary: 'Get template entries' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
+			})
+		}
 	)
 	.post('/team/:namespace/template/:slug/entry', 
 		async (context) => {

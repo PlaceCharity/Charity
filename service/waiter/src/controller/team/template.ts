@@ -167,6 +167,14 @@ export default new Elysia()
 			})
 		}
 	)
+	.patch('/team/:namespace/template/:slug', 
+		() => { throw new NotImplementedError() },
+		{ detail: { tags, summary: 'Update template details' } }
+	)
+	.delete('/team/:namespace/template/:slug', 
+		() => { throw new NotImplementedError() },
+		{ detail: { tags, summary: 'Delete a template' } }
+	)
 	.get('/team/:namespace/template/:slug/overlay', 
 		async (context) => {
 			// Get team
@@ -227,12 +235,4 @@ export default new Elysia()
 				slug: t.String()
 			})
 		}
-	)
-	.patch('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Update template details' } }
-	)
-	.delete('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Delete a template' } }
 	)
