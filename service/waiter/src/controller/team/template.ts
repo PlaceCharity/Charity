@@ -169,11 +169,13 @@ export default new Elysia()
 	)
 	.get('/team/:namespace/template/:slug/overlay', 
 		async (context) => {
+			// Get team
 			const team = await db.query.teams.findFirst({
 				where: like(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
+			// Get slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					like(schema.slugs.teamId, team.id),
@@ -182,6 +184,7 @@ export default new Elysia()
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
 			
+			// Get template
 			const template = await db.query.templates.findFirst({
 				where: like(schema.templates.id, slug.templateId),
 			});
@@ -190,13 +193,16 @@ export default new Elysia()
 				template, slug, team
 			});
 
+			// Get entries
 			const entries = await db.query.entries.findMany({
 				where: like(schema.entries.templateId, template.id)
 			});
 
+			// Return template definition
 			return Response.json({
 				faction: `${template.displayName} (${team.displayName})`,
 				contact: team.contactInfo,
+				// Convert DB template entries to overlay template entries
 				templates: await Promise.all(entries.map(async (entry) => {
 					let sources: string[] = [];
 					if (entry.fileId != null) {
@@ -215,7 +221,7 @@ export default new Elysia()
 			} as OverlayTemplate);
 		},
 		{
-			detail: { tags, summary: 'Get template definition for overlay' },
+			detail: { tags, summary: 'Get overlay template definition reflecting this template' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()

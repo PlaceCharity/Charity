@@ -3,7 +3,7 @@ import { Context, Elysia, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
-import { users } from '~/instance/database/schema';
+import * as schema from '~/instance/database/schema';
 import { InferSelectModel, like } from 'drizzle-orm';
 import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
@@ -16,7 +16,7 @@ export class APIUser {
 
 	createdAt: Date;
 
-	constructor(user: InferSelectModel<typeof users>) {
+	constructor(user: InferSelectModel<typeof schema.users>) {
 		this.id = user.id;
 		this.name = user.name ?? 'Unnamed user';
 		this.image = user.image ?? '';
@@ -53,7 +53,7 @@ export default new Elysia()
 
 			// Get user by ID
 			const user = await db.query.users.findFirst({
-				where: like(users.id, id)
+				where: like(schema.users.id, id)
 			});
 			if (user == undefined) throw new ResourceNotFoundError();
 			return Response.json(new APIUser(user));

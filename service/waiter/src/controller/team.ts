@@ -1,9 +1,9 @@
 import { env } from '~/util/env';
-import { Context, Elysia, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
+import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, OverlayTemplate, ResourceNotFoundError } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
-import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
+import * as schema from '~/instance/database/schema';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
@@ -46,7 +46,7 @@ export class APITeam {
 
 	createdAt: Date;
 
-	constructor(team: InferSelectModel<typeof teams>) {
+	constructor(team: InferSelectModel<typeof schema.teams>) {
 		this.id = team.id;
 		this.namespace = team.namespace;
 
@@ -70,7 +70,7 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			// Create team
-			const team = await db.insert(teams).values({
+			const team = await db.insert(schema.teams).values({
 				namespace: context.params.namespace,
 				displayName: context.body.displayName,
 				contactInfo: context.body.contactInfo,
@@ -85,7 +85,7 @@ export default new Elysia()
 			});
 
 			// Add creator to team members as owner
-			await db.insert(teamMembers).values({
+			await db.insert(schema.teamMembers).values({
 				teamId: team[0].id,
 				userId: session.user.id,
 
@@ -117,13 +117,9 @@ export default new Elysia()
 	.get('/team/:namespace', 
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
-
-			const members = await db.query.teamMembers.findMany({
-				where: like(teamMembers.teamId, team.id)
-			});
 
 			// TODO: Remove this workaround? see user.ts
 			return Response.json(new APITeam(team));
@@ -135,31 +131,69 @@ export default new Elysia()
 			})
 		}
 	)
+	.get('/team/:namespace/overlay',
+		async (context) => {
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: like(schema.teams.namespace, context.params.namespace)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Get templates
+			const templates = await db.query.templates.findMany({
+				where: like(schema.templates.teamId, team.id)
+			});
+
+			return Response.json({
+				faction: team.displayName,
+				contact: team.contactInfo,
+				templates: [],
+				whitelist: [ ...await Promise.all(templates.map(async (template) => {
+					const slug = await db.query.slugs.findFirst({
+						where: like(schema.slugs.templateId, template.id)
+					});
+					if (slug == undefined) throw new KnownInternalServerError({
+						message: 'Template with no corresponding slug',
+						slug, template, templates, team
+					});
+
+					return { name: template.displayName, url: new URL(`/team/${team.namespace}/template/${slug.slug}/overlay`, env.BASE_URL).toString() };
+				})) ],
+				blacklist: []
+			} as OverlayTemplate);
+		},
+		{
+			detail: { tags, summary: 'Get overlay template definition reflecting this team\'s templates and relationships' },
+			params: t.Object({
+				namespace: t.String()
+			})
+		}
+	)
 	.patch('/team/:namespace', 
 		async (context) => {
 			const session = await getSession(context as Context);
 			if (!session || !session.user) throw new NotAuthenticatedError();
 				
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can edit the team
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
+					like(schema.teamMembers.teamId, team.id),
+					like(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canEditTeam) throw new NotAuthorizedError();
 
-			const updatedTeam = await db.update(teams).set({
+			const updatedTeam = await db.update(schema.teams).set({
 				namespace: context.body.namespace,
 				displayName: context.body.displayName,
 				description: context.body.description,
 				contactInfo: context.body.contactInfo
-			}).where(like(teams.id, team.id)).returning().catch((err) => {
+			}).where(like(schema.teams.id, team.id)).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
 						throw new AlreadyExistsError('Namespace');
@@ -190,20 +224,20 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 				
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can delete the team
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
+					like(schema.teamMembers.teamId, team.id),
+					like(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.isOwner) throw new NotAuthorizedError();
 
-			const deletedTeam = await db.delete(teams).where(like(teams.id, team.id)).returning();
+			const deletedTeam = await db.delete(schema.teams).where(like(schema.teams.id, team.id)).returning();
 			if (!deletedTeam || deletedTeam.length == 0) throw new ResourceNotFoundError();
 
 			return;
@@ -218,14 +252,14 @@ export default new Elysia()
 	.get('/team/:namespace/slug/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace),
+				where: like(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(slugs.teamId, team.id),
-					like(slugs.slug, context.params.slug),
+					like(schema.slugs.teamId, team.id),
+					like(schema.slugs.slug, context.params.slug),
 				)
 			});
 			if (slug == undefined) throw new ResourceNotFoundError();

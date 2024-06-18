@@ -3,7 +3,7 @@ import { Context, Elysia, NotFoundError, t } from 'elysia';
 import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
-import { teams, teamMembers, users, slugs } from '~/instance/database/schema';
+import * as schema from '~/instance/database/schema';
 import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import { SQLiteError } from 'bun:sqlite';
@@ -26,7 +26,7 @@ export class APITeamMember {
 
 	createdAt: Date;
 
-	constructor(member: InferSelectModel<typeof teamMembers>, user: APIUser) {
+	constructor(member: InferSelectModel<typeof schema.teamMembers>, user: APIUser) {
 		this.teamId = member.teamId;
 		this.user = user;
 
@@ -48,17 +48,17 @@ export default new Elysia()
 	.get('/team/:namespace/members',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const members = await db.query.teamMembers.findMany({
-				where: like(teamMembers.teamId, team.id)
+				where: like(schema.teamMembers.teamId, team.id)
 			});
 
 			return (await Promise.all(members.map(async member => {
 				const user = await db.query.users.findFirst({
-					where: like(users.id, member.userId)
+					where: like(schema.users.id, member.userId)
 				});
 				if (user == undefined) throw new KnownInternalServerError({
 					message: 'Team member without a corresponding user',
@@ -81,14 +81,14 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const actingMember = await db.query.teamMembers.findFirst({
 				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
+					like(schema.teamMembers.teamId, team.id),
+					like(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (actingMember == undefined) throw new NotAuthorizedError();
@@ -97,8 +97,8 @@ export default new Elysia()
 				? actingMember
 				: await db.query.teamMembers.findFirst({
 					where: and(
-						like(teamMembers.teamId, team.id),
-						like(teamMembers.userId, context.params.id)
+						like(schema.teamMembers.teamId, team.id),
+						like(schema.teamMembers.userId, context.params.id)
 					)
 				});
 			if (targetMember == undefined) throw new ResourceNotFoundError();
@@ -116,9 +116,9 @@ export default new Elysia()
 				) throw new NotAuthorizedError();
 			}
 
-			const deletedTeamMember = await db.delete(teamMembers).where(and(
-				like(teamMembers.teamId, team.id),
-				like(teamMembers.userId, targetMember.userId)
+			const deletedTeamMember = await db.delete(schema.teamMembers).where(and(
+				like(schema.teamMembers.teamId, team.id),
+				like(schema.teamMembers.userId, targetMember.userId)
 			)).returning();
 			if (!deletedTeamMember || deletedTeamMember.length == 0) throw new KnownInternalServerError({
 				message: 'Team member disappeared from under us during delete',
@@ -141,14 +141,14 @@ export default new Elysia()
 			if (!session || !session.user) throw new NotAuthenticatedError();
 
 			const team = await db.query.teams.findFirst({
-				where: like(teams.namespace, context.params.namespace)
+				where: like(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const actingMember = await db.query.teamMembers.findFirst({
 				where: and(
-					like(teamMembers.teamId, team.id),
-					like(teamMembers.userId, session.user.id)
+					like(schema.teamMembers.teamId, team.id),
+					like(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (actingMember == undefined) throw new NotAuthorizedError();
@@ -167,8 +167,8 @@ export default new Elysia()
 				? actingMember
 				: await db.query.teamMembers.findFirst({
 					where: and(
-						like(teamMembers.teamId, team.id),
-						like(teamMembers.userId, context.params.id)
+						like(schema.teamMembers.teamId, team.id),
+						like(schema.teamMembers.userId, context.params.id)
 					)
 				});
 			if (targetMember == undefined) throw new ResourceNotFoundError();
@@ -176,15 +176,15 @@ export default new Elysia()
 			// Check permissions to see if we can update the team member
 			if (!actingMember.isOwner && (!actingMember.canManageMembers || targetMember.canManageMembers || targetMember.isOwner)) throw new BadRequestError();
 
-			const updatedTeamMember = await db.update(teamMembers).set({
+			const updatedTeamMember = await db.update(schema.teamMembers).set({
 				canManageTemplates: context.body.canManageTemplates,
 				canManageMembers: context.body.canManageMembers,
 				canInviteMembers: context.body.canInviteMembers,
 				canManageLinks: context.body.canManageLinks,
 				canEditTeam: context.body.canEditTeam
 			}).where(and(
-				like(teamMembers.teamId, team.id),
-				like(teamMembers.userId, targetMember.userId)
+				like(schema.teamMembers.teamId, team.id),
+				like(schema.teamMembers.userId, targetMember.userId)
 			)).returning();
 			if (!updatedTeamMember || updatedTeamMember.length == 0) throw new KnownInternalServerError({
 				message: 'Team member disappeared from under us during update',
