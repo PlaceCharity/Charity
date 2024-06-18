@@ -1,6 +1,6 @@
 # Waiter
 
-Waiter is the service that manages/hosts templates, including JSON and images.
+Waiter is the main service behind the cloud functionality of Charity. It manages user accounts, teams, templates, template entries/artworks, serving their JSONs/images, etc...
 
 ## Configuration
 

@@ -81,3 +81,52 @@ export const Slug = t.String({
 	maxLength: 32,
 	pattern: '^[a-zA-Z0-9\-\_]+$'
 });
+
+// Charity Overlay types
+export interface OverlayNamedURL {
+	name?: string;
+    url: string;
+}
+
+export interface OverlayTemplate {
+	faction: string;
+	contact: string;
+	templates: OverlayTemplateEntry[];
+	whitelist: OverlayNamedURL[];
+	blacklist: OverlayNamedURL[];
+}
+
+export interface OverlayTemplateEntry {
+	name: string;
+	sources: string[];
+	x: number;
+	y: number;
+}
+
+// These are closer to the actual ones used by the overlay:
+/*
+export type Template = {
+	faction: string | undefined;
+	contact: string | undefined;
+    contactInfo: string | undefined; // alias for contact
+    templates: TemplateEntry[];
+    notifications: string | undefined; // url to broadcaster
+    whitelist: NamedURL[];
+    blacklist: NamedURL[];
+}
+
+export type TemplateEntry = {
+	name: string | undefined;
+    sources: string[];
+    priorityMaskSources: string[];
+    x: number;
+    y: number;
+    frameWidth: number | undefined;
+    frameHeight: number | undefined;
+    frameCount: number | undefined;
+    frameRate: number | undefined;
+    frameSpeed: number | undefined; // alias for frameRate
+    startTime: number | undefined;
+    looping: boolean | undefined;
+}
+*/

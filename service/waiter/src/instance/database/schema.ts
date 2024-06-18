@@ -180,6 +180,8 @@ export const entries = table('entry', {
 	// Used in overlay
 	displayName: text('displayName').notNull(),
 	fileId: text('fileId').references(() => files.id, { onDelete: 'set default' }),
+	positionX: integer('positionX').notNull(),
+	positionY: integer('positionY').notNull(),
 
 	// Just for the site
 	description: text('description').notNull(),

@@ -27,6 +27,9 @@ export class APIEntry {
 	displayName: string;
 	file: string;
 
+	positionX: number;
+	positionY: number;
+
 	description: string;
 	createdAt: Date;
 
@@ -34,14 +37,12 @@ export class APIEntry {
 		this.id = entry.id;
 		this.templateId = entry.templateId;
 		this.displayName = entry.displayName;
+		this.positionX = entry.positionX;
+		this.positionY = entry.positionY;
 		this.description = entry.description;
 		this.createdAt = entry.createdAt;
 
-		if (file instanceof File) {
-			this.file = file.getPublicUrl().toString();
-		} else {
-			this.file = file;
-		}
+		this.file = file instanceof File ? this.file = file.getPublicUrl().toString() : file;
 	}
 }
 
@@ -103,7 +104,9 @@ export default new Elysia()
 				templateId: template.id,
 				displayName: context.body.displayName,
 				description: context.body.description,
-				fileId: file.id
+				fileId: file.id,
+				positionX: context.body.positionX,
+				positionY: context.body.positionY
 			}).returning();
 
 			return Response.json(new APIEntry(entry[0], file));
@@ -117,7 +120,9 @@ export default new Elysia()
 			body: t.Object({
 				displayName: DisplayName,
 				description: Description,
-				fileId: t.String()
+				fileId: t.String(),
+				positionX: t.Integer(),
+				positionY: t.Integer()
 			})
 		}
 	)
