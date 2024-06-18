@@ -1,5 +1,5 @@
 import { SQLiteError } from 'bun:sqlite';
-import { InferSelectModel, and, like } from 'drizzle-orm';
+import { InferSelectModel, and, eq } from 'drizzle-orm';
 import { Context, Elysia, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
@@ -34,19 +34,19 @@ export default new Elysia()
 	.get('/team/:namespace/links',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const teamLinks = await db.query.links.findMany({
-				where: like(schema.links.teamId, team.id)
+				where: eq(schema.links.teamId, team.id)
 			});
 
 			return (await Promise.all(teamLinks.map(async link => {
 				const slug = await db.query.slugs.findFirst({
 					where: and(
-						like(schema.slugs.teamId, team.id),
-						like(schema.slugs.linkId, link.id)
+						eq(schema.slugs.teamId, team.id),
+						eq(schema.slugs.linkId, link.id)
 					)
 				});
 				if (slug == undefined) throw new KnownInternalServerError({
@@ -72,15 +72,15 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can create links
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
@@ -88,8 +88,8 @@ export default new Elysia()
 			// Check if slug is taken
 			if ((await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			})) != undefined) throw new AlreadyExistsError('Slug');
 
@@ -127,20 +127,20 @@ export default new Elysia()
 	.get('/team/:namespace/link/:slug',
 		async (context) => {
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug),
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug),
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
 			
 			const link = await db.query.links.findFirst({
-				where: like(schema.links.id, slug.linkId),
+				where: eq(schema.links.id, slug.linkId),
 			});
 			if (link == undefined) throw new KnownInternalServerError({
 				message: 'Slug with linkId without a corresponding link',
@@ -165,15 +165,15 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can create links
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
@@ -181,8 +181,8 @@ export default new Elysia()
 			// Find slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
@@ -192,7 +192,7 @@ export default new Elysia()
 				url: context.body.url,
 				text: context.body.text
 			}).where(and(
-				like(schema.links.id, slug.linkId),
+				eq(schema.links.id, slug.linkId),
 			)).returning();
 			if (link.length < 1) {
 				console.error('Slug with linkId without a corresponding link', JSON.stringify({ link, slug, team }));
@@ -204,7 +204,7 @@ export default new Elysia()
 				updatedSlug = await db.update(schema.slugs).set({
 					slug: context.body.slug
 				}).where(and(
-					like(schema.slugs.id, slug.id),
+					eq(schema.slugs.id, slug.id),
 				)).returning().catch((err) => {
 					if (err instanceof SQLiteError) {
 						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
@@ -245,15 +245,15 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace),
+				where: eq(schema.teams.namespace, context.params.namespace),
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can manage links
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canManageLinks) throw new NotAuthorizedError();
@@ -261,16 +261,16 @@ export default new Elysia()
 			// Find the slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
 
 			// Delete the link
 			const link = await db.delete(schema.links).where(and(
-				like(schema.links.teamId, team.id),
-				like(schema.links.id, slug.linkId),
+				eq(schema.links.teamId, team.id),
+				eq(schema.links.id, slug.linkId),
 			)).returning();
 			if (link.length < 1) throw new KnownInternalServerError({
 				message: 'Link disappeared from under us while deleting',
@@ -279,7 +279,7 @@ export default new Elysia()
 
 			// FIXME: The slug should be deleted, but ON DELETE CASCADE doesn't work, maybe because our CHECK doesn't work, more probably because it's just nullable and so it ignores ON DELETE CASCADE.
 			// So, delete the slug manually for now.
-			const deletedSlug = await db.delete(schema.slugs).where(like(schema.slugs.id, slug.id)).returning();
+			const deletedSlug = await db.delete(schema.slugs).where(eq(schema.slugs.id, slug.id)).returning();
 			if (deletedSlug.length < 1) throw new KnownInternalServerError({
 				message: 'Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)',
 				deletedSlug, slug, team

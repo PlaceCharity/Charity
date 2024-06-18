@@ -4,7 +4,7 @@ import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';
 import db from '~/instance/database';
 import * as schema from '~/instance/database/schema';
-import { InferSelectModel, like } from 'drizzle-orm';
+import { InferSelectModel, eq } from 'drizzle-orm';
 import { NotAuthenticatedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 
 const tags = ['user'];
@@ -53,7 +53,7 @@ export default new Elysia()
 
 			// Get user by ID
 			const user = await db.query.users.findFirst({
-				where: like(schema.users.id, id)
+				where: eq(schema.users.id, id)
 			});
 			if (user == undefined) throw new ResourceNotFoundError();
 			return Response.json(new APIUser(user));

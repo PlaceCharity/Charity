@@ -3,7 +3,7 @@ import { Context, Elysia, t } from 'elysia';
 import { BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import { File } from '~/instance/files';
 import * as schema from '~/instance/database/schema';
-import { InferSelectModel, and, like } from 'drizzle-orm';
+import { InferSelectModel, and, eq } from 'drizzle-orm';
 import { getSession } from '~/instance/auth';
 import db from '~/instance/database';
 import files from '~/instance/files';
@@ -51,22 +51,22 @@ export default new Elysia()
 		async (context) => {
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Get slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
 
 			// Get template
 			const template = await db.query.templates.findFirst({
-				where: like(schema.templates.id, slug.templateId)
+				where: eq(schema.templates.id, slug.templateId)
 			});
 			if (template == undefined) throw new KnownInternalServerError({
 				message: 'Slug with templateId but with no corresponding template',
@@ -75,7 +75,7 @@ export default new Elysia()
 
 			// Get entries
 			const entries = await db.query.entries.findMany({
-				where: like(schema.entries.templateId, template.id)
+				where: eq(schema.entries.templateId, template.id)
 			});
 
 			// Return them with their file url
@@ -97,22 +97,22 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Get slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
 
 			// Get template
 			const template = await db.query.templates.findFirst({
-				where: like(schema.templates.id, slug.templateId)
+				where: eq(schema.templates.id, slug.templateId)
 			});
 			if (template == undefined) throw new KnownInternalServerError({
 				message: 'Slug with templateId but with no corresponding template',
@@ -122,8 +122,8 @@ export default new Elysia()
 			// Check permissions to see if we can create entries
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
@@ -168,15 +168,15 @@ export default new Elysia()
 		async (context) => {
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Get slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
-					like(schema.slugs.teamId, team.id),
-					like(schema.slugs.slug, context.params.slug)
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug)
 				)
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
@@ -184,8 +184,8 @@ export default new Elysia()
 			// Get entry
 			const entry = await db.query.entries.findFirst({
 				where: and(
-					like(schema.entries.templateId, slug.templateId),
-					like(schema.entries.id, context.params.id)
+					eq(schema.entries.templateId, slug.templateId),
+					eq(schema.entries.id, context.params.id)
 				)
 			});
 			if (entry == undefined) throw new ResourceNotFoundError();

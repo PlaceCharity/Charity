@@ -3,7 +3,7 @@ import { Context, Elysia, t } from 'elysia';
 import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, KnownInternalServerError } from '~/types';
 import { APIUser } from '~/controller/user';
 import { APITeamMember } from './member';
-import { InferSelectModel, SQL, and, like } from 'drizzle-orm';
+import { InferSelectModel, SQL, and, eq } from 'drizzle-orm';
 import * as schema from '~/instance/database/schema';
 import db from '~/instance/database';
 import { getSession } from '~/instance/auth';
@@ -63,22 +63,22 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined) throw new NotAuthorizedError();
 
 			// If we don't have canManageMembers, only get the invites we created
-			let condition: SQL<unknown> | undefined = like(schema.invites.teamId, team.id);
-			if (!member.canManageMembers) condition = and(condition, like(schema.invites.inviterId, member.userId));
+			let condition: SQL<unknown> | undefined = eq(schema.invites.teamId, team.id);
+			if (!member.canManageMembers) condition = and(condition, eq(schema.invites.inviterId, member.userId));
 
 			// Get and return invites
 			const teamInvites = await db.query.invites.findMany({
@@ -106,15 +106,15 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Check permissions to see if we can make invites
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
-					like(schema.teamMembers.teamId, team.id),
-					like(schema.teamMembers.userId, session.user.id)
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
 				)
 			});
 			if (member == undefined || !member.canInviteMembers) throw new NotAuthorizedError();
@@ -171,13 +171,13 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Get invite
 			const invite = await db.query.invites.findFirst({
-				where: like(schema.invites.id, context.params.id)
+				where: eq(schema.invites.id, context.params.id)
 			});
 			if (invite == undefined) {
 				// Don't leak that the invite doesn't exist
@@ -197,8 +197,8 @@ export default new Elysia()
 					// Check permissions
 					const member = await db.query.teamMembers.findFirst({
 						where: and(
-							like(schema.teamMembers.teamId, team.id),
-							like(schema.teamMembers.userId, session.user.id)
+							eq(schema.teamMembers.teamId, team.id),
+							eq(schema.teamMembers.userId, session.user.id)
 						)
 					});
 					if (member == undefined || !member.canManageMembers) throw new NotAuthorizedError();
@@ -231,15 +231,15 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 			
 			// Get invite
 			const invite = await db.query.invites.findFirst({
 				where: and(
-					like(schema.invites.teamId, team.id),
-					like(schema.invites.id, context.params.id)
+					eq(schema.invites.teamId, team.id),
+					eq(schema.invites.id, context.params.id)
 				)
 			});
 			if (invite == undefined) throw new NotAuthorizedError(); // Don't leak if invites exist or not
@@ -268,10 +268,10 @@ export default new Elysia()
 				throw err;
 			});
 
-			await db.delete(schema.invites).where(like(schema.invites.id, invite.id));
+			await db.delete(schema.invites).where(eq(schema.invites.id, invite.id));
 
 			const user = await db.query.users.findFirst({
-				where: like(schema.users.id, session.user.id)
+				where: eq(schema.users.id, session.user.id)
 			});
 			if (user == undefined) throw new KnownInternalServerError({
 				detail: 'Team member created after accepting invite does not have a corresponding user',
@@ -299,13 +299,13 @@ export default new Elysia()
 
 			// Get team
 			const team = await db.query.teams.findFirst({
-				where: like(schema.teams.namespace, context.params.namespace)
+				where: eq(schema.teams.namespace, context.params.namespace)
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
 			// Get invite
 			const invite = await db.query.invites.findFirst({
-				where: like(schema.invites.id, context.params.id)
+				where: eq(schema.invites.id, context.params.id)
 			});
 			if (invite == undefined) {
 				// Don't leak that the invite doesn't exist
@@ -325,8 +325,8 @@ export default new Elysia()
 					// Check permissions
 					const member = await db.query.teamMembers.findFirst({
 						where: and(
-							like(schema.teamMembers.teamId, team.id),
-							like(schema.teamMembers.userId, session.user.id)
+							eq(schema.teamMembers.teamId, team.id),
+							eq(schema.teamMembers.userId, session.user.id)
 						)
 					});
 					if (member == undefined || !member.canManageMembers) throw new NotAuthorizedError();
@@ -334,7 +334,7 @@ export default new Elysia()
 			}
 
 			// Delete invite
-			return await db.delete(schema.invites).where(like(schema.invites.id, invite.id));
+			return await db.delete(schema.invites).where(eq(schema.invites.id, invite.id));
 		},
 		{
 			detail: {

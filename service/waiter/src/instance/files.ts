@@ -1,7 +1,7 @@
 import { env } from '~/util/env';
 import { HeadObjectCommand, S3, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { NotImplementedError } from '~/types';
-import { InferSelectModel, count, like } from 'drizzle-orm';
+import { InferSelectModel, count, eq } from 'drizzle-orm';
 import * as schema from '~/instance/database/schema';
 import db from '~/instance/database';
 
@@ -34,7 +34,7 @@ export class File implements InferSelectModel<typeof schema.files> {
 
 	async getReferenceCount() {
 		return (
-			(await db.select({ count: count() }).from(schema.entries).where(like(schema.entries.fileId, this.id)))[0].count
+			(await db.select({ count: count() }).from(schema.entries).where(eq(schema.entries.fileId, this.id)))[0].count
 			// + (await ...)[0].count
 		)
 	}
@@ -53,7 +53,7 @@ export class Files {
 
 	async get(id: string) {
 		const dbFile = await db.query.files.findFirst({
-			where: like(schema.files.id, id)
+			where: eq(schema.files.id, id)
 		});
 		if (dbFile == undefined) return undefined;
 
