@@ -128,7 +128,7 @@ export default new Elysia()
 			detail: { tags, summary: 'Create a new template' },
 			params: t.Object({
 				namespace: t.String(),
-				slug: t.String()
+				slug: Slug
 			}),
 			body: t.Object({
 				displayName: DisplayName,
