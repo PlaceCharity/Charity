@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
 import { Context, Elysia, t } from 'elysia';
-import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, KnownInternalServerError } from '~/types';
+import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, KnownInternalServerError, TeamMemberPermissions } from '~/types';
 import { APIUser } from '~/controller/user';
 import { APITeamMember } from './member';
 import { InferSelectModel, SQL, and, eq } from 'drizzle-orm';
@@ -19,6 +19,7 @@ export class PartialAPIInvite {
 
 	canManageTemplates: boolean;
 	canManageLinks: boolean;
+	canManageRelationships: boolean;
 
 	canInviteMembers: boolean;
 	canManageMembers: boolean;
@@ -35,6 +36,7 @@ export class PartialAPIInvite {
 
 		this.canManageTemplates = invite.canManageTemplates;
 		this.canManageLinks = invite.canManageLinks;
+		this.canManageRelationships = invite.canManageRelationships;
 
 		this.canInviteMembers = invite.canInviteMembers;
 		this.canManageMembers = invite.canManageMembers;
@@ -123,6 +125,7 @@ export default new Elysia()
 			if (
 				((context.body.canManageTemplates ?? false) == true && !member.canManageTemplates)
 				|| ((context.body.canManageLinks ?? false) == true && !member.canManageLinks)
+				|| ((context.body.canManageRelationships ?? false) == true && !member.canManageRelationships)
 				|| ((context.body.canInviteMembers ?? false) == true && !member.canInviteMembers)
 				|| ((context.body.canManageMembers ?? false) == true && !member.canManageMembers)
 				|| ((context.body.canEditTeam ?? false) == true && !member.canEditTeam)
@@ -135,6 +138,7 @@ export default new Elysia()
 
 				canManageTemplates: context.body.canManageTemplates ?? false,
 				canManageLinks: context.body.canManageLinks ?? false,
+				canManageRelationships: context.body.canManageRelationships ?? false,
 
 				canInviteMembers: context.body.canInviteMembers ?? false,
 				canManageMembers: context.body.canManageMembers ?? false,
@@ -152,15 +156,7 @@ export default new Elysia()
 			params: t.Object({
 				namespace: t.String()
 			}),
-			body: t.Object({
-				canManageTemplates: t.Optional(t.Boolean()),
-				canManageLinks: t.Optional(t.Boolean()),
-
-				canInviteMembers: t.Optional(t.Boolean()),
-				canManageMembers: t.Optional(t.Boolean()),
-
-				canEditTeam: t.Optional(t.Boolean())
-			})
+			body: t.Partial(TeamMemberPermissions)
 		}
 	)
 	.get('/team/:namespace/invite/:id', 
@@ -254,6 +250,7 @@ export default new Elysia()
 
 				canManageTemplates: invite.canManageMembers,
 				canManageLinks: invite.canManageLinks,
+				canManageRelationships: invite.canManageRelationships,
 
 				canInviteMembers: invite.canInviteMembers,
 				canManageMembers: invite.canManageMembers,
@@ -262,7 +259,7 @@ export default new Elysia()
 			}).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-						throw new AlreadyExistsError('TeamMember');
+						throw new AlreadyExistsError('MEMBER');
 					}
 				}
 				throw err;

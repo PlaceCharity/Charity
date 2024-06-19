@@ -20,15 +20,7 @@ export const app = new Elysia()
 			info: {
 				title: 'Waiter Documentation',
 				version: packageJson.version
-			},
-			tags: [
-				{ name: 'user' },
-				{ name: 'team' },
-				{ name: 'team/link' },
-				{ name: 'team/invite' },
-				{ name: 'team/template' },
-				{ name: 'team/template/entry' },
-			]
+			}
 		}
 	}))
 	.error({
@@ -37,7 +29,7 @@ export const app = new Elysia()
 		[new NotAuthorizedError().message]: NotAuthorizedError,
 		[new BadRequestError().message]: BadRequestError,
 		[new ResourceNotFoundError().message]: ResourceNotFoundError,
-		[new AlreadyExistsError('Example').message]: AlreadyExistsError,
+		[new AlreadyExistsError('EXAMPLE').message]: AlreadyExistsError,
 		[new KnownInternalServerError({}).message]: KnownInternalServerError
 	})
 	.onError(({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
@@ -73,9 +65,18 @@ export {
 	// Errors
 	NotImplementedError, NotAuthenticatedError, NotAuthorizedError, BadRequestError, ResourceNotFoundError, AlreadyExistsError
 } from './types';
+
+export type {
+	// Overlay types
+	OverlayNamedURL, OverlayTemplateEntry, OverlayTemplate
+} from './types';
+
 export { APIUser } from '~/controller/user';
 export { APITeam } from '~/controller/team';
 export { APITeamMember } from '~/controller/team/member';
 export { PartialAPIInvite, APIInvite } from '~/controller/team/invite';
 export { APILink } from '~/controller/team/link';
 export { APITemplate } from '~/controller/team/template';
+export { APIEntry } from '~/controller/team/template/entry';
+export type { APIRelationship } from '~/controller/team/relationship';
+export { APIRelationshipInternalToInternalTeam, APIRelationshipInternalToInternalTemplate, APIRelationshipInternalToExternal } from '~/controller/team/relationship';

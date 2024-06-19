@@ -8,6 +8,7 @@ import { getSession } from '~/instance/auth';
 
 import EntryController from './template/entry';
 import files from '~/instance/files';
+import { getTeamOverlayDefinitionLists } from '../team';
 
 const tags = ['team/template'];
 
@@ -104,7 +105,7 @@ export default new Elysia()
 					eq(schema.slugs.teamId, team.id),
 					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
-			})) != undefined) throw new AlreadyExistsError('Slug');
+			})) != undefined) throw new AlreadyExistsError('SLUG');
 
 			// Create the template
 			const template = await db.insert(schema.templates).values({
@@ -206,6 +207,9 @@ export default new Elysia()
 				where: eq(schema.entries.templateId, template.id)
 			});
 
+			// Get lists
+			const [whitelist, blacklist] = await getTeamOverlayDefinitionLists(team);
+
 			// Return template definition
 			return Response.json({
 				faction: `${template.displayName} (${team.displayName})`,
@@ -224,8 +228,7 @@ export default new Elysia()
 						x: entry.positionX, y: entry.positionY
 					}
 				})),
-				whitelist: [],
-				blacklist: []
+				whitelist, blacklist
 			} as OverlayTemplate);
 		},
 		{

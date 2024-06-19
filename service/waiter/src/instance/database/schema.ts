@@ -95,6 +95,7 @@ export const teamMembers = table('teamMember', {
 
 	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
 	canManageLinks: integer('canManageLinks', { mode: 'boolean' }).notNull().default(false),
+	canManageRelationships: integer('canManageRelationships', { mode: 'boolean' }).notNull().default(false),
 
 	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
 	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
@@ -120,6 +121,7 @@ export const invites = table('invite', {
 
 	canManageTemplates: integer('canManageTemplates', { mode: 'boolean' }).notNull().default(false),
 	canManageLinks: integer('canManageLinks', { mode: 'boolean' }).notNull().default(false),
+	canManageRelationships: integer('canManageRelationships', { mode: 'boolean' }).notNull().default(false),
 
 	canInviteMembers: integer('canInviteMembers', { mode: 'boolean' }).notNull().default(false),
 	canManageMembers: integer('canManageMembers', { mode: 'boolean' }).notNull().default(false),
@@ -128,6 +130,36 @@ export const invites = table('invite', {
 
 	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
+
+export const relationshipsInternalToInternalTeam = table('relationshipInternalToInternalTeam', {
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	isBlacklist: integer('isBlacklist', { mode: 'boolean' }).notNull().default(false), // false: ally/whitelist, true: enemy/blacklist
+	targetTeamId: text('targetTeamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+}, (r) => ({
+	uniqueRelationship: unique().on(r.teamId, r.targetTeamId)
+}));
+
+export const relationshipsInternalToInternalTemplate = table('relationshipInternalToInternalTemplate', {
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	isBlacklist: integer('isBlacklist', { mode: 'boolean' }).notNull().default(false), // false: ally/whitelist, true: enemy/blacklist
+	targetTemplateId: text('targetTemplateId').notNull().references(() => templates.id, { onDelete: 'cascade' }),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+}, (r) => ({
+	uniqueRelationship: unique().on(r.teamId, r.targetTemplateId)
+}));
+
+export const relationshipsInternalToExternal = table('relationshipInternalToExternal', {
+	teamId: text('teamId').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+	isBlacklist: integer('isBlacklist', { mode: 'boolean' }).notNull().default(false), // false: ally/whitelist, true: enemy/blacklist
+	targetTemplateUri: text('targetTemplateUri').notNull(),
+
+	createdAt: integer('createdAt', { mode: 'timestamp_ms' }).notNull().default(sql`(CURRENT_TIMESTAMP)`)
+}, (r) => ({
+	uniqueRelationship: unique().on(r.teamId, r.targetTemplateUri)
+}));
 
 export const slugs = table('slug', {
 	id: text('id').notNull().primaryKey().$default(() => uuidv4()),

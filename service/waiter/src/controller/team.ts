@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
 import { Context, Elysia, InternalServerError, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, OverlayTemplate, ResourceNotFoundError } from '~/types';
+import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, OverlayNamedURL, OverlayTemplate, ResourceNotFoundError } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
 import * as schema from '~/instance/database/schema';
@@ -12,6 +12,7 @@ import TemplateController from './team/template';
 import LinkController from './team/link';
 import MemberController from './team/member';
 import InviteController from './team/invite';
+import RelationshipController from './team/relationship';
 
 const tags = ['team'];
 
@@ -59,11 +60,127 @@ export class APITeam {
 	}
 }
 
+export async function getOverlayDefinitionNamedUrl(resource: InferSelectModel<typeof schema.teams> | InferSelectModel<typeof schema.templates>) {
+	if ('namespace' in resource) { // Team
+		// Construct named URL
+		return {
+			name: resource.displayName,
+			url: new URL(
+				env.OVERLAY_TEAM_DEFINITION_PATH.replaceAll('{team}', resource.namespace), 
+				env.OVERLAY_DEFINITION_BASE
+			).toString()
+		};
+	} else if ('teamId' in resource) { // Template
+		// Get team
+		const team = await db.query.teams.findFirst({
+			where: eq(schema.teams.id, resource.teamId)
+		});
+		if (team == undefined) throw new KnownInternalServerError({
+			message: 'Could not find team for template when generating overlay definition named URL', 
+			team, template: resource
+		});
+
+		// Get slug
+		const slug = await db.query.slugs.findFirst({
+			where: eq(schema.slugs.templateId, resource.id)
+		});
+		if (slug == undefined) throw new KnownInternalServerError({
+			message: 'Could not find slug for template when generating overlay definition named URL', 
+			slug, template: resource, team
+		});
+
+		// Construct named URL
+		return {
+			name: resource.displayName,
+			url: new URL(
+				env.OVERLAY_TEMPLATE_DEFINITION_PATH.replaceAll('{team}', team.namespace).replaceAll('{template}', slug.slug), 
+				env.OVERLAY_DEFINITION_BASE
+			).toString()
+		};
+	} else throw new KnownInternalServerError({
+		message: 'Unknown resource type when generating overlay definition named URL',
+		resource
+	})
+}
+
+// Returns [whitelist, blacklist]
+export async function getTeamOverlayDefinitionLists(team: InferSelectModel<typeof schema.teams>) {
+	// Get InternalToInternalTeam relationships
+	const internalToInternalTeamRelationships = await db.query.relationshipsInternalToInternalTeam.findMany({
+		where: eq(schema.relationshipsInternalToInternalTeam.teamId, team.id)
+	});
+
+	// Get InternalToInternalTemplate relationships
+	const internalToInternalTemplateRelationships = await db.query.relationshipsInternalToInternalTemplate.findMany({
+		where: eq(schema.relationshipsInternalToInternalTemplate.teamId, team.id)
+	});
+
+	// Get InternalToExternal relationships
+	const internalToExternalRelationships = await db.query.relationshipsInternalToExternal.findMany({
+		where: eq(schema.relationshipsInternalToExternal.teamId, team.id)
+	});
+
+	async function makeList(
+		internalToInternalTeamRelationships: InferSelectModel<typeof schema.relationshipsInternalToInternalTeam>[], 
+		internalToInternalTemplateRelationships: InferSelectModel<typeof schema.relationshipsInternalToInternalTemplate>[], 
+		internalToExternalRelationships: InferSelectModel<typeof schema.relationshipsInternalToExternal>[]
+	): Promise<OverlayNamedURL[]> {
+		return [
+			...await Promise.all(internalToInternalTeamRelationships.map(async (relationship) => {
+				const targetTeam = await db.query.teams.findFirst({
+					where: eq(schema.teams.id, relationship.targetTeamId)
+				});
+				if (targetTeam == undefined) throw new KnownInternalServerError({
+					message: 'Could not find target team for a InternalToInternalTeam relationship while generating overlay definition lists',
+					targetTeam, relationship,
+					internalToInternalTeamRelationships, internalToInternalTemplateRelationships, internalToExternalRelationships, team
+				});
+
+				return await getOverlayDefinitionNamedUrl(targetTeam);
+			})),
+			...await Promise.all(internalToInternalTemplateRelationships.map(async (relationship) => {
+				const targetTemplate = await db.query.templates.findFirst({
+					where: eq(schema.templates.id, relationship.targetTemplateId)
+				});
+				if (targetTemplate == undefined) throw new KnownInternalServerError({
+					message: 'Could not find target template for a InternalToInternalTemplate relationship while generating overlay definition lists',
+					targetTemplate, relationship,
+					internalToInternalTeamRelationships, internalToInternalTemplateRelationships, internalToExternalRelationships, team
+				});
+
+				return await getOverlayDefinitionNamedUrl(targetTemplate);
+			})),
+			...internalToExternalRelationships.map((relationship) => {
+				return {
+					url: relationship.targetTemplateUri
+				};
+			})
+		];
+	}
+
+	return [
+		// Whitelist
+		await makeList(
+			internalToInternalTeamRelationships.filter(r => !r.isBlacklist), 
+			internalToInternalTemplateRelationships.filter(r => !r.isBlacklist), 
+			internalToExternalRelationships.filter(r => !r.isBlacklist)
+		),
+
+		// Blacklist
+		await makeList(
+			internalToInternalTeamRelationships.filter(r => r.isBlacklist), 
+			internalToInternalTemplateRelationships.filter(r => r.isBlacklist), 
+			internalToExternalRelationships.filter(r => r.isBlacklist)
+		),
+	]
+}
+
 export default new Elysia()
 	.use(TemplateController)
 	.use(LinkController)
 	.use(MemberController)
 	.use(InviteController)
+	.use(RelationshipController)
 	.post('/team/:namespace',
 		async (context) => {
 			const session = await getSession(context as Context);
@@ -78,7 +195,7 @@ export default new Elysia()
 			}).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-						throw new AlreadyExistsError('Namespace');
+						throw new AlreadyExistsError('TEAM');
 					}
 				}
 				throw err;
@@ -91,6 +208,7 @@ export default new Elysia()
 
 				canManageTemplates: true,
 				canManageLinks: true,
+				canManageRelationships: true,
 
 				canInviteMembers: true,
 				canManageMembers: true,
@@ -158,7 +276,7 @@ export default new Elysia()
 			}).where(eq(schema.teams.id, team.id)).returning().catch((err) => {
 				if (err instanceof SQLiteError) {
 					if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-						throw new AlreadyExistsError('Namespace');
+						throw new AlreadyExistsError('TEAM');
 					}
 				}
 				throw err;
@@ -224,27 +342,23 @@ export default new Elysia()
 				where: eq(schema.templates.teamId, team.id)
 			});
 
+			// Get lists
+			const [whitelist, blacklist] = await getTeamOverlayDefinitionLists(team);
+
 			return Response.json({
 				faction: team.displayName,
 				contact: team.contactInfo,
 				templates: [],
 				whitelist: [
 					// Faction's templates
-					...await Promise.all(templates.map(async (template) => {
-						const slug = await db.query.slugs.findFirst({
-							where: eq(schema.slugs.templateId, template.id)
-						});
-						if (slug == undefined) throw new KnownInternalServerError({
-							message: 'Template with no corresponding slug',
-							slug, template, templates, team
-						});
-
-						return { name: template.displayName, url: new URL(`/team/${team.namespace}/template/${slug.slug}/overlay`, env.BASE_URL).toString() };
-					}))
-					// TODO: Allies
+					...await Promise.all(templates.map(getOverlayDefinitionNamedUrl)),
+					
+					// Allies
+					...whitelist
 				],
 				blacklist: [
-					// TODO: Enemies
+					// Blacklist
+					...blacklist
 				]
 			} as OverlayTemplate);
 		},

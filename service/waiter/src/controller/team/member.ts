@@ -1,6 +1,6 @@
 import { env } from '~/util/env';
 import { Context, Elysia, NotFoundError, t } from 'elysia';
-import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
+import { AlreadyExistsError, BadRequestError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError, TeamMemberPermissions } from '~/types';
 import { APIUser } from '~/controller/user';
 import db from '~/instance/database';
 import * as schema from '~/instance/database/schema';
@@ -16,6 +16,7 @@ export class APITeamMember {
 	
 	canManageTemplates: boolean;
 	canManageLinks: boolean;
+	canManageRelationships: boolean;
 
 	canInviteMembers: boolean;
 	canManageMembers: boolean;
@@ -32,6 +33,7 @@ export class APITeamMember {
 
 		this.canManageTemplates = member.canManageTemplates;
 		this.canManageLinks = member.canManageLinks;
+		this.canManageRelationships = member.canManageRelationships;
 
 		this.canInviteMembers = member.canInviteMembers;
 		this.canManageMembers = member.canManageMembers;
@@ -157,9 +159,10 @@ export default new Elysia()
 			if (
 				!actingMember.isOwner &&
 				((context.body.canManageTemplates != undefined && !actingMember.canManageTemplates)
+				|| (context.body.canManageLinks != undefined && !actingMember.canManageLinks)
+				|| (context.body.canManageRelationships != undefined && !actingMember.canManageRelationships)
 				|| (context.body.canInviteMembers != undefined && !actingMember.canInviteMembers)
 				|| (context.body.canManageMembers != undefined && !actingMember.canManageMembers)
-				|| (context.body.canManageLinks != undefined && !actingMember.canManageLinks)
 				|| (context.body.canEditTeam != undefined && !actingMember.canEditTeam))
 			) throw new BadRequestError();
 
@@ -179,6 +182,7 @@ export default new Elysia()
 			const updatedTeamMember = await db.update(schema.teamMembers).set({
 				canManageTemplates: context.body.canManageTemplates,
 				canManageMembers: context.body.canManageMembers,
+				canManageRelationships: context.body.canManageRelationships,
 				canInviteMembers: context.body.canInviteMembers,
 				canManageLinks: context.body.canManageLinks,
 				canEditTeam: context.body.canEditTeam
@@ -199,12 +203,6 @@ export default new Elysia()
 				namespace: t.String(),
 				id: t.String()
 			}),
-			body: t.Object({
-				canManageTemplates: t.Optional(t.Boolean()),
-				canInviteMembers: t.Optional(t.Boolean()),
-				canManageMembers: t.Optional(t.Boolean()),
-				canManageLinks: t.Optional(t.Boolean()),
-				canEditTeam: t.Optional(t.Boolean())
-			})
+			body: t.Partial(TeamMemberPermissions)
 		}
 	)

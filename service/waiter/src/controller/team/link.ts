@@ -91,7 +91,7 @@ export default new Elysia()
 					eq(schema.slugs.teamId, team.id),
 					eq(schema.slugs.slug, context.params.slug.toLowerCase())
 				)
-			})) != undefined) throw new AlreadyExistsError('Slug');
+			})) != undefined) throw new AlreadyExistsError('SLUG');
 
 			// Create the link
 			const link = await db.insert(schema.links).values({
@@ -208,7 +208,7 @@ export default new Elysia()
 				)).returning().catch((err) => {
 					if (err instanceof SQLiteError) {
 						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
-							throw new AlreadyExistsError('Slug');
+							throw new AlreadyExistsError('SLUG');
 						}
 					}
 					throw err;

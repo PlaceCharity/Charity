@@ -82,6 +82,15 @@ export const Slug = t.String({
 	pattern: '^[a-zA-Z0-9\-\_]+$'
 });
 
+export const TeamMemberPermissions = t.Object({
+	canManageTemplates: t.Boolean(),
+	canManageLinks: t.Boolean(),
+	canManageRelationships: t.Boolean(),
+	canInviteMembers: t.Boolean(),
+	canManageMembers: t.Boolean(),
+	canEditTeam: t.Boolean()
+});
+
 // Charity Overlay types
 export interface OverlayNamedURL {
 	name?: string;
