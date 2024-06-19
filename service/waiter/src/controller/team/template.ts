@@ -1,6 +1,7 @@
 import { env } from '~/util/env';
+import { SQLiteError } from 'bun:sqlite';
 import { Context, Elysia, t } from 'elysia';
-import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, OverlayNamedURL, OverlayTemplate, OverlayTemplateEntry, ResourceNotFoundError } from '~/types';
+import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, OverlayNamedURL, OverlayTemplate, OverlayTemplateEntry, ResourceNotFoundError, Slug } from '~/types';
 import { InferSelectModel, and, eq } from 'drizzle-orm';
 import * as schema from '~/instance/database/schema';
 import db from '~/instance/database';
@@ -201,8 +202,83 @@ export default new Elysia()
 		}
 	)
 	.patch('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Update template details' } }
+		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) throw new NotAuthenticatedError();
+
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can create templates
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug.toLowerCase()),
+				)
+			});
+			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
+
+			const template = await db.update(schema.templates).set(
+				{
+					displayName: context.body.displayName,
+					description: context.body.description
+				}
+			)
+			.where(eq(schema.templates.id, slug.templateId))
+			.returning();
+
+			if (template.length == 0) throw new KnownInternalServerError({
+				message: 'Slug with templateId without a corresponding template',
+				template, slug, team
+			});
+
+			// Update the slug
+			let updatedSlug: InferSelectModel<typeof schema.slugs>[] = [slug];
+			if (context.body.slug != undefined) {
+				updatedSlug = await db.update(schema.slugs).set({
+					slug: context.body.slug.toLowerCase()
+				}).where(and(
+					eq(schema.slugs.id, slug.id),
+				)).returning().catch((err) => {
+					if (err instanceof SQLiteError) {
+						if (err.code == 'SQLITE_CONSTRAINT_UNIQUE') {
+							throw new AlreadyExistsError('SLUG');
+						}
+					}
+					throw err;
+				});
+				if (updatedSlug.length < 1) throw new KnownInternalServerError({
+					message: 'Slug disappeared from under us while updating template',
+					updatedSlug, slug, template, team
+				});
+			}
+
+			return Response.json(new APITemplate(template[0], updatedSlug[0]));
+		},
+		{
+			detail: { tags, summary: 'Update template details' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
+			}),
+			body: t.Object({
+				displayName: t.Optional(DisplayName),
+				description: t.Optional(Description),
+				slug: t.Optional(Slug)
+			})
+		}
 	)
 	.delete('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
