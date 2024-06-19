@@ -249,6 +249,22 @@ export default new Elysia()
 			})
 		}
 	)
+	.get('/team',
+		async (context) => {
+			const team = await db.query.teams.findFirst({
+				where: eq(schema.teams.id, context.query.id)
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			return context.redirect(`/team/${team.namespace}`, 307);
+		},
+		{
+			detail: { tags, summary: 'Find team by ID' },
+			query: t.Object({
+				id: t.String()
+			})
+		}
+	)
 	.patch('/team/:namespace', 
 		async (context) => {
 			const session = await getSession(context as Context);
@@ -385,16 +401,16 @@ export default new Elysia()
 			if (slug == undefined) throw new ResourceNotFoundError();
 
 			if (slug.linkId != undefined) {
-				return context.redirect(`/team/${team.namespace}/link/${slug.slug}`, 302);
+				return context.redirect(`/team/${team.namespace}/link/${slug.slug}`, 307);
 			} else if (slug.templateId != undefined) {
-				return context.redirect(`/team/${team.namespace}/template/${slug.slug}`, 302);
+				return context.redirect(`/team/${team.namespace}/template/${slug.slug}`, 307);
 			} else throw new KnownInternalServerError({
 				message: 'Slug with no corresponding link OR template',
 				slug, team
 			});
 		},
 		{
-			detail: { tags, summary: 'Get resource from slug' },
+			detail: { tags, summary: 'Find team resource by slug' },
 			params: t.Object({
 				namespace: t.String(),
 				slug: t.String()

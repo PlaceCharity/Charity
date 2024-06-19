@@ -168,6 +168,38 @@ export default new Elysia()
 			})
 		}
 	)
+	.get('/template',
+		async (context) => {
+			const template = await db.query.templates.findFirst({
+				where: eq(schema.templates.id, context.query.id)
+			});
+			if (template == undefined) throw new ResourceNotFoundError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: eq(schema.slugs.templateId, template.id)
+			});
+			if (slug == undefined) throw new KnownInternalServerError({
+				message: 'Template without a corresponding slug',
+				slug, template, id: context.query.id
+			});
+
+			const team = await db.query.teams.findFirst({
+				where: eq(schema.teams.id, slug.teamId)
+			});
+			if (team == undefined) throw new KnownInternalServerError({
+				message: 'Template without a corresponding team',
+				team, slug, template, id: context.query.id
+			});
+
+			return context.redirect(`/team/${team.namespace}/template/${slug.slug}`, 307);
+		},
+		{
+			detail: { tags, summary: 'Find template by ID' },
+			query: t.Object({
+				id: t.String()
+			})
+		}
+	)
 	.patch('/team/:namespace/template/:slug', 
 		() => { throw new NotImplementedError() },
 		{ detail: { tags, summary: 'Update template details' } }

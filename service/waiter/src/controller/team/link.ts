@@ -157,6 +157,38 @@ export default new Elysia()
 			})
 		}
 	)
+	.get('/link',
+		async (context) => {
+			const link = await db.query.links.findFirst({
+				where: eq(schema.links.id, context.query.id)
+			});
+			if (link == undefined) throw new ResourceNotFoundError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: eq(schema.slugs.linkId, link.id)
+			});
+			if (slug == undefined) throw new KnownInternalServerError({
+				message: 'Link without a corresponding slug',
+				slug, link, id: context.query.id
+			});
+
+			const team = await db.query.teams.findFirst({
+				where: eq(schema.teams.id, slug.teamId)
+			});
+			if (team == undefined) throw new KnownInternalServerError({
+				message: 'Link without a corresponding team',
+				team, slug, link, id: context.query.id
+			});
+
+			return context.redirect(`/team/${team.namespace}/link/${slug.slug}`, 307);
+		},
+		{
+			detail: { tags, summary: 'Find link by ID' },
+			query: t.Object({
+				id: t.String()
+			})
+		}
+	)
 	.patch('/team/:namespace/link/:slug',
 		async (context) => {
 			// Get session
