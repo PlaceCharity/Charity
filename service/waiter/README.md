@@ -36,3 +36,18 @@ The following Cloudflare configuration should be applied:
 			- Cache Eligibility: Eligible for cache
 			- Edge TTL: Ignore cache-control header and use this TTL, 1 year
 			- Browser TTL: Override origin and use this TTL, 1 year
+- Create 2 Transform Rules of type Rewrite URL (Optional)
+	- This rule will rewrite shortlinks like `faction.place/team_name/template_name.json` to the corresponding backend path like `api.faction.place/team/team_name/template/template_name/overlay`
+	- Usually this will be handled by the frontend, but if you have a **Business plan or WAF Advanced plan** on Cloudflare, you can use this rule to make Cloudflare do this work instead.
+		- Because it requires a plan, this is untested. But it should work. Hopefully.
+		- Don't buy a plan just for this. It really isn't necessary.
+	- Rule 1 (Templates)
+		- When incoming requests match...
+			- Custom filter expression: `(http.request.full_uri ~ r"^https://faction\.place/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)\.json$")`
+		- Then rewrite path to:
+			- Dynamic `regex_replace(http.request.full_uri, r"^https://faction\.place/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)\.json$", "https://api.faction.place/team/${1}/template/${2}/overlay")`
+	- Rule 2 (Teams)
+		- When incoming requests match...
+			- Custom filter expression: `(http.request.full_uri ~ r"^https://faction\.place/([a-zA-Z0-9-_]+)\.json$")`
+		- Then rewrite path to: 
+			- Dynamic: `regex_replace(http.request.full_uri, r"^https://faction\.place/([a-zA-Z0-9-_]+)\.json$", "https://api.faction.place/team/${1}/overlay")`
