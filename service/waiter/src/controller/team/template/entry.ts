@@ -20,6 +20,14 @@ export const Description = t.String({
 	maxLength: 500
 });
 
+export const EntryBody = t.Object({
+	displayName: DisplayName,
+	description: Description,
+	fileId: t.String(),
+	positionX: t.Integer(),
+	positionY: t.Integer()
+});
+
 export class APIEntry {
 	id: string;
 	templateId: string;
@@ -155,13 +163,7 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String()
 			}),
-			body: t.Object({
-				displayName: DisplayName,
-				description: Description,
-				fileId: t.String(),
-				positionX: t.Integer(),
-				positionY: t.Integer()
-			})
+			body: EntryBody
 		}
 	)
 	.get('/team/:namespace/template/:slug/entry/:id', 
@@ -201,12 +203,20 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String(),
 				id: t.String()
-			}),
+			})
 		}
 	)
 	.patch('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Update entry details' } }
+		{
+			detail: { tags, summary: 'Update entry details' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String(),
+				id: t.String()
+			}),
+			body: t.Partial(EntryBody)
+		}
 	)
 	.delete('/team/:namespace/template/:slug/entry/:id', 
 		() => { throw new NotImplementedError() },

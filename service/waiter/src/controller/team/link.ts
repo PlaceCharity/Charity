@@ -8,6 +8,14 @@ import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, No
 
 const tags = ['team/link'];
 
+export const LinkBody = t.Object({
+	url: t.String({ format: 'uri' }),
+	text: t.String({
+		minLength: 1,
+		maxLength: 32
+	})
+});
+
 export class APILink {
 	id: string;
 	teamId: string;
@@ -115,13 +123,7 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: Slug
 			}),
-			body: t.Object({
-				url: t.String({ format: 'uri' }),
-				text: t.String({
-					minLength: 1,
-					maxLength: 32
-				})
-			})
+			body: LinkBody
 		}
 	)
 	.get('/team/:namespace/link/:slug',
@@ -226,9 +228,10 @@ export default new Elysia()
 			}).where(and(
 				eq(schema.links.id, slug.linkId),
 			)).returning();
-			if (link.length < 1) {
-				console.error('Slug with linkId without a corresponding link', JSON.stringify({ link, slug, team }));
-			}
+			if (link.length == 0) throw new KnownInternalServerError({
+				message: 'Slug with linkId without a corresponding link',
+				link, slug, team
+			});
 			
 			// Update the slug
 			let updatedSlug: InferSelectModel<typeof schema.slugs>[] = [slug];
@@ -245,7 +248,7 @@ export default new Elysia()
 					}
 					throw err;
 				});
-				if (updatedSlug.length < 1) throw new KnownInternalServerError({
+				if (updatedSlug.length == 0) throw new KnownInternalServerError({
 					message: 'Slug disappeared from under us while updating link',
 					updatedSlug, slug, link, team
 				});
@@ -259,14 +262,12 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String()
 			}),
-			body: t.Object({
-				url: t.Optional(t.String({ format: 'uri' })),
-				text: t.Optional(t.String({
-					minLength: 1,
-					maxLength: 32
-				})),
-				slug: t.Optional(Slug)
-			})
+			body: t.Partial(t.Intersect([
+				t.Object({
+					slug: Slug
+				}),
+				LinkBody
+			]))
 		}
 	)
 	.delete('/team/:namespace/link/:slug',
@@ -304,7 +305,7 @@ export default new Elysia()
 				eq(schema.links.teamId, team.id),
 				eq(schema.links.id, slug.linkId),
 			)).returning();
-			if (link.length < 1) throw new KnownInternalServerError({
+			if (link.length == 0) throw new KnownInternalServerError({
 				message: 'Link disappeared from under us while deleting',
 				link, slug, team
 			});
@@ -312,7 +313,7 @@ export default new Elysia()
 			// FIXME: The slug should be deleted, but ON DELETE CASCADE doesn't work, maybe because our CHECK doesn't work, more probably because it's just nullable and so it ignores ON DELETE CASCADE.
 			// So, delete the slug manually for now.
 			const deletedSlug = await db.delete(schema.slugs).where(eq(schema.slugs.id, slug.id)).returning();
-			if (deletedSlug.length < 1) throw new KnownInternalServerError({
+			if (deletedSlug.length == 0) throw new KnownInternalServerError({
 				message: 'Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)',
 				deletedSlug, slug, team
 			});
