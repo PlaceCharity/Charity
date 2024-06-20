@@ -213,7 +213,7 @@ export default new Elysia()
 			});
 			if (team == undefined) throw new ResourceNotFoundError();
 
-			// Check permissions to see if we can create templates
+			// Check permissions to see if we can update templates
 			const member = await db.query.teamMembers.findFirst({
 				where: and(
 					eq(schema.teamMembers.teamId, team.id),
