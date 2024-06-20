@@ -273,11 +273,11 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String()
 			}),
-			body: t.Object({
-				displayName: t.Optional(DisplayName),
-				description: t.Optional(Description),
-				slug: t.Optional(Slug)
-			})
+			body: t.Partial(t.Object({
+				displayName: DisplayName,
+				description: Description,
+				slug: Slug
+			}))
 		}
 	)
 	.delete('/team/:namespace/template/:slug', 
