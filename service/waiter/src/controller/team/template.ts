@@ -301,6 +301,7 @@ export default new Elysia()
 			});
 			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
 
+			// Find the slug
 			const slug = await db.query.slugs.findFirst({
 				where: and(
 					eq(schema.slugs.teamId, team.id),
@@ -309,6 +310,7 @@ export default new Elysia()
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
 
+			// Delete the template
 			const template = await db.delete(schema.templates)
 				.where(eq(schema.templates.id, slug.templateId))
 				.returning();
