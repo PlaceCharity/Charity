@@ -259,7 +259,7 @@ export default new Elysia()
 					}
 					throw err;
 				});
-				if (updatedSlug.length < 1) throw new KnownInternalServerError({
+				if (updatedSlug.length == 0) throw new KnownInternalServerError({
 					message: 'Slug disappeared from under us while updating template',
 					updatedSlug, slug, template, team
 				});
