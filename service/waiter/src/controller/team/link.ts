@@ -8,6 +8,14 @@ import { AlreadyExistsError, KnownInternalServerError, NotAuthenticatedError, No
 
 const tags = ['team/link'];
 
+export const LinkBody = t.Object({
+	url: t.String({ format: 'uri' }),
+	text: t.String({
+		minLength: 1,
+		maxLength: 32
+	})
+});
+
 export class APILink {
 	id: string;
 	teamId: string;
@@ -115,13 +123,7 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: Slug
 			}),
-			body: t.Object({
-				url: t.String({ format: 'uri' }),
-				text: t.String({
-					minLength: 1,
-					maxLength: 32
-				})
-			})
+			body: LinkBody
 		}
 	)
 	.get('/team/:namespace/link/:slug',
@@ -227,8 +229,8 @@ export default new Elysia()
 				eq(schema.links.id, slug.linkId),
 			)).returning();
 			if (link.length == 0) throw new KnownInternalServerError({
-					message: 'Slug with linkId without a corresponding link',
-					link, slug, team
+				message: 'Slug with linkId without a corresponding link',
+				link, slug, team
 			});
 			
 			// Update the slug
@@ -260,14 +262,12 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String()
 			}),
-			body: t.Object({
-				url: t.Optional(t.String({ format: 'uri' })),
-				text: t.Optional(t.String({
-					minLength: 1,
-					maxLength: 32
-				})),
-				slug: t.Optional(Slug)
-			})
+			body: t.Partial(t.Intersect([
+				t.Object({
+					slug: Slug
+				}),
+				LinkBody
+			]))
 		}
 	)
 	.delete('/team/:namespace/link/:slug',

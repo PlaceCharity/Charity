@@ -22,6 +22,11 @@ export const Description = t.String({
 	maxLength: 500
 });
 
+export const TemplateBody = t.Object({
+	displayName: DisplayName,
+	description: Description
+});
+
 export class APITemplate {
 	id: string;
 	teamId: string;
@@ -130,10 +135,7 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: Slug
 			}),
-			body: t.Object({
-				displayName: DisplayName,
-				description: Description
-			})
+			body: TemplateBody
 		}
 	)
 	.get('/team/:namespace/template/:slug', 
@@ -273,11 +275,12 @@ export default new Elysia()
 				namespace: t.String(),
 				slug: t.String()
 			}),
-			body: t.Partial(t.Object({
-				displayName: DisplayName,
-				description: Description,
-				slug: Slug
-			}))
+			body: t.Partial(t.Intersect([
+				t.Object({
+					slug: Slug
+				}),
+				TemplateBody
+			]))
 		}
 	)
 	.delete('/team/:namespace/template/:slug', 
