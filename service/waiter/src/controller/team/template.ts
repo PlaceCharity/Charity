@@ -281,8 +281,60 @@ export default new Elysia()
 		}
 	)
 	.delete('/team/:namespace/template/:slug', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Delete a template' } }
+		async (context) => {
+			// Get session
+			const session = await getSession(context as Context);
+			if (!session || !session.user) throw new NotAuthenticatedError();
+
+			// Get team
+			const team = await db.query.teams.findFirst({
+				where: eq(schema.teams.namespace, context.params.namespace.toLowerCase()),
+			});
+			if (team == undefined) throw new ResourceNotFoundError();
+
+			// Check permissions to see if we can delete templates
+			const member = await db.query.teamMembers.findFirst({
+				where: and(
+					eq(schema.teamMembers.teamId, team.id),
+					eq(schema.teamMembers.userId, session.user.id)
+				)
+			});
+			if (member == undefined || !member.canManageTemplates) throw new NotAuthorizedError();
+
+			const slug = await db.query.slugs.findFirst({
+				where: and(
+					eq(schema.slugs.teamId, team.id),
+					eq(schema.slugs.slug, context.params.slug.toLowerCase()),
+				)
+			});
+			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
+
+			const template = await db.delete(schema.templates)
+				.where(eq(schema.templates.id, slug.templateId))
+				.returning();
+
+			if (template.length == 0) throw new KnownInternalServerError({
+				message: 'Slug with templateId without a corresponding template',
+				template, slug, team
+			});
+
+			// FIXME: The slug should be deleted, but ON DELETE CASCADE doesn't work, maybe because our CHECK doesn't work, more probably because it's just nullable and so it ignores ON DELETE CASCADE.
+			// So, delete the slug manually for now.
+			const deletedSlug = await db.delete(schema.slugs).where(eq(schema.slugs.id, slug.id)).returning();
+			if (deletedSlug.length == 0) throw new KnownInternalServerError({
+				message: 'Slug disappeared from under us while deleting (which is what it actually should do I guess, but it doesn\'t, because ON DELETE CASCADE is supposed to be broken. Is it working now for some reason?)',
+				deletedSlug, slug, team
+			});
+
+			return;
+		},
+		{
+			detail: { tags, summary: 'Delete a template' },
+			params: t.Object({
+				namespace: t.String(),
+				slug: t.String()
+			})
+		}
 	)
 	.get('/team/:namespace/template/:slug/overlay', 
 		async (context) => {
