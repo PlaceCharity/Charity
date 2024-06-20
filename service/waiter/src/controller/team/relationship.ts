@@ -9,6 +9,13 @@ import { SQLiteError } from 'bun:sqlite';
 
 const tags = ['team/relationship'];
 
+export const RelationshipBody = t.Object({
+	targetTeamId: t.Optional(t.String()),
+	targetTemplateId: t.Optional(t.String()),
+	targetTemplateUri: t.Optional(t.String({ format: 'uri' })),
+	isBlacklist: t.Boolean()
+});
+
 export class APIRelationshipInternalToInternalTeam {
 	teamId: string;
 	isBlacklist: boolean;
@@ -159,12 +166,7 @@ export default new Elysia()
 			params: t.Object({
 				namespace: t.String()
 			}),
-			body: t.Object({
-				targetTeamId: t.Optional(t.String()),
-				targetTemplateId: t.Optional(t.String()),
-				targetTemplateUri: t.Optional(t.String({ format: 'uri' })),
-				isBlacklist: t.Boolean()
-			})
+			body: RelationshipBody
 		}
 	)
 	.get('/team/:namespace/relationship/:id', 
@@ -172,8 +174,22 @@ export default new Elysia()
 		{ detail: { tags, summary: 'Get relationship details' } }
 	)
 	.patch('/team/:namespace/relationship/:id', 
-		() => { throw new NotImplementedError() },
-		{ detail: { tags, summary: 'Update relationship details' } }
+		() => {
+			// For whoever is gonna implement this:
+			// Remember that the three types of relationships are different tables in the database and different types/classes!
+			// So the choices here are either
+			// - Don't allow PATCHing between different types of relationship
+			// - Allow PATCHing between different types of relationship, meaning in some cases you will have to delete the relationship and make a new one with the same ID but in a different table (for a different relationship type)
+
+			throw new NotImplementedError()
+		},
+		{
+			detail: { tags, summary: 'Update relationship details' },
+			params: t.Object({
+				namespace: t.String()
+			}),
+			body: t.Partial(RelationshipBody)
+		}
 	)
 	.delete('/team/:namespace/relationship/:id', 
 		() => { throw new NotImplementedError() },
