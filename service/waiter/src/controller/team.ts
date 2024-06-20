@@ -34,7 +34,13 @@ export const Description = t.String({
 export const ContactInfo = t.String({
 	minLength: 1,
 	maxLength: 96
-})
+});
+
+export const TeamBody = t.Object({
+	displayName: DisplayName,
+	description: Description,
+	contactInfo: ContactInfo
+});
 
 export class APITeam {
 	id: string;
@@ -225,11 +231,7 @@ export default new Elysia()
 			params: t.Object({
 				namespace: Namespace
 			}),
-			body: t.Object({
-				displayName: DisplayName,
-				description: Description,
-				contactInfo: ContactInfo
-			})
+			body: TeamBody
 		}
 	)
 	.get('/team/:namespace', 
@@ -306,12 +308,12 @@ export default new Elysia()
 			params: t.Object({
 				namespace: t.String()
 			}),
-			body: t.Object({
-				namespace: t.Optional(Namespace),
-				displayName: t.Optional(DisplayName),
-				description: t.Optional(Description),
-				contactInfo: t.Optional(ContactInfo)
-			})
+			body: t.Partial(t.Intersect([
+				t.Object({
+					namespace: Namespace
+				}),
+				TeamBody
+			]))
 		}
 	)
 	.delete('/team/:namespace', 
