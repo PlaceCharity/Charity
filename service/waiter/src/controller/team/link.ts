@@ -221,13 +221,21 @@ export default new Elysia()
 			});
 			if (slug == undefined || slug.linkId == undefined) throw new ResourceNotFoundError();
 			
-			// Update the link
-			const [link] = await db.update(schema.links).set({
+			const updateValue = {
 				url: context.body.url,
 				text: context.body.text
-			}).where(and(
-				eq(schema.links.id, slug.linkId),
-			)).returning();
+			};
+
+			// Only call update if there is something that will change
+			const updatedCount = Object.values(updateValue).filter(v => v != undefined).length;
+			const [link] = updatedCount == 0
+				? [await db.query.links.findFirst({
+					where: eq(schema.templates.id, slug.linkId)
+				})]
+				: await db.update(schema.links).set(updateValue).where(and(
+					eq(schema.links.id, slug.linkId),
+				)).returning();
+
 			if (link == undefined) throw new KnownInternalServerError({
 				message: 'Slug with linkId without a corresponding link',
 				link, slug, team
