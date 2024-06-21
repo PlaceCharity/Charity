@@ -232,16 +232,24 @@ export default new Elysia()
 			});
 			if (slug == undefined || slug.templateId == undefined) throw new ResourceNotFoundError();
 
-			const template = await db.update(schema.templates).set(
-				{
-					displayName: context.body.displayName,
-					description: context.body.description
-				}
-			)
-			.where(eq(schema.templates.id, slug.templateId))
-			.returning();
+			const updateValue = {
+				displayName: context.body.displayName,
+				description: context.body.description
+			};
 
-			if (template.length == 0) throw new KnownInternalServerError({
+			// Only call update if there is something that will change
+			const updatedCount = Object.values(updateValue).filter(v => v != undefined).length;
+			const [template] = updatedCount == 0
+				? [await db.query.templates.findFirst({
+					where: eq(schema.templates.id, slug.templateId)
+				})]
+				: await db.update(schema.templates).set(
+					updateValue
+				)
+				.where(eq(schema.templates.id, slug.templateId))
+				.returning();
+
+			if (template == undefined) throw new KnownInternalServerError({
 				message: 'Slug with templateId without a corresponding template',
 				template, slug, team
 			});
