@@ -1,4 +1,7 @@
 /**@type {import("tailwindcss").Config} */
+
+const { fontFamily } = require("tailwindcss/defaultTheme")
+
 module.exports = {
   darkMode: ["class", '[data-kb-theme="dark"]'],
   content: ["./src/**/*.{ts,tsx}"],
@@ -7,10 +10,17 @@ module.exports = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px"
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1024px',
+        '2xl': '1024px'
       }
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...fontFamily.sans]
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

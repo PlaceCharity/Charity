@@ -13,5 +13,8 @@
   "scripts": {
     "workspace": "bun ./scripts/workspace.ts",
     "check": "bun run workspace - check"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.0.18"
   }
 }
