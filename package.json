@@ -13,8 +13,5 @@
   "scripts": {
     "workspace": "bun ./scripts/workspace.ts",
     "check": "bun run workspace - check"
-  },
-  "dependencies": {
-    "glob": "^10.3.10"
   }
 }
