@@ -121,6 +121,9 @@ export async function init() {
 }
 
 function draw() {
+	canvas.width = selectedCanvas.width;
+	canvas.height = selectedCanvas.height;
+
 	canvasBounds = canvas.getBoundingClientRect();
 	scaleFactor = canvasBounds.width / canvas.width;
 	const left = Math.floor((canvasBounds.x * -1) / scaleFactor) - 5;

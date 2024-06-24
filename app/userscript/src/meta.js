@@ -9,6 +9,7 @@
 // @match       http://localhost/*
 // @match       http://localhost:8193/*
 // @match       https://pxls.space/*
+// @match       https://sinder.pxls.world/*
 // @match       https://rplace.live/*
 // @match       https://reddit.com/r/place/*
 // @match       https://www.reddit.com/r/place/*
