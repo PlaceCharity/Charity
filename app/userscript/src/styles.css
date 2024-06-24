@@ -30,6 +30,7 @@
 }
 
 .charity-settings-icon > img {
+	@apply w-[38px];
 	@apply p-[8px] m-0;
 }
 
