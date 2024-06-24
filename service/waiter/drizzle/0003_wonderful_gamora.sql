@@ -1,0 +1,1 @@
+ALTER TABLE `invite` ADD `id` text PRIMARY KEY NOT NULL;

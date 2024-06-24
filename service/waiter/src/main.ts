@@ -1,40 +1,82 @@
 import { env } from '~/util/env';
+import packageJson from '../package.json';
 
 // Elysia imports
 import { Elysia, ValidationError } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 
 // Our imports
-import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError } from './types';
+import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError, NotAuthorizedError, BadRequestError, KnownInternalServerError } from './types';
 import auth from './instance/auth';
-import user from './controller/user';
-import team from './controller/team';
-import template from './controller/template';
-import link from './controller/link';
+import FileController from './controller/file';
+import UserController from './controller/user';
+import TeamController from './controller/team';
 
 // Set up Elysia and listen
 export const app = new Elysia()
-    .use(swagger({ provider: 'scalar' }))
+    .use(swagger({
+		provider: 'scalar',
+		documentation: {
+			info: {
+				title: 'Waiter Documentation',
+				version: packageJson.version
+			}
+		}
+	}))
 	.error({
 		[new NotImplementedError().message]: NotImplementedError,
 		[new NotAuthenticatedError().message]: NotAuthenticatedError,
+		[new NotAuthorizedError().message]: NotAuthorizedError,
+		[new BadRequestError().message]: BadRequestError,
 		[new ResourceNotFoundError().message]: ResourceNotFoundError,
-		[new AlreadyExistsError('Example').message]: AlreadyExistsError
+		[new AlreadyExistsError('EXAMPLE').message]: AlreadyExistsError,
+		[new KnownInternalServerError({}).message]: KnownInternalServerError
 	})
 	.onError(({ code, error }): { code: string } | { code: string, details: ValidationError | string } => {
+		// Log errors by severity
+		// TODO: replace this with some log storage thing
+		if (['NOT_IMPLEMENTED', 'NOT_AUTHENTICATED', 'NOT_AUTHORIZED', 'BAD_REQUEST', 'RESOURCE_NOT_FOUND', 'ALREADY_EXISTS'].includes(code)) {
+			// User error
+			console.debug(error);
+		} else {
+			// Internal error
+			console.error(error);
+		}
+		
 		if (code == 'VALIDATION') return { code, details: JSON.parse(error.message) };
 		if (code == 'ALREADY_EXISTS') return { code, details: error.details };
+
 		return { code };
 	})
 	.get('/', () => '🍽️ Waiter is running (see /swagger)')
 	.use(auth)
-	.use(user)
-    .use(team)
-	.use(template)
-	.use(link)
+	.use(FileController)
+	.use(UserController)
+    .use(TeamController)
 	.listen(env.PORT);
 
 console.log(`🍽️ Waiter is running at ${app.server?.hostname}:${app.server?.port} with base URL ${env.BASE_URL}`);
 
 // Export the app for Eden client
 export type Waiter = typeof app;
+
+// Rest of the exports
+export {
+	// Errors
+	NotImplementedError, NotAuthenticatedError, NotAuthorizedError, BadRequestError, ResourceNotFoundError, AlreadyExistsError
+} from './types';
+
+export type {
+	// Overlay types
+	OverlayNamedURL, OverlayTemplateEntry, OverlayTemplate
+} from './types';
+
+export { APIUser } from '~/controller/user';
+export { APITeam } from '~/controller/team';
+export { APITeamMember } from '~/controller/team/member';
+export { PartialAPIInvite, APIInvite } from '~/controller/team/invite';
+export { APILink } from '~/controller/team/link';
+export { APITemplate } from '~/controller/team/template';
+export { APIEntry } from '~/controller/team/template/entry';
+export type { APIRelationship } from '~/controller/team/relationship';
+export { APIRelationshipInternalToInternalTeam, APIRelationshipInternalToInternalTemplate, APIRelationshipInternalToExternal } from '~/controller/team/relationship';
