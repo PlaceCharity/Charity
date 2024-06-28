@@ -1,4 +1,4 @@
-import { env } from '~/util/env';
+import { env } from '~/instance/env';
 import { Context, Elysia, NotFoundError, t } from 'elysia';
 import { getSession } from '~/instance/auth';
 import { Account, User } from '@auth/core/types';

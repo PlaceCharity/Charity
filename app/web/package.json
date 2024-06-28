@@ -2,11 +2,13 @@
   "name": "web",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
+    "dev": "vinxi dev --port 3001",
     "build": "vinxi build",
     "start": "vinxi start"
   },
   "dependencies": {
+    "@elysiajs/eden": "^1.0.14",
+    "@fontsource/inter": "^5.0.18",
     "@kobalte/core": "^0.13.3",
     "@solidjs/router": "^0.13.6",
     "@solidjs/start": "^1.0.2",
@@ -20,6 +22,9 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
     "vinxi": "^0.3.12"
+  },
+  "devDependencies": {
+    "waiter": "workspace:*"
   },
   "engines": {
     "node": ">=18"

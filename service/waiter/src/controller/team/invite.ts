@@ -1,4 +1,4 @@
-import { env } from '~/util/env';
+import { env } from '~/instance/env';
 import { Context, Elysia, t } from 'elysia';
 import { NotAuthorizedError, NotAuthenticatedError, NotImplementedError, ResourceNotFoundError, BadRequestError, AlreadyExistsError, KnownInternalServerError, TeamMemberPermissions } from '~/types';
 import { APIUser } from '~/controller/user';

@@ -3,7 +3,7 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { Context, Elysia } from 'elysia';
 import db from '~/instance/database';
 import * as schema from '~/instance/database/schema';
-import { env } from '~/util/env';
+import { env } from '~/instance/env';
 import DiscordProvider from '@auth/core/providers/discord';
 import { eq } from 'drizzle-orm/sqlite-core/expressions';
 

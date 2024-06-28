@@ -1,9 +1,10 @@
-import { env } from '~/util/env';
+import { env } from '~/instance/env';
 import packageJson from '../package.json';
 
 // Elysia imports
 import { Elysia, ValidationError } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
+import cors from '@elysiajs/cors';
 
 // Our imports
 import { NotImplementedError, NotAuthenticatedError, ResourceNotFoundError, AlreadyExistsError, NotAuthorizedError, BadRequestError, KnownInternalServerError } from './types';
@@ -18,10 +19,13 @@ export const app = new Elysia()
 		provider: 'scalar',
 		documentation: {
 			info: {
-				title: 'Waiter Documentation',
+				title: 'Waiter',
 				version: packageJson.version
 			}
 		}
+	}))
+	.use(cors({
+		origin: env.CORS_ALLOW_ALL
 	}))
 	.error({
 		[new NotImplementedError().message]: NotImplementedError,
@@ -80,3 +84,5 @@ export { APITemplate } from '~/controller/team/template';
 export { APIEntry } from '~/controller/team/template/entry';
 export type { APIRelationship } from '~/controller/team/relationship';
 export { APIRelationshipInternalToInternalTeam, APIRelationshipInternalToInternalTemplate, APIRelationshipInternalToExternal } from '~/controller/team/relationship';
+
+export type { Session, User } from '@auth/core/types';

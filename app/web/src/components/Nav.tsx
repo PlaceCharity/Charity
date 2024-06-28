@@ -21,14 +21,20 @@ import {
 	DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
 import { useColorMode } from "@kobalte/core";
-import { Button } from "./ui/button";
-import { Flex } from "./ui/flex";
+import { Button } from "~/components/ui/button";
+import { useSession } from "~/components/SessionProvider";
+import { isServer } from "solid-js/web";
+import { createEffect } from "solid-js";
 
 export default function Nav() {
 	const location = useLocation();
 	const active = (path: string) => path == location.pathname ? 'font-bold' : undefined;
 
 	const { setColorMode } = useColorMode();
+
+	const [session, setSession] = useSession() ?? [null, null];
+
+	createEffect(() => { if (session != null) session() });
 
 	return (
 		<div class="border-b">
@@ -80,10 +86,9 @@ export default function Nav() {
 					</DropdownMenu>
 
 					<Button as="a" href="/login" variant="secondary">
-						Sign in
+						<span>{session != null ? session() : 'meow'}</span>
 					</Button>
 				</div>
-				
 			</Container>
 		</div>
 	);

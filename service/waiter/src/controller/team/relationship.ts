@@ -1,4 +1,4 @@
-import { env } from '~/util/env';
+import { env } from '~/instance/env';
 import { Context, Elysia, t } from 'elysia';
 import { AlreadyExistsError, BadRequestError, NotAuthenticatedError, NotAuthorizedError, NotImplementedError, ResourceNotFoundError } from '~/types';
 import * as schema from '~/instance/database/schema';

@@ -10,6 +10,8 @@ import "./app.css";
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from "@kobalte/core";
 import { getCookie } from "vinxi/http";
 import { isServer } from "solid-js/web";
+import { WaiterProvider } from "./components/WaiterProvider";
+import { SessionProvider } from "./components/SessionProvider";
 
 function getServerCookies() {
 	"use server";
@@ -25,13 +27,17 @@ export default function App() {
 		<Router
 			root={props => (
 				<>
-					<ColorModeScript storageType={storageManager.type} />
-					<ColorModeProvider storageManager={storageManager}>
-						<Nav />
-						<Container class="my-4">
-							<Suspense>{props.children}</Suspense>
-						</Container>
-					</ColorModeProvider>
+					<WaiterProvider>
+						<SessionProvider>
+							<ColorModeScript storageType={storageManager.type} />
+							<ColorModeProvider storageManager={storageManager}>
+								<Nav />
+								<Container class="my-4">
+									<Suspense>{props.children}</Suspense>
+								</Container>
+							</ColorModeProvider>
+						</SessionProvider>
+					</WaiterProvider>
 				</>
 			)}
 		>

@@ -8,6 +8,7 @@ export const env = createEnv({
 	server: {
 		PORT: z.coerce.number().int().min(1).max(65535),
 		BASE_URL: z.string().url(),
+		CORS_ALLOW_ALL: z.coerce.boolean(),
 		OVERLAY_DEFINITION_BASE: z.string().url(),
 		OVERLAY_TEAM_DEFINITION_PATH: z.string(),
 		OVERLAY_TEMPLATE_DEFINITION_PATH: z.string(),
