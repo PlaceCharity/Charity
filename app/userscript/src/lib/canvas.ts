@@ -65,8 +65,10 @@ function updateOverlayStyles() {
 	const selectedBounds = selectedCanvas.getBoundingClientRect();
 	canvasContainer.style.width = `${selectedCanvas.width}px`;
 	canvasContainer.style.height = `${selectedCanvas.height}px`;
-	canvasContainer.style.left = computedStyle.left === 'auto' ? '0px' : `${selectedBounds.x}px`;
-	canvasContainer.style.top = computedStyle.top === 'auto' ? '0px' : `${selectedBounds.y}px`;
+	canvasContainer.style.left =
+		computedStyle.left === 'auto' || computedStyle.left === '0px' ? '0px' : `${selectedBounds.x}px`;
+	canvasContainer.style.top =
+		computedStyle.top === 'auto' || computedStyle.top === '0px' ? '0px' : `${selectedBounds.y}px`;
 	canvasContainer.style.zIndex = computedStyle.zIndex;
 	canvasContainer.style.transform =
 		computedStyle.transform === 'none' ? 'none' : `scale(${selectedBounds.width / selectedCanvas.width})`;
