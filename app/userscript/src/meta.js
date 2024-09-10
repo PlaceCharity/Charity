@@ -15,6 +15,7 @@
 // @match       https://www.reddit.com/r/place/*
 // @match       https://new.reddit.com/r/place/*
 // @match       https://sh.reddit.com/r/place/*
+// @match       https://canvas.kyubae.com/*
 // @run-at      document-idle
 // @connect     *
 // @allFrames   true
