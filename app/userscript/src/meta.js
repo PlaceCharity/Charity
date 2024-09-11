@@ -8,13 +8,13 @@
 // @author      process.env.AUTHOR
 // @match       http://localhost/*
 // @match       http://localhost:8193/*
-// @match       https://pxls.space/*
-// @match       https://sinder.pxls.world/*
-// @match       https://rplace.live/*
 // @match       https://reddit.com/r/place/*
 // @match       https://www.reddit.com/r/place/*
 // @match       https://new.reddit.com/r/place/*
 // @match       https://sh.reddit.com/r/place/*
+// @match       https://pxls.space/*
+// @match       https://rplace.live/*
+// @match       https://sinder.pxls.world/*
 // @match       https://place.zevent.fr/*
 // @match       https://canvas.kyubae.com/*
 // @run-at      document-idle

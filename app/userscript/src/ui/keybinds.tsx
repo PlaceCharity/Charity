@@ -15,6 +15,9 @@ let setDotSizeDecreaseKeybind: Setter<{ display: string; register: string }>;
 export let contactInfoKeybind: Accessor<{ display: string; register: string }>;
 let setContactInfoKeybind: Setter<{ display: string; register: string }>;
 
+export let openSettingsKeybind: Accessor<{ display: string; register: string }>;
+let setOpenSettingsKeybind: Setter<{ display: string; register: string }>;
+
 export async function init() {
 	[showOverlayKeybind, setShowOverlayKeybind] = createSignal(
 		await GM.getValue('showOverlayKeybind', {
@@ -38,6 +41,12 @@ export async function init() {
 		await GM.getValue('contactInfoKeybind', {
 			display: 'C',
 			register: 'c',
+		}),
+	);
+	[openSettingsKeybind, setOpenSettingsKeybind] = createSignal(
+		await GM.getValue('openSettingsKeybind', {
+			display: 'T',
+			register: 't',
 		}),
 	);
 }
@@ -101,6 +110,20 @@ export function KeybindsBody() {
 					<Show when={changingKeybind() !== 'contactInfo'}>{contactInfoKeybind().display}</Show>
 				</button>
 			</div>
+			<div class='charity-panel-body-setting-header'>
+				<h2>Open Settings</h2>
+				<button
+					class='charity-setting-keybind'
+					onKeyDown={setKeybind}
+					onClick={() => {
+						setChangingKeybind('openSettings');
+					}}
+					onFocusOut={resetChangingKeybind}
+				>
+					<Show when={changingKeybind() === 'openSettings'}>...</Show>
+					<Show when={changingKeybind() !== 'openSettings'}>{openSettingsKeybind().display}</Show>
+				</button>
+			</div>
 		</div>
 	);
 }
@@ -139,7 +162,6 @@ function setKeybind(e: KeyboardEvent) {
 		displayKey += 'Alt + ';
 		shortcutComponents.shift();
 	}
-	console.log(e);
 	const keyCode =
 		e.code
 			.replace(/^Key|Digit/, '')
@@ -181,6 +203,15 @@ function setKeybind(e: KeyboardEvent) {
 		} else {
 			setContactInfoKeybind({ display: displayKey, register: shortcutKey });
 			GM.setValue('contactInfoKeybind', contactInfoKeybind());
+		}
+	}
+	if (changingKeybind() === 'openSettings') {
+		if (e.key === 'Escape' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+			setOpenSettingsKeybind({ display: 'None', register: '' });
+			GM.setValue('openSettingsKeybind', openSettingsKeybind());
+		} else {
+			setOpenSettingsKeybind({ display: displayKey, register: shortcutKey });
+			GM.setValue('openSettingsKeybind', openSettingsKeybind());
 		}
 	}
 

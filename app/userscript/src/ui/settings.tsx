@@ -331,5 +331,13 @@ export async function init() {
 			GM.setValue('contactInfo', contactInfo());
 			e.preventDefault();
 		}
+		if (keybinds.openSettingsKeybind().register === shortcutKey) {
+			if (settingsPanelOpen) {
+				closeSettings();
+			} else {
+				openSettings();
+			}
+			e.preventDefault();
+		}
 	});
 }
