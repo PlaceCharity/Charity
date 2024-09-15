@@ -3,6 +3,7 @@ import { render } from 'solid-js/web';
 import { getPanel } from '@violentmonkey/ui';
 
 import * as canvas from '../lib/canvas';
+import * as keybinds from './keybinds';
 
 export const contactPanel = getPanel({
 	className: 'charity-contact-info',
@@ -61,6 +62,12 @@ export async function init() {
 				<p class='charity-contact-panel-line'>Artwork: {canvas.templateName()}</p>
 				<p class='charity-contact-panel-line'>Faction: {canvas.faction()}</p>
 				<p class='charity-contact-panel-line'>Contact: {canvas.contact()}</p>
+				<p
+					class='charity-contact-panel-subtext'
+					style='font-size:0.75em;padding:0;margin:0;position:relative;top:5px;text-align:center;color:#aaaaaa'
+				>
+					(Press [{keybinds.contactInfoKeybind().display}] to hide)
+				</p>
 			</div>
 		);
 	}
