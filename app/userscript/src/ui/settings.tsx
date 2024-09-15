@@ -34,6 +34,7 @@ export async function init() {
 	const [settingsIconEnabled, setSettingsIconEnabled] = createSignal(
 		(await GM.getValue('settingsIconEnabled', true)) as boolean,
 	);
+	const [checkForUpdates, setCheckForUpdates] = createSignal((await GM.getValue('checkForUpdates', true)) as boolean);
 
 	createEffect(() => {
 		if (showOverlay()) {
@@ -245,6 +246,18 @@ export async function init() {
 								/>
 							</div>
 						</Show>
+						<div class='charity-panel-body-setting-header'>
+							<h2>Check For Updates</h2>
+							<input
+								type='checkbox'
+								class='charity-setting-toggle'
+								checked={checkForUpdates()}
+								onClick={() => {
+									setCheckForUpdates(!checkForUpdates());
+									GM.setValue('checkForUpdates', checkForUpdates());
+								}}
+							/>
+						</div>
 					</div>
 				</Show>
 				<Show when={keybindPanelOpen()}>

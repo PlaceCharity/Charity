@@ -38,16 +38,41 @@
 	@apply visible;
 }
 
-.charity-welcome-panel {
+.charity-panel-divider {
+	@apply w-full h-0 m-0;
+	@apply border-t-3 border-t-solid border-t-black;
+}
+
+.charity-welcome-panel,
+.charity-outdated-panel {
 	@apply visible;
-	@apply p-[21px];
+	@apply max-w-[500px];
+	@apply p-0;
 	@apply border-3 border-solid border-black box-content;
-	@apply shadow-[8px_8px_0px_0px_rgba(0,0,0,0.75)];
 	@apply bg-white;
 	@apply flex flex-col;
 	@apply text-black;
-	@apply w-[261px] max-w-[261px];
+	@apply shadow-[8px_8px_0px_0px_rgba(0,0,0,0.75)];
 	@apply cursor-move;
+}
+
+.charity-panel-changelog {
+	@apply p-[21px];
+	@apply flex flex-col justify-center items-center;
+	@apply bg-white;
+	@apply z-50;
+}
+
+.charity-panel-changelog > h3 {
+	@apply text-black text-[20px] leading-[24px] font-sans font-semibold;
+	@apply m-0 p-0;
+	@apply z-10;
+}
+
+.charity-panel-changelog > ul {
+	@apply w-full;
+	@apply m-0 m-t-[10px];
+	@apply text-black text-[18px] leading-[24px] font-sans font-semibold;
 }
 
 .charity-settings-panel {
@@ -101,6 +126,11 @@
 	@apply flex-grow;
 	@apply px-[21px];
 	@apply flex flex-col items-center;
+}
+
+.charity-panel-text {
+	@apply m-0 m-t-10px;
+	@apply text-black text-[14px] leading-[20px] font-sans font-semibold;
 }
 
 .charity-panel-body-setting-header {
@@ -264,6 +294,23 @@
 	@apply border-t-3 border-t-solid border-t-black box-border;
 }
 
+.charity-panel-footer-outdated {
+	@apply flex items-center gap-[3px];
+	@apply bg-black;
+}
+
+.charity-panel-footer-outdated > a,
+.charity-panel-footer-outdated > button {
+	@apply grow;
+	@apply h-[56px];
+	@apply m-0 p-[16px];
+	@apply bg-white hover:bg-white;
+	@apply text-black text-center text-[18px] leading-[24px] font-sans font-semibold no-underline;
+	@apply hover:bg-[linear-gradient(rgba(0,0,0,.2)_0_0)];
+	@apply hover:cursor-pointer;
+	@apply align-bottom;
+}
+
 .charity-panel-footer-branding {
 	@apply flex items-center;
 	@apply border-t-3 border-t-solid border-t-black box-border;
@@ -366,6 +413,6 @@
 }
 
 .charity-contact-panel-subtext {
-	@apply text-gray-500 text-[14px] leading-[24px] font-sans font-semibold whitespace-nowrap;
-	@apply m-0 p-0;
+	@apply text-gray-500 text-center text-[14px] leading-[20px] font-sans font-semibold whitespace-nowrap;
+	@apply m-0 p-0 top-[5px];
 }

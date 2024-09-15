@@ -4,6 +4,7 @@ import * as contact from './ui/contact';
 import * as settings from './ui/settings';
 import * as template from './lib/template';
 import * as utils from './lib/utils';
+import * as outdated from './ui/outdated';
 
 import './meta.js?userscript-metadata';
 
@@ -25,4 +26,5 @@ if (utils.asyncAddStyleSupport()) {
 	await template.init();
 	await settings.init();
 	await contact.init();
+	await outdated.init();
 })();
