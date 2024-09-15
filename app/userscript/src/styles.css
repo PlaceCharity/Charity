@@ -136,7 +136,7 @@
 .charity-panel-body-setting-header {
 	@apply flex justify-between items-center;
 	@apply w-full max-w-[500px];
-	@apply mt-5px p-0 gap-[8px];
+	@apply mt-[5px] p-0 gap-[8px];
 }
 
 .charity-panel-body-setting-header > h2 {
@@ -414,5 +414,5 @@
 
 .charity-contact-panel-subtext {
 	@apply text-gray-500 text-center text-[14px] leading-[20px] font-sans font-semibold whitespace-nowrap;
-	@apply m-0 p-0 top-[5px];
+	@apply m-0 p-0 mt-[5px];
 }
